@@ -12,6 +12,9 @@ constexpr kraken_error_t KRAKEN_OK = 0;
 constexpr kraken_error_t KRAKEN_ERR_INVALID_ARG = 1;
 constexpr kraken_error_t KRAKEN_ERR_INVALID_OP = 2;
 
+KRAKEN_EXPORT const char* kraken_last_error_get();
+KRAKEN_EXPORT void kraken_last_error_clear();
+
 KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_ERROR_H
