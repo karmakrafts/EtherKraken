@@ -7187,7 +7187,7 @@
 	)
 	(rectangle
 		(start 69.85 213.36)
-		(end 125.73 251.46)
+		(end 121.92 251.46)
 		(stroke
 			(width 0)
 			(type default)
@@ -11418,8 +11418,8 @@
 			)
 		)
 	)
-	(global_label "EXT_CTRL1"
-		(shape output)
+	(global_label "CTRL1"
+		(shape bidirectional)
 		(at 106.68 123.19 0)
 		(fields_autoplaced yes)
 		(effects
@@ -11430,7 +11430,7 @@
 		)
 		(uuid "0991ade7-68ba-460b-9455-2d5730931896")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 119.7041 123.19 0)
+			(at 116.5217 123.19 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11778,8 +11778,8 @@
 			)
 		)
 	)
-	(global_label "EXT_INT"
-		(shape input)
+	(global_label "CTRL0"
+		(shape bidirectional)
 		(at 107.95 227.33 0)
 		(fields_autoplaced yes)
 		(effects
@@ -11790,7 +11790,7 @@
 		)
 		(uuid "359066b0-35da-43a1-9500-7a6328bcd1a1")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 118.1318 227.33 0)
+			(at 117.7917 227.33 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11898,8 +11898,8 @@
 			)
 		)
 	)
-	(global_label "EXT_CTRL1"
-		(shape input)
+	(global_label "CTRL1"
+		(shape bidirectional)
 		(at 107.95 229.87 0)
 		(fields_autoplaced yes)
 		(effects
@@ -11910,7 +11910,7 @@
 		)
 		(uuid "4dc3b7a3-16b0-400f-92ea-d3f3ae47e000")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 120.9741 229.87 0)
+			(at 117.7917 229.87 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12018,8 +12018,8 @@
 			)
 		)
 	)
-	(global_label "EXT_IO_RST"
-		(shape input)
+	(global_label "CTRL5"
+		(shape bidirectional)
 		(at 107.95 240.03 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12030,7 +12030,7 @@
 		)
 		(uuid "5cf862f2-8666-4a21-840a-8603702b1aa1")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 121.5789 240.03 0)
+			(at 117.7917 240.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12090,8 +12090,8 @@
 			)
 		)
 	)
-	(global_label "EXT_CTRL0"
-		(shape input)
+	(global_label "CTRL2"
+		(shape bidirectional)
 		(at 107.95 232.41 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12102,7 +12102,7 @@
 		)
 		(uuid "6b507dcc-7021-4795-a6a5-eba04fe58384")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 120.9741 232.41 0)
+			(at 117.7917 232.41 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12186,8 +12186,8 @@
 			)
 		)
 	)
-	(global_label "EXT_OLED_DC"
-		(shape output)
+	(global_label "CTRL4"
+		(shape bidirectional)
 		(at 106.68 115.57 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12198,7 +12198,7 @@
 		)
 		(uuid "7658485d-867e-4ffd-a203-e6cedc1ed20f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 122.2441 115.57 0)
+			(at 116.5217 115.57 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12258,8 +12258,8 @@
 			)
 		)
 	)
-	(global_label "EXT_OLED_RST"
-		(shape input)
+	(global_label "CTRL3"
+		(shape bidirectional)
 		(at 107.95 234.95 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12270,7 +12270,7 @@
 		)
 		(uuid "7d15a289-e4e9-49ea-a2d8-818c5f600184")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 124.4212 234.95 0)
+			(at 117.7917 234.95 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12330,8 +12330,8 @@
 			)
 		)
 	)
-	(global_label "EXT_CTRL0"
-		(shape output)
+	(global_label "CTRL2"
+		(shape bidirectional)
 		(at 106.68 120.65 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12342,7 +12342,7 @@
 		)
 		(uuid "8bea5be2-8af0-46a7-bee4-bc5835f9fdb2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 119.7041 120.65 0)
+			(at 116.5217 120.65 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12474,8 +12474,8 @@
 			)
 		)
 	)
-	(global_label "EXT_OLED_RST"
-		(shape output)
+	(global_label "CTRL3"
+		(shape bidirectional)
 		(at 106.68 118.11 0)
 		(fields_autoplaced yes)
 		(effects
@@ -12486,7 +12486,7 @@
 		)
 		(uuid "9aa20b40-c687-4317-8eab-b7992fb54f34")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 123.1512 118.11 0)
+			(at 116.5217 118.11 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12690,8 +12690,8 @@
 			)
 		)
 	)
-	(global_label "EXT_INT"
-		(shape input)
+	(global_label "CTRL0"
+		(shape bidirectional)
 		(at 40.64 125.73 180)
 		(fields_autoplaced yes)
 		(effects
@@ -12702,7 +12702,7 @@
 		)
 		(uuid "ab1b1811-fc49-422a-8a8d-ff60f1907c72")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 30.4582 125.73 0)
+			(at 30.7983 125.73 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13002,8 +13002,8 @@
 			)
 		)
 	)
-	(global_label "EXT_IO_RST"
-		(shape input)
+	(global_label "CTRL5"
+		(shape bidirectional)
 		(at 106.68 125.73 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13014,7 +13014,7 @@
 		)
 		(uuid "bfa91b75-abc1-4f4c-8f8c-5daead918242")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 120.3089 125.73 0)
+			(at 116.5217 125.73 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -13098,8 +13098,8 @@
 			)
 		)
 	)
-	(global_label "EXT_OLED_DC"
-		(shape input)
+	(global_label "CTRL4"
+		(shape bidirectional)
 		(at 107.95 237.49 0)
 		(fields_autoplaced yes)
 		(effects
@@ -13110,7 +13110,7 @@
 		)
 		(uuid "c6a79d32-2178-4fb5-8a06-881437dfbf9f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 123.5141 237.49 0)
+			(at 117.7917 237.49 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)

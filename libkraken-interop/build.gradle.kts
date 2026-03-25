@@ -16,14 +16,11 @@
 
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
-import dev.karmakrafts.conventions.asAAR
 import dev.karmakrafts.conventions.configureJava
 import dev.karmakrafts.conventions.dokka.configureDokka
 import dev.karmakrafts.conventions.kotlin.defaultCompilerOptions
-import dev.karmakrafts.conventions.kotlin.withLinux
 import dev.karmakrafts.conventions.setProjectInfo
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -42,7 +39,7 @@ configureDokka {
 kotlin {
     defaultCompilerOptions()
     withSourcesJar()
-    withLinux()
+    linuxArm64()
     applyDefaultHierarchyTemplate()
     sourceSets {
         commonTest {

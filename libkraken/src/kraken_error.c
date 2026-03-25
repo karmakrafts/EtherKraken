@@ -1,7 +1,7 @@
 #include "kraken_error.h"
 #include "kraken_error_impl.h"
 
-static const char* _Atomic g_last_error = nullptr;
+static thread_local const char* g_last_error = nullptr;
 
 KRAKEN_EXPORT const char* kraken_last_error_get() {
     return g_last_error;

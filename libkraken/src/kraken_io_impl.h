@@ -1,0 +1,6 @@
+#ifndef LIBKRAKEN_KRAKEN_IO_IMPL_H
+#define LIBKRAKEN_KRAKEN_IO_IMPL_H
+
+#include "kraken_io.h"
+
+#endif//LIBKRAKEN_KRAKEN_IO_IMPL_H

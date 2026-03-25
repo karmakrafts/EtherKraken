@@ -1,16 +1,16 @@
 #ifndef LIBKRAKEN_KRAKEN_ERROR_H
 #define LIBKRAKEN_KRAKEN_ERROR_H
 
-#include "kraken_api.h"
-#include <stdint.h>
+#include "kraken_handles.h"
 
 KRAKEN_API_BEGIN
 
-typedef int32_t kraken_error_t;
-
-constexpr kraken_error_t KRAKEN_OK = 0;
-constexpr kraken_error_t KRAKEN_ERR_INVALID_ARG = 1;
-constexpr kraken_error_t KRAKEN_ERR_INVALID_OP = 2;
+typedef enum kraken_error : int32_t {
+    KRAKEN_OK,
+    KRAKEN_EOF,
+    KRAKEN_ERR_INVALID_ARG,
+    KRAKEN_ERR_INVALID_OP
+} kraken_error_t;
 
 KRAKEN_EXPORT const char* kraken_last_error_get();
 KRAKEN_EXPORT void kraken_last_error_clear();

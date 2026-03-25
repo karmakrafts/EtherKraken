@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-rootProject.name = "filament"
+rootProject.name = "etherkraken"
 
 pluginManagement {
     repositories {

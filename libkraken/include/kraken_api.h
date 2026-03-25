@@ -1,6 +1,9 @@
 #ifndef LIBKRAKEN_KRAKEN_API_H
 #define LIBKRAKEN_KRAKEN_API_H
 
+#include <stdint.h>
+#include <string.h>
+
 #ifdef __cplusplus
 #define KRAKEN_API_BEGIN extern "C" {
 #define KRAKEN_API_END }
@@ -11,4 +14,4 @@
 
 #define KRAKEN_EXPORT __attribute__((visibility("default")))
 
-#endif //LIBKRAKEN_KRAKEN_API_H
+#endif//LIBKRAKEN_KRAKEN_API_H
