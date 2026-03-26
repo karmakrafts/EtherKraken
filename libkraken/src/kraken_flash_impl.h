@@ -18,6 +18,7 @@
 typedef struct kraken_flash {
     const char* path;
     int fd;
+    size_t size;// The size of the flash in bytes
 } kraken_flash_t;
 
 #endif//LIBKRAKEN_KRAKEN_FLASH_IMPL_H

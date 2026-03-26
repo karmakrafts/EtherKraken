@@ -20,9 +20,16 @@
 KRAKEN_API_BEGIN
 
 typedef struct kraken_board_t* kraken_board_handle_t;
+typedef const struct kraken_board_t* kraken_board_c_handle_t;
+
 typedef struct kraken_port_t* kraken_port_handle_t;
+typedef const struct kraken_port_t* kraken_port_c_handle_t;
+
 typedef struct kraken_io_t* kraken_io_handle_t;
+typedef const struct kraken_io_t* kraken_io_c_handle_t;
+
 typedef struct kraken_flash_t* kraken_flash_handle_t;
+typedef const struct kraken_flash_t* kraken_flash_c_handle_t;
 
 KRAKEN_API_END
 

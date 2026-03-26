@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LIBKRAKEN_MCP23017_H
-#define LIBKRAKEN_MCP23017_H
+// Default configuration for EtherKraken V1 Rev. B boards
 
-#include <stdint.h>
+#ifndef LIBKRAKEN_ETHERKRAKEN_V1B_H
+#define LIBKRAKEN_ETHERKRAKEN_V1B_H
 
-typedef enum mcp23017_iocon_bank : uint8_t {
-    MCP23017_IOCON_BANK_0,
-    MCP23017_IOCON_BANK_1
-} mcp23017_iocon_bank_t;
+#include "kraken_config.h"
 
-#endif//LIBKRAKEN_MCP23017_H
+extern const kraken_board_config_t g_config_v1b;
+
+#endif//LIBKRAKEN_ETHERKRAKEN_V1B_H

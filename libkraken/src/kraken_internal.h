@@ -23,4 +23,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+#define KRAKEN_ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+#define KRAKEN_INTERNAL __attribute__((visibility("hidden")))
+
 #endif//LIBKRAKEN_KRAKEN_INTERNAL_H

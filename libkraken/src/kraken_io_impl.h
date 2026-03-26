@@ -15,6 +15,9 @@
 #ifndef LIBKRAKEN_KRAKEN_IO_IMPL_H
 #define LIBKRAKEN_KRAKEN_IO_IMPL_H
 
-#include "kraken_io.h"
+typedef struct kraken_io {
+    char* name;
+    kraken_bool_t state;// In/out state
+} kraken_io_t;
 
 #endif//LIBKRAKEN_KRAKEN_IO_IMPL_H

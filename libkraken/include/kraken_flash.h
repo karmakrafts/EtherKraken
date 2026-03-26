@@ -22,7 +22,7 @@
 KRAKEN_API_BEGIN
 
 KRAKEN_EXPORT kraken_error_t kraken_flash_clear(kraken_flash_handle_t handle);
-KRAKEN_EXPORT kraken_error_t kraken_flash_get_size(kraken_flash_handle_t handle, size_t* size);
+KRAKEN_EXPORT kraken_error_t kraken_flash_get_size(kraken_flash_c_handle_t handle, size_t* size);
 KRAKEN_EXPORT kraken_error_t kraken_flash_read(kraken_flash_handle_t handle, void* buffer, size_t size, size_t offset);
 KRAKEN_EXPORT kraken_error_t kraken_flash_write(kraken_flash_handle_t handle, const void* buffer, size_t size,
                                                 size_t offset);

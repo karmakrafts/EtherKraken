@@ -16,13 +16,14 @@
 #include "kraken_error_impl.h"
 #include "kraken_port_impl.h"
 
-KRAKEN_EXPORT kraken_error_t kraken_port_get_type(kraken_port_handle_t port, kraken_port_type_t* type) {
+KRAKEN_EXPORT kraken_error_t kraken_port_get_type(const kraken_port_c_handle_t port, kraken_port_type_t* type) {
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Port handle is null");
     // TODO: implement this
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_port_get_ios(kraken_port_handle_t port, kraken_io_handle_t* ios, size_t* count) {
+KRAKEN_EXPORT kraken_error_t kraken_port_get_ios(const kraken_port_c_handle_t port, kraken_io_handle_t* ios,
+                                                 size_t* count) {
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Port handle is null");
     // TODO: implement this
     return KRAKEN_OK;
@@ -33,26 +34,26 @@ KRAKEN_EXPORT kraken_error_t kraken_port_update(kraken_port_handle_t port) {
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_port_get_name(kraken_port_handle_t port, char* buffer, size_t* size) {
+KRAKEN_EXPORT kraken_error_t kraken_port_get_name(const kraken_port_c_handle_t port, char* buffer, size_t* size) {
     // TODO: implement this
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_port_type_get_name(kraken_port_type_t type, const char** name) {
+KRAKEN_EXPORT kraken_error_t kraken_port_type_get_name(const kraken_port_type_t type, const char** name) {
     KRAKEN_CHECK_PTR(name, KRAKEN_ERR_INVALID_ARG, "Name pointer is null");
-    switch(type) {// clang-format off
-        case KRAKEN_PORT_EXT:
-            *name = "EXT";
+    switch(type) {
+        case KRAKEN_PORT_TYPE_GPIO: {
+            *name = "GPIO";
             break;
-        case KRAKEN_PORT_IO0:
-            *name = "IO0";
+        }
+        case KRAKEN_PORT_TYPE_MUX: {
+            *name = "MUX";
             break;
-        case KRAKEN_PORT_IO1:
-            *name = "IO2";
-            break;
-        default:
+        }
+        default: {
             *name = "Unknown";
             break;
-    }// clang-format on
+        }
+    }
     return KRAKEN_OK;
 }

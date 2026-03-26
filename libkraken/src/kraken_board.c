@@ -14,58 +14,46 @@
 
 #include "libkraken.h"
 
-#include "bcm2835.h"
+#include "config/etherkraken_v1b.h"
 #include "kraken_board_impl.h"
 #include "kraken_error.h"
 #include "kraken_error_impl.h"
 #include "kraken_internal.h"
 
 #include <linux/i2c-dev.h>
+#include <mtd/mtd-user.h>
 #include <sys/ioctl.h>
 
-// Compile time board configuration, change as needed
-constexpr size_t NUM_GPIO_PORTS = 1;
-constexpr size_t NUM_MUX_PORTS = 2;
-constexpr size_t NUM_PORTS = NUM_GPIO_PORTS + NUM_MUX_PORTS;
-constexpr size_t GPIOMEM_SIZE = 4096;
-constexpr uint8_t MUX_START_ADDRESS = 0x20U;
-
-static const char* g_gpio_device = "/dev/gpiomem";
-static const char* g_flash_device = "/dev/mtd0";
-static const char* g_mux_busses[NUM_MUX_PORTS] = {"/dev/i2c-1", "/dev/i2c-1"};
-
-kraken_port_type_t port_type_from_mux_port_type(kraken_mux_port_type_t type) {
-    switch(type) {
-        case 0: return KRAKEN_PORT_IO0;
-        case 1: return KRAKEN_PORT_IO1;
-        default: kraken_panic("Unknown port type");
-    }
-}
-
-kraken_error_t create_gpio_port(kraken_port_t** port_addr) {
+static kraken_error_t create_gpio_port(kraken_port_t** port_addr, const kraken_gpio_config_t* config) {
     KRAKEN_CHECK_PTR(port_addr, KRAKEN_ERR_INVALID_ARG, "Invalid port address");
+    KRAKEN_CHECK_PTR(config, KRAKEN_ERR_INVALID_ARG, "Config pointer is null");
     kraken_port_t* port = malloc(sizeof(kraken_port_t));
     kraken_gpio_port_t* gpio_port = &port->gpio;
+    gpio_port->type = KRAKEN_PORT_TYPE_GPIO;
 
-    const int fd = open(g_gpio_device, O_RDWR);
+    memcpy(&gpio_port->config, config, sizeof(kraken_gpio_config_t));
+
+    const int fd = open(config->device, O_RDWR);
     KRAKEN_CHECK(fd != -1, KRAKEN_ERR_INVALID_OP, "Could not open IO device at /dev/gpiomem");
     KRAKEN_CHECK_RESULT(flock(fd, LOCK_EX), KRAKEN_ERR_INVALID_OP, "Could not acquire exclusive lock on IO device");
     gpio_port->fd = fd;
 
+    KRAKEN_CHECK(config->registers_size <= config->mapped_size, KRAKEN_ERR_INVALID_ARG,
+                 "Register region must be <= mapped size");
     // We map the entire page but only expose the subregion where the GPIO registers are mapped into
-    void* base_address = mmap(nullptr, GPIOMEM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    void* base_address = mmap(nullptr, config->mapped_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+
     KRAKEN_CHECK_PTR(base_address, KRAKEN_ERR_INVALID_OP, "Could not map GPIO memory");
     gpio_port->registers = base_address;
-    gpio_port->registers_size = sizeof(bcm2835_gpio_t);
+    gpio_port->registers_size = config->registers_size;
 
-    gpio_port->type = KRAKEN_PORT_EXT;
     *port_addr = port;
     return KRAKEN_OK;
 }
 
-kraken_error_t destroy_gpio_port(kraken_port_t* port) {
+static kraken_error_t destroy_gpio_port(kraken_port_t* port) {
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Invalid port address");
-    KRAKEN_CHECK(port->type == KRAKEN_PORT_EXT, KRAKEN_ERR_INVALID_ARG, "Port is not a GPIO port");
+    KRAKEN_CHECK(port->type == KRAKEN_PORT_TYPE_GPIO, KRAKEN_ERR_INVALID_ARG, "Port is not a GPIO port");
     const kraken_gpio_port_t* gpio_port = &port->gpio;
     KRAKEN_CHECK_RESULT(munmap(gpio_port->registers, gpio_port->registers_size), KRAKEN_ERR_INVALID_OP,
                         "Could not unmap GPIO memory");
@@ -76,90 +64,110 @@ kraken_error_t destroy_gpio_port(kraken_port_t* port) {
     return KRAKEN_OK;
 }
 
-kraken_error_t create_mux_port(kraken_port_t** port_addr, kraken_mux_port_type_t type, uint8_t address,
-                               const char* bus_device) {
+static kraken_error_t create_mux_port(kraken_port_t** port_addr, const uint32_t index,
+                                      const kraken_mux_config_t* config) {
     KRAKEN_CHECK_PTR(port_addr, KRAKEN_ERR_INVALID_ARG, "Invalid port address");
-    KRAKEN_CHECK(address >= MUX_START_ADDRESS, KRAKEN_ERR_INVALID_ARG, "Invalid MUX address");
+    KRAKEN_CHECK_PTR(config, KRAKEN_ERR_INVALID_ARG, "Config pointer is null");
 
     kraken_port_t* port = malloc(sizeof(kraken_port_t));
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_OP, "Could not allocate MUX port");
-    KRAKEN_CHECK(type < NUM_MUX_PORTS, KRAKEN_ERR_INVALID_ARG, "Invalid MUX port type");
 
     kraken_mux_port_t* mux_port = &port->mux;
-    mux_port->type = port_type_from_mux_port_type(type);
-    mux_port->index = type;
-    mux_port->address = address;
+    mux_port->type = KRAKEN_PORT_TYPE_MUX;
+    mux_port->index = index;
+    mux_port->address = config->address;
 
-    const int fd = open(bus_device, O_RDWR);
-    KRAKEN_CHECK(fd != -1, KRAKEN_ERR_INVALID_OP, "Could not open MUX device");
-    KRAKEN_CHECK_RESULT(ioctl(fd, I2C_SLAVE, address), KRAKEN_ERR_INVALID_OP, "Could not set MUX slave address");
+    const int fd = open(config->bus, O_RDWR);
+    KRAKEN_CHECK(fd != -1, KRAKEN_ERR_INVALID_OP, "Could not open MUX bus");
+    KRAKEN_CHECK_RESULT(ioctl(fd, I2C_SLAVE, config->address), KRAKEN_ERR_INVALID_OP,
+                        "Could not set MUX slave address");
     mux_port->fd = fd;
 
     *port_addr = port;
     return KRAKEN_OK;
 }
 
-kraken_error_t destroy_mux_port(kraken_port_t* port) {
+static kraken_error_t destroy_mux_port(kraken_port_t* port) {
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Invalid port address");
-    KRAKEN_CHECK(port->type > KRAKEN_PORT_EXT, KRAKEN_ERR_INVALID_ARG, "Port is not a MUX port");
+    KRAKEN_CHECK(port->type > KRAKEN_PORT_TYPE_MUX, KRAKEN_ERR_INVALID_ARG, "Port is not a MUX port");
     const kraken_mux_port_t* mux_port = &port->mux;
     KRAKEN_CHECK_RESULT(close(mux_port->fd), KRAKEN_ERR_INVALID_OP, "Could not close MUX device");
     free(port);
     return KRAKEN_OK;
 }
 
-kraken_error_t create_flash(kraken_flash_t** flash_addr) {
+static kraken_error_t create_flash(kraken_flash_t** flash_addr, const char* device) {
     KRAKEN_CHECK_PTR(flash_addr, KRAKEN_ERR_INVALID_ARG, "Invalid flash address");
 
     kraken_flash_t* flash = malloc(sizeof(kraken_flash_t));
     KRAKEN_CHECK_PTR(flash, KRAKEN_ERR_INVALID_OP, "Could not allocate flash");
-    flash->path = g_flash_device;
+    flash->path = device;
 
-    const int fd = open(g_flash_device, O_RDWR);
+    const int fd = open(device, O_RDWR);
     KRAKEN_CHECK(fd != -1, KRAKEN_ERR_INVALID_OP, "Could not open flash device");
     flash->fd = fd;
+
+    struct mtd_info_user mtd_info = {};
+    KRAKEN_CHECK_RESULT(ioctl(flash->fd, MEMGETINFO, &mtd_info), KRAKEN_ERR_INVALID_OP,
+                        "Could not retrieve MTD device information");
+    flash->size = (size_t) mtd_info.size;
 
     *flash_addr = flash;
     return KRAKEN_OK;
 }
 
-kraken_error_t destroy_flash(kraken_flash_t* flash) {
+static kraken_error_t destroy_flash(kraken_flash_t* flash) {
     KRAKEN_CHECK_RESULT(close(flash->fd), KRAKEN_ERR_INVALID_OP, "Could not close flash device");
     free(flash);
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_board_create(kraken_board_handle_t* handle) {
+KRAKEN_EXPORT kraken_error_t kraken_board_config_init(const kraken_board_type_t type, kraken_board_config_t* config) {
+    switch(type) {
+        case KRAKEN_BOARD_TYPE_1B: {
+            memcpy(config, &g_config_v1b, sizeof(kraken_board_config_t));
+            return KRAKEN_OK;
+        }
+        default: return KRAKEN_ERR_INVALID_ARG;
+    }
+}
+
+KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* config, kraken_board_handle_t* handle) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Board handle pointer is null");
     kraken_board_t* board = malloc(sizeof(kraken_board_t));
     KRAKEN_CHECK_PTR(board, KRAKEN_ERR_INVALID_OP, "Could not allocate board instance");
-    board->num_ports = NUM_PORTS;
 
-    kraken_port_t** ports = malloc(sizeof(kraken_port_t*) * NUM_PORTS);
-    for(size_t i = 0; i < NUM_PORTS; i++) {
+    memcpy(&board->config, config, sizeof(kraken_board_config_t));// Copy config to board instance
+    const size_t num_ports = config->mux_count + 1;
+    board->num_ports = num_ports;
+
+    kraken_port_t** ports = malloc(sizeof(kraken_port_t*) * num_ports);
+    for(size_t i = 0; i < num_ports; i++) {
         ports[i] = nullptr;// Ensure no dangling pointers since this keeps state
     }
     KRAKEN_CHECK_PTR(ports, KRAKEN_ERR_INVALID_OP, "Could not allocate IO ports");
-    for(size_t i = 0; i < NUM_GPIO_PORTS; i++) {
-        create_gpio_port(&ports[i]);
-    }
-    for(size_t i = 0; i < NUM_MUX_PORTS; i++) {// IOn
-        const char* bus_device = g_mux_busses[i];
-        const uint8_t bus_address = MUX_START_ADDRESS + i;
-        kraken_port_t** port = &ports[i + NUM_GPIO_PORTS];
-        create_mux_port(port, i, bus_address, bus_device);
+    const kraken_gpio_config_t* gpio_config = &config->gpio_config;
+    create_gpio_port(&ports[0], gpio_config);
+    for(size_t i = 0; i < config->mux_count; i++) {// IOn
+        const kraken_mux_config_t* mux_config = &config->mux_configs[i];
+        kraken_port_t** port = &ports[i + 1];
+        create_mux_port(port, i, mux_config);
     }
     board->ports = ports;
 
+    // Optionally set up flash device if specified
     kraken_flash_t* flash = nullptr;
-    KRAKEN_CHECK_ERROR(create_flash(&flash), "Could not create flash instance");
+    if(config->flash_device) {
+        KRAKEN_CHECK_ERROR(create_flash(&flash, config->flash_device), "Could not create flash instance");
+    }
     board->flash = flash;
 
     *handle = (kraken_board_handle_t) board;
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_board_get_flash(kraken_board_handle_t handle, kraken_flash_handle_t* flash) {
+KRAKEN_EXPORT kraken_error_t kraken_board_get_flash(const kraken_board_c_handle_t handle,
+                                                    kraken_flash_handle_t* flash) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid board handle");
     KRAKEN_CHECK_PTR(flash, KRAKEN_ERR_INVALID_ARG, "Flash handle pointer is null");
     const kraken_board_t* board = (const kraken_board_t*) handle;
@@ -167,7 +175,7 @@ KRAKEN_EXPORT kraken_error_t kraken_board_get_flash(kraken_board_handle_t handle
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_board_get_ports(kraken_board_handle_t handle, kraken_port_handle_t* ports,
+KRAKEN_EXPORT kraken_error_t kraken_board_get_ports(const kraken_board_c_handle_t handle, kraken_port_handle_t* ports,
                                                     size_t* count) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid board handle");
     const kraken_board_t* board = (kraken_board_t*) handle;
@@ -180,7 +188,8 @@ KRAKEN_EXPORT kraken_error_t kraken_board_get_ports(kraken_board_handle_t handle
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_board_aux_power_get(kraken_board_handle_t handle, kraken_aux_power_state_t* state) {
+KRAKEN_EXPORT kraken_error_t kraken_board_aux_power_get(const kraken_board_c_handle_t handle,
+                                                        kraken_aux_power_state_t* state) {
     // TODO: implement this
     return KRAKEN_OK;
 }
@@ -192,20 +201,20 @@ KRAKEN_EXPORT kraken_error_t kraken_board_aux_power_set(kraken_board_handle_t ha
 
 KRAKEN_EXPORT kraken_error_t kraken_board_destroy(kraken_board_handle_t handle) {
     kraken_board_t* board = (kraken_board_t*) handle;
-    for(size_t i = 0; i < NUM_GPIO_PORTS; i++) {
-        KRAKEN_CHECK_ERROR(destroy_gpio_port(board->ports[i]), "Could not destroy GPIO port");
+    KRAKEN_CHECK_ERROR(destroy_gpio_port(board->ports[0]), "Could not destroy GPIO port");
+    for(size_t i = 0; i < board->config.mux_count; i++) {
+        KRAKEN_CHECK_ERROR(destroy_mux_port(board->ports[i + 1]), "Could not destroy MUX port");
     }
-    for(size_t i = 0; i < NUM_MUX_PORTS; i++) {
-        KRAKEN_CHECK_ERROR(destroy_mux_port(board->ports[i + NUM_GPIO_PORTS]), "Could not destroy MUX port");
+    if(board->flash) {
+        destroy_flash(board->flash);
     }
-    destroy_flash(board->flash);
     free(board->ports);// Free ports array memory
     free(board);
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_board_get_port_for_io(kraken_board_handle_t handle, kraken_io_handle_t io,
-                                                          kraken_port_handle_t* port) {
+KRAKEN_EXPORT kraken_error_t kraken_board_get_port_for_io(const kraken_board_c_handle_t handle,
+                                                          const kraken_io_c_handle_t io, kraken_port_handle_t* port) {
     // TODO: implement this
     return KRAKEN_OK;
 }

@@ -15,28 +15,60 @@
 #ifndef LIBKRAKEN_BCM2835_H
 #define LIBKRAKEN_BCM2835_H
 
-#include <stdint.h>
+#include "kraken_api.h"
 
 ///
 /// See https://pip-assets.raspberrypi.com/categories/579-raspberry-pi-zero/documents/RP-008249-DS-1-bcm2835-peripherals.pdf?disposition=inline
 /// for implementation details.
 ///
 
-typedef uint8_t bcm2835_pud_t;
-constexpr bcm2835_pud_t PUD_OFF = 0b00;
-constexpr bcm2835_pud_t PUD_PULL_DOWN = 0b01;
-constexpr bcm2835_pud_t PUD_PULL_UP = 0b10;
+typedef enum bcm2835_pin : uint32_t {
+    BCM2835_PIN_BCM0,// ID_SD
+    BCM2835_PIN_BCM1,// ID_SC
+    BCM2835_PIN_BCM2,// SDA1
+    BCM2835_PIN_BCM3,// SCL1
+    BCM2835_PIN_BCM4,// GPCLK0
+    BCM2835_PIN_BCM5,
+    BCM2835_PIN_BCM6,
+    BCM2835_PIN_BCM7, // SPI0_CE1
+    BCM2835_PIN_BCM8, // SPI0_CE0
+    BCM2835_PIN_BCM9, // SPI0_MISO
+    BCM2835_PIN_BCM10,// SPI0_MOSI
+    BCM2835_PIN_BCM11,// SPI0_SCLK
+    BCM2835_PIN_BCM12,// PWM0
+    BCM2835_PIN_BCM13,// PWM1
+    BCM2835_PIN_BCM14,// TXD
+    BCM2835_PIN_BCM15,// RXD
+    BCM2835_PIN_BCM16,
+    BCM2835_PIN_BCM17,
+    BCM2835_PIN_BCM18,// PWM0 - TODO this is probably not right?
+    BCM2835_PIN_BCM19,// SPI0_MISO - TODO this is probably not right
+    BCM2835_PIN_BCM20,
+    BCM2835_PIN_BCM21,
+    BCM2835_PIN_BCM22,
+    BCM2835_PIN_BCM23,
+    BCM2835_PIN_BCM24,
+    BCM2835_PIN_BCM25,
+    BCM2835_PIN_BCM26,
+    BCM2835_PIN_BCM27
+} bcm2835_pin_t;
 
-typedef uint8_t bcm2835_fsel_t;
-constexpr bcm2835_fsel_t FSEL_IN = 0b000;
-constexpr bcm2835_fsel_t FSEL_OUT = 0b001;
-// Alternative GPIO configurations are mostly unused due to EXT port being hardwired
-constexpr bcm2835_fsel_t FSEL_ALT0 = 0b100;
-constexpr bcm2835_fsel_t FSEL_ALT1 = 0b101;
-constexpr bcm2835_fsel_t FSEL_ALT2 = 0b110;
-constexpr bcm2835_fsel_t FSEL_ALT3 = 0b111;
-constexpr bcm2835_fsel_t FSEL_ALT4 = 0b011;
-constexpr bcm2835_fsel_t FSEL_ALT5 = 0b010;
+typedef enum bcm2835_pud : uint8_t {
+    BCM2825_PUD_OFF = 0b00,
+    BCM2825_PUD_PULL_DOWN = 0b01,
+    BCM2825_PUD_PULL_UP = 0b10
+} bcm2835_pud_t;
+
+typedef enum bcm2835_fsel : uint8_t {
+    BCM2825_FSEL_IN = 0b000,
+    BCM2825_FSEL_OUT = 0b001,
+    BCM2825_FSEL_ALT0 = 0b100,
+    BCM2825_FSEL_ALT1 = 0b101,
+    BCM2825_FSEL_ALT2 = 0b110,
+    BCM2825_FSEL_ALT3 = 0b111,
+    BCM2825_FSEL_ALT4 = 0b011,
+    BCM2825_FSEL_ALT5 = 0b010
+} bcm2835_fsel_t;
 
 typedef struct _bcm2835_gppud_t {//NOLINT
     bcm2835_pud_t pud : 2;
@@ -44,38 +76,38 @@ typedef struct _bcm2835_gppud_t {//NOLINT
 } bcm2835_gppud_t;
 
 typedef struct _bcm2835_gppinreg_t {//NOLINT
-    bool pin0 : 1;
-    bool pin1 : 1;
-    bool pin2 : 1;
-    bool pin3 : 1;
-    bool pin4 : 1;
-    bool pin5 : 1;
-    bool pin6 : 1;
-    bool pin7 : 1;
-    bool pin8 : 1;
-    bool pin9 : 1;
-    bool pin10 : 1;
-    bool pin11 : 1;
-    bool pin12 : 1;
-    bool pin13 : 1;
-    bool pin14 : 1;
-    bool pin15 : 1;
-    bool pin16 : 1;
-    bool pin17 : 1;
-    bool pin18 : 1;
-    bool pin19 : 1;
-    bool pin20 : 1;
-    bool pin21 : 1;
-    bool pin22 : 1;
-    bool pin23 : 1;
-    bool pin24 : 1;
-    bool pin25 : 1;
-    bool pin26 : 1;
-    bool pin27 : 1;
-    bool pin28 : 1;
-    bool pin29 : 1;
-    bool pin30 : 1;
-    bool pin31 : 1;
+    kraken_bool_t pin0 : 1;
+    kraken_bool_t pin1 : 1;
+    kraken_bool_t pin2 : 1;
+    kraken_bool_t pin3 : 1;
+    kraken_bool_t pin4 : 1;
+    kraken_bool_t pin5 : 1;
+    kraken_bool_t pin6 : 1;
+    kraken_bool_t pin7 : 1;
+    kraken_bool_t pin8 : 1;
+    kraken_bool_t pin9 : 1;
+    kraken_bool_t pin10 : 1;
+    kraken_bool_t pin11 : 1;
+    kraken_bool_t pin12 : 1;
+    kraken_bool_t pin13 : 1;
+    kraken_bool_t pin14 : 1;
+    kraken_bool_t pin15 : 1;
+    kraken_bool_t pin16 : 1;
+    kraken_bool_t pin17 : 1;
+    kraken_bool_t pin18 : 1;
+    kraken_bool_t pin19 : 1;
+    kraken_bool_t pin20 : 1;
+    kraken_bool_t pin21 : 1;
+    kraken_bool_t pin22 : 1;
+    kraken_bool_t pin23 : 1;
+    kraken_bool_t pin24 : 1;
+    kraken_bool_t pin25 : 1;
+    kraken_bool_t pin26 : 1;
+    kraken_bool_t pin27 : 1;
+    kraken_bool_t pin28 : 1;
+    kraken_bool_t pin29 : 1;
+    kraken_bool_t pin30 : 1;
+    kraken_bool_t pin31 : 1;
 } bcm2835_gppinreg_t;
 
 typedef struct _bcm2835_gpfsel_t {// NOLINT
