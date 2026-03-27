@@ -16,9 +16,29 @@
 #include "kraken_error_impl.h"
 #include "kraken_internal.h"
 
+#include <sys/stat.h>
+
+static kraken_error_t check_compatibility(const kraken_gpio_config_t* config) {
+    char* dte_path = nullptr;
+    KRAKEN_CHECK(asprintf(&dte_path, "%s/compatible", config->device_tree_entry) > 0, KRAKEN_ERR_INVALID_OP,
+                 "Could not determine GPIO DTE path");
+    const int dte_fd = open(dte_path, O_RDONLY);
+    free(dte_path);
+    struct stat stat = {};
+    fstat(dte_fd, &stat);
+    char dte_buffer[stat.st_size + 1];
+    dte_buffer[stat.st_size] = '\0';
+    KRAKEN_CHECK(read(dte_fd, dte_buffer, stat.st_size) == stat.st_size, KRAKEN_ERR_INVALID_OP,
+                 "Could not read GPIO DTE property");
+    close(dte_fd);
+    return KRAKEN_OK;
+}
+
 kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kraken_gpio_config_t* config) {
     KRAKEN_CHECK_PTR(port_addr, KRAKEN_ERR_INVALID_ARG, "Invalid port address");
     KRAKEN_CHECK_PTR(config, KRAKEN_ERR_INVALID_ARG, "Config pointer is null");
+    KRAKEN_CHECK_ERROR(check_compatibility(config), "GPIO hardware is incompatible");
+
     kraken_gpio_port_t* port = malloc(sizeof(kraken_gpio_port_t));
     port->type = KRAKEN_PORT_TYPE_GPIO;
 
