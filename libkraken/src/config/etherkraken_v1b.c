@@ -95,10 +95,6 @@ static void v1b_gpio_state_init(void* base_address, void* shadow_memory,
     gpio->gpclr1.value = output_mask[1];
 }
 
-static void v1b_gpio_state_set(void* base_address, const kraken_bool_t state, const kraken_pin_config_t* pin) {
-    bcm2835_gpio_t* gpio = base_address;
-}
-
 static kraken_bool_t v1b_i2c_mux_state_get(int fd, const kraken_pin_config_t* pin) {
     // TODO: implement I2C dance for getting state
     return KRAKEN_FALSE;
