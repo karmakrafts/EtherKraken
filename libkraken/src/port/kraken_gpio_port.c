@@ -25,7 +25,7 @@ static kraken_error_t check_compatibility(const kraken_gpio_config_t* config) {
     const int dte_fd = open(dte_path, O_RDONLY);
     free(dte_path);
     struct stat stat = {};
-    fstat(dte_fd, &stat);
+    KRAKEN_CHECK_RESULT(fstat(dte_fd, &stat), KRAKEN_ERR_INVALID_OP, "Could not determine size of DTE property");
     char dte_buffer[stat.st_size + 1];
     dte_buffer[stat.st_size] = '\0';
     KRAKEN_CHECK(read(dte_fd, dte_buffer, stat.st_size) == stat.st_size, KRAKEN_ERR_INVALID_OP,
