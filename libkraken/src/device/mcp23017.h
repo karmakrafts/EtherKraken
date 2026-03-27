@@ -122,4 +122,11 @@ typedef struct mcp23017_iocon_flags {
     mcp23017_iocon_bank_t bank : 1;
 } mcp23017_iocon_flags_t;
 
+typedef struct mcp23017_iocon {
+    union {
+        mcp23017_iocon_flags_t flags;
+        uint8_t value;
+    };
+} mcp23017_iocon_t;
+
 #endif//LIBKRAKEN_MCP23017_H
