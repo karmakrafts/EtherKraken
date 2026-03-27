@@ -20,6 +20,8 @@
 #include "kraken_flash_impl.h"
 #include "kraken_internal.h"
 #include "port/kraken_gpio_port.h"
+#include "port/kraken_i2c_mux_port.h"
+#include "port/kraken_spi_mux_port.h"
 
 #include <sys/ioctl.h>
 
@@ -60,7 +62,7 @@ KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* co
                 break;
             }
             case KRAKEN_MUX_TYPE_SPI: {
-                // TODO: implement this
+                kraken_spi_mux_port_create((kraken_spi_mux_port_t**) port, &mux_config->spi);
                 break;
             }
         }
@@ -112,12 +114,26 @@ KRAKEN_EXPORT kraken_error_t kraken_board_aux_power_set(kraken_board_handle_t ha
 }
 
 KRAKEN_EXPORT kraken_error_t kraken_board_destroy(kraken_board_handle_t handle) {
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_OP, "Invalid board handle");
     kraken_board_t* board = (kraken_board_t*) handle;
     KRAKEN_CHECK_ERROR(kraken_gpio_port_destroy((kraken_gpio_port_t*) board->ports[0]), "Could not destroy GPIO port");
-    // TODO: re-implement this
-    //for(size_t i = 0; i < board->config.mux_count; i++) {
-    //    KRAKEN_CHECK_ERROR(destroy_mux_port(board->ports[i + 1]), "Could not destroy MUX port");
-    //}
+    for(size_t i = 0; i < board->num_ports; i++) {
+        kraken_port_t* port = board->ports[i];
+        switch(port->type) {
+            case KRAKEN_PORT_TYPE_GPIO: {
+                KRAKEN_CHECK_ERROR(kraken_gpio_port_destroy(&port->gpio), "Could not destroy GPIO port");
+                break;
+            }
+            case KRAKEN_PORT_TYPE_I2C_MUX: {
+                KRAKEN_CHECK_ERROR(kraken_i2c_mux_port_destroy(&port->i2c_mux), "Could not destroy I2C MUX port");
+                break;
+            }
+            case KRAKEN_PORT_TYPE_SPI_MUX: {
+                KRAKEN_CHECK_ERROR(kraken_spi_mux_port_destroy(&port->spi_mux), "Could not destroy SPI MUX port");
+                break;
+            }
+        }
+    }
     if(board->flash) {
         kraken_flash_destroy(board->flash);
     }
@@ -128,6 +144,22 @@ KRAKEN_EXPORT kraken_error_t kraken_board_destroy(kraken_board_handle_t handle) 
 
 KRAKEN_EXPORT kraken_error_t kraken_board_get_port_for_io(const kraken_board_c_handle_t handle,
                                                           const kraken_io_c_handle_t io, kraken_port_handle_t* port) {
-    // TODO: implement this
-    return KRAKEN_OK;
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid board handle");
+    KRAKEN_CHECK_PTR(io, KRAKEN_ERR_INVALID_ARG, "Invalid IO handle");
+    KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Port pointer is null");
+    const kraken_io_t* io_impl = (const kraken_io_t*) io;
+    const kraken_board_t* board = (const kraken_board_t*) handle;
+    for(size_t port_index = 0; port_index < board->num_ports; port_index++) {
+        const kraken_port_t* current_port = board->ports[port_index];
+        for(size_t io_index = 0; io_index < current_port->num_ios; io_index++) {
+            const kraken_io_t* current_io = current_port->ios[io_index];
+            if(current_io != io_impl) {
+                continue;
+            }
+            *port = (kraken_port_handle_t) current_port;
+            return KRAKEN_OK;
+        }
+    }
+    kraken_last_error_set("No known port associated with the given IO");
+    return KRAKEN_ERR_INVALID_ARG;
 }

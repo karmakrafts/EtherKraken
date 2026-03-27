@@ -84,13 +84,20 @@ static void v1b_gpio_state_init(void* base_address, void* shadow_memory,
     gpio->gpclr1.value = output_mask[1];
 }
 
-static kraken_bool_t v1b_i2c_mux_state_get(int fd, const kraken_pin_config_t* pin) {
-    // TODO: implement I2C dance for getting state
-    return KRAKEN_FALSE;
+static void v1b_i2c_mux_state_update(int fd, const kraken_io_c_handle_t* ios, const size_t io_count) {
+    // TODO: imeplement this
 }
 
-static void v1b_i2c_mux_state_set(int fd, const kraken_bool_t state, const kraken_pin_config_t* pin) {
-    // TODO: implement I2C dance for setting state
+static void v1b_i2c_mux_state_init(int fd, const kraken_io_c_handle_t* ios, const size_t io_count) {
+    // TODO: imeplement this
+}
+
+static void v1b_spi_mux_state_update(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios, const size_t io_count) {
+    // TODO: imeplement this
+}
+
+static void v1b_spi_mux_state_init(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios, const size_t io_count) {
+    // TODO: imeplement this
 }
 
 static const kraken_pin_config_t g_v1b_mux_pins[] = {
@@ -123,8 +130,8 @@ static const kraken_mux_config_t g_v1b_mux_configs[] = {
             .address = 0x20,
             .pins = g_v1b_mux_pins,
             .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_pins),
-            .pfn_state_get = &v1b_i2c_mux_state_get,
-            .pfn_state_set = &v1b_i2c_mux_state_set
+            .pfn_state_update = &v1b_i2c_mux_state_update,
+            .pfn_state_init = &v1b_i2c_mux_state_init
         }
     },
     { // IO1
@@ -134,8 +141,8 @@ static const kraken_mux_config_t g_v1b_mux_configs[] = {
             .address = 0x21,
             .pins = g_v1b_mux_pins,
             .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_pins),
-            .pfn_state_get = &v1b_i2c_mux_state_get,
-            .pfn_state_set = &v1b_i2c_mux_state_set
+            .pfn_state_update = &v1b_i2c_mux_state_update,
+            .pfn_state_init = &v1b_i2c_mux_state_init
         }
     }
 };

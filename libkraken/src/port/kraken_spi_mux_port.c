@@ -12,23 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LIBKRAKEN_KRAKEN_I2C_MUX_PORT_H
-#define LIBKRAKEN_KRAKEN_I2C_MUX_PORT_H
+#include "kraken_spi_mux_port.h"
 
-#include "kraken_config.h"
-#include "kraken_io_impl.h"
-#include "kraken_port.h"
+kraken_error_t kraken_spi_mux_port_create(kraken_spi_mux_port_t** port_addr, const kraken_spi_mux_config_t* config) {
+    return KRAKEN_OK;
+}
 
-typedef struct kraken_i2c_mux_port {
-    kraken_port_type_t type;
-    kraken_io_t** ios;
-    size_t num_ios;
-    int fd;
-    kraken_i2c_mux_config_t config;
-} kraken_i2c_mux_port_t;
-
-kraken_error_t kraken_i2c_mux_port_create(kraken_i2c_mux_port_t** port_addr, const kraken_i2c_mux_config_t* config);
-
-kraken_error_t kraken_i2c_mux_port_destroy(kraken_i2c_mux_port_t* port);
-
-#endif//LIBKRAKEN_KRAKEN_I2C_MUX_PORT_H
+kraken_error_t kraken_spi_mux_port_destroy(kraken_spi_mux_port_t* port) {
+    return KRAKEN_OK;
+}

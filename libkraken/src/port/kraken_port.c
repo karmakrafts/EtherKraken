@@ -29,10 +29,10 @@ KRAKEN_EXPORT kraken_error_t kraken_port_get_ios(const kraken_port_c_handle_t ha
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Port handle is null");
     const kraken_port_t* port = (const kraken_port_t*) handle;
     if(ios) {
-        memcpy(ios, port->ios, sizeof(kraken_io_t*) * port->io_count);
+        memcpy(ios, port->ios, sizeof(kraken_io_t*) * port->num_ios);
     }
     if(count) {
-        *count = port->io_count;
+        *count = port->num_ios;
     }
     return KRAKEN_OK;
 }
@@ -48,7 +48,7 @@ KRAKEN_EXPORT kraken_error_t kraken_port_update(kraken_port_handle_t handle) {
                 gpio_port->registers,
                 gpio_port->shadow_memory,
                 (const kraken_io_c_handle_t*)gpio_port->ios,
-                gpio_port->io_count);
+                gpio_port->num_ios);
             // clang-format on
             break;
         }
