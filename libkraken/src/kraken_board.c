@@ -48,13 +48,23 @@ KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* co
     }
     KRAKEN_CHECK_PTR(ports, KRAKEN_ERR_INVALID_OP, "Could not allocate IO ports");
     const kraken_gpio_config_t* gpio_config = &config->gpio_config;
+    // Port 0 is always SoC GPIO
     kraken_gpio_port_create((kraken_gpio_port_t**) &ports[0], gpio_config);
-    // TODO: re-implement this
-    //for(size_t i = 0; i < config->mux_count; i++) {// IOn
-    //    const kraken_mux_config_t* mux_config = &config->mux_configs[i];
-    //    kraken_port_t** port = &ports[i + 1];
-    //    create_mux_port(port, i, mux_config);
-    //}
+    // Create any auxillary MUX ports attached via I2C or SPI
+    for(size_t i = 0; i < config->mux_count; i++) {// IOn
+        const kraken_mux_config_t* mux_config = &config->mux_configs[i];
+        kraken_port_t** port = &ports[i + 1];
+        switch(mux_config->type) {
+            case KRAKEN_MUX_TYPE_I2C: {
+                kraken_i2c_mux_port_create((kraken_i2c_mux_port_t**) port, i, &mux_config->i2c);
+                break;
+            }
+            case KRAKEN_MUX_TYPE_SPI: {
+                // TODO: implement this
+                break;
+            }
+        }
+    }
     board->ports = ports;
 
     // Optionally set up flash device if specified
