@@ -21,16 +21,13 @@
 
 typedef struct kraken_i2c_mux_port {
     kraken_port_type_t type;
-    kraken_io_t* ios;
+    kraken_io_t** ios;
     size_t io_count;
     int fd;
     kraken_i2c_mux_config_t config;
-    uint32_t index;
-    kraken_i2c_address_t address;
 } kraken_i2c_mux_port_t;
 
-kraken_error_t kraken_i2c_mux_port_create(kraken_i2c_mux_port_t** port_addr, uint32_t index,
-                                          const kraken_i2c_mux_config_t* config);
+kraken_error_t kraken_i2c_mux_port_create(kraken_i2c_mux_port_t** port_addr, const kraken_i2c_mux_config_t* config);
 
 kraken_error_t kraken_i2c_mux_port_destroy(kraken_i2c_mux_port_t* port);
 

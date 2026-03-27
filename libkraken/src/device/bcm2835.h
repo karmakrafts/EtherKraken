@@ -76,52 +76,62 @@ typedef struct _bcm2835_gppud_t {//NOLINT
 } bcm2835_gppud_t;
 
 typedef struct _bcm2835_gppinreg_t {//NOLINT
-    kraken_bool_t pin0 : 1;
-    kraken_bool_t pin1 : 1;
-    kraken_bool_t pin2 : 1;
-    kraken_bool_t pin3 : 1;
-    kraken_bool_t pin4 : 1;
-    kraken_bool_t pin5 : 1;
-    kraken_bool_t pin6 : 1;
-    kraken_bool_t pin7 : 1;
-    kraken_bool_t pin8 : 1;
-    kraken_bool_t pin9 : 1;
-    kraken_bool_t pin10 : 1;
-    kraken_bool_t pin11 : 1;
-    kraken_bool_t pin12 : 1;
-    kraken_bool_t pin13 : 1;
-    kraken_bool_t pin14 : 1;
-    kraken_bool_t pin15 : 1;
-    kraken_bool_t pin16 : 1;
-    kraken_bool_t pin17 : 1;
-    kraken_bool_t pin18 : 1;
-    kraken_bool_t pin19 : 1;
-    kraken_bool_t pin20 : 1;
-    kraken_bool_t pin21 : 1;
-    kraken_bool_t pin22 : 1;
-    kraken_bool_t pin23 : 1;
-    kraken_bool_t pin24 : 1;
-    kraken_bool_t pin25 : 1;
-    kraken_bool_t pin26 : 1;
-    kraken_bool_t pin27 : 1;
-    kraken_bool_t pin28 : 1;
-    kraken_bool_t pin29 : 1;
-    kraken_bool_t pin30 : 1;
-    kraken_bool_t pin31 : 1;
+    union {
+        struct {
+            kraken_bool_t pin0 : 1;
+            kraken_bool_t pin1 : 1;
+            kraken_bool_t pin2 : 1;
+            kraken_bool_t pin3 : 1;
+            kraken_bool_t pin4 : 1;
+            kraken_bool_t pin5 : 1;
+            kraken_bool_t pin6 : 1;
+            kraken_bool_t pin7 : 1;
+            kraken_bool_t pin8 : 1;
+            kraken_bool_t pin9 : 1;
+            kraken_bool_t pin10 : 1;
+            kraken_bool_t pin11 : 1;
+            kraken_bool_t pin12 : 1;
+            kraken_bool_t pin13 : 1;
+            kraken_bool_t pin14 : 1;
+            kraken_bool_t pin15 : 1;
+            kraken_bool_t pin16 : 1;
+            kraken_bool_t pin17 : 1;
+            kraken_bool_t pin18 : 1;
+            kraken_bool_t pin19 : 1;
+            kraken_bool_t pin20 : 1;
+            kraken_bool_t pin21 : 1;
+            kraken_bool_t pin22 : 1;
+            kraken_bool_t pin23 : 1;
+            kraken_bool_t pin24 : 1;
+            kraken_bool_t pin25 : 1;
+            kraken_bool_t pin26 : 1;
+            kraken_bool_t pin27 : 1;
+            kraken_bool_t pin28 : 1;
+            kraken_bool_t pin29 : 1;
+            kraken_bool_t pin30 : 1;
+            kraken_bool_t pin31 : 1;
+        };
+        uint32_t value;
+    };
 } bcm2835_gppinreg_t;
 
 typedef struct _bcm2835_gpfsel_t {// NOLINT
-    bcm2835_fsel_t fsel0 : 3;
-    bcm2835_fsel_t fsel1 : 3;
-    bcm2835_fsel_t fsel2 : 3;
-    bcm2835_fsel_t fsel3 : 3;
-    bcm2835_fsel_t fsel4 : 3;
-    bcm2835_fsel_t fsel5 : 3;
-    bcm2835_fsel_t fsel6 : 3;
-    bcm2835_fsel_t fsel7 : 3;
-    bcm2835_fsel_t fsel8 : 3;
-    bcm2835_fsel_t fsel9 : 3;
-    uint8_t _reserved : 2;
+    union {
+        struct {
+            bcm2835_fsel_t fsel0 : 3;
+            bcm2835_fsel_t fsel1 : 3;
+            bcm2835_fsel_t fsel2 : 3;
+            bcm2835_fsel_t fsel3 : 3;
+            bcm2835_fsel_t fsel4 : 3;
+            bcm2835_fsel_t fsel5 : 3;
+            bcm2835_fsel_t fsel6 : 3;
+            bcm2835_fsel_t fsel7 : 3;
+            bcm2835_fsel_t fsel8 : 3;
+            bcm2835_fsel_t fsel9 : 3;
+            uint8_t _reserved : 2;
+        };
+        uint32_t value;
+    };
 } bcm2835_gpfsel_t;
 
 typedef struct _bcm2835_gpio_t {// NOLINT

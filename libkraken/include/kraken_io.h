@@ -29,8 +29,8 @@ KRAKEN_EXPORT kraken_error_t kraken_io_get_supported_modes(kraken_io_c_handle_t 
                                                            size_t* count);
 KRAKEN_EXPORT kraken_error_t kraken_io_get_mode(kraken_io_c_handle_t io, kraken_io_mode_t* mode);
 KRAKEN_EXPORT kraken_error_t kraken_io_set_mode(kraken_io_handle_t io, kraken_io_mode_t mode);
-KRAKEN_EXPORT kraken_error_t kraken_io_get(kraken_io_c_handle_t io, uint8_t* state);
-KRAKEN_EXPORT kraken_error_t kraken_io_set(kraken_io_handle_t io, uint8_t state);
+KRAKEN_EXPORT kraken_error_t kraken_io_get(kraken_io_c_handle_t io, kraken_bool_t* state);
+KRAKEN_EXPORT kraken_error_t kraken_io_set(kraken_io_handle_t io, kraken_bool_t state);
 KRAKEN_EXPORT kraken_error_t kraken_io_get_name(kraken_io_c_handle_t io, char* buffer, size_t* size);
 KRAKEN_EXPORT kraken_error_t kraken_io_get_pin_number(kraken_io_c_handle_t io, uint32_t* pin_number);
 

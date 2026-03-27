@@ -28,13 +28,39 @@ KRAKEN_EXPORT kraken_error_t kraken_port_get_ios(const kraken_port_c_handle_t ha
                                                  size_t* count) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Port handle is null");
     const kraken_port_t* port = (const kraken_port_t*) handle;
-    if(ios) {}
-    if(count) {}
+    if(ios) {
+        memcpy(ios, port->ios, sizeof(kraken_io_t*) * port->io_count);
+    }
+    if(count) {
+        *count = port->io_count;
+    }
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_port_update(kraken_port_handle_t port) {
-    // TODO: implement this
+KRAKEN_EXPORT kraken_error_t kraken_port_update(kraken_port_handle_t handle) {
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Port handle is null");
+    kraken_port_t* port = (kraken_port_t*) handle;
+    switch(port->type) {
+        case KRAKEN_PORT_TYPE_GPIO: {
+            kraken_gpio_port_t* gpio_port = (kraken_gpio_port_t*) port;
+            // clang-format off
+            gpio_port->config.pfn_state_update(
+                gpio_port->registers,
+                gpio_port->shadow_memory,
+                (const kraken_io_c_handle_t*)gpio_port->ios,
+                gpio_port->io_count);
+            // clang-format on
+            break;
+        }
+        case KRAKEN_PORT_TYPE_I2C_MUX: {
+            // TODO: implement this
+            break;
+        }
+        case KRAKEN_PORT_TYPE_SPI_MUX: {
+            // TODO: implement this
+            break;
+        }
+    }
     return KRAKEN_OK;
 }
 

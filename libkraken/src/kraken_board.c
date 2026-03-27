@@ -56,7 +56,7 @@ KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* co
         kraken_port_t** port = &ports[i + 1];
         switch(mux_config->type) {
             case KRAKEN_MUX_TYPE_I2C: {
-                kraken_i2c_mux_port_create((kraken_i2c_mux_port_t**) port, i, &mux_config->i2c);
+                kraken_i2c_mux_port_create((kraken_i2c_mux_port_t**) port, &mux_config->i2c);
                 break;
             }
             case KRAKEN_MUX_TYPE_SPI: {

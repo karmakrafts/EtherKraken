@@ -15,24 +15,96 @@
 #include "etherkraken_v1b.h"
 #include "device/bcm2835.h"
 #include "kraken_internal.h"
+#include "kraken_io.h"
+#include "kraken_io_impl.h"
+
+constexpr uint32_t GPIO_REGISTER_SIZE = 32;
+constexpr uint32_t GPIO_FSEL_BANK_SIZE = 10;
 
 // clang-format off
 
-static kraken_bool_t v1b_gpio_state_get(const void* base_address) {
-    const bcm2835_gpio_t* gpio = base_address;
-    return KRAKEN_FALSE;
+static void v1b_gpio_state_update(void* base_address, void* shadow_memory,
+                                             const kraken_io_c_handle_t* ios, size_t io_count) {
+    volatile bcm2835_gpio_t* gpio = base_address;
+    // Capture input state at the start of the update
+    const uint32_t input_state_mask[] = {
+        gpio->gplev0.value,
+        gpio->gplev1.value
+    };
+
+    bcm2835_gpio_t* shadow_gpio = shadow_memory;
+    // Compose the output state masks for the current io state
+    uint32_t output_state_mask[2];
+    for(size_t io_index = 0; io_index < io_count; io_index++) {
+        kraken_io_t* io = (kraken_io_t*)ios[io_index];
+        const uint32_t bcm_pin = io->pin_config.device_pin;
+        const uint32_t bank = bcm_pin / GPIO_REGISTER_SIZE;
+        const uint32_t bit = bcm_pin % GPIO_REGISTER_SIZE;
+        if(io->pin_config.device_pin != bcm_pin) {
+            continue;
+        }
+        switch(io->mode) {
+            case KRAKEN_IO_MODE_IN: {
+                io->state = (kraken_bool_t)(input_state_mask[bank] & 0b1 << bit);
+                break;
+            }
+            case KRAKEN_IO_MODE_OUT: {
+                output_state_mask[bank] |= ((uint8_t)io->state & 0b1) << bit;
+                break;
+            }
+        }
+        break;
+    }
+    // Calculate the toggle mask using the shadow state
+    const uint32_t toggle0 = shadow_gpio->gplev0.value ^ output_state_mask[0];
+    const uint32_t toggle1 = shadow_gpio->gplev1.value ^ output_state_mask[1];
+    // Update the IO banks; first set bits, then clear bits
+    gpio->gpset0.value = toggle0 & ~shadow_gpio->gplev0.value;
+    gpio->gpclr0.value = ~toggle0 & shadow_gpio->gplev0.value;
+    gpio->gpset1.value = toggle1 & ~shadow_gpio->gplev1.value;
+    gpio->gpclr1.value = ~toggle1 & shadow_gpio->gplev1.value;
+    // Update level shadow state by copying state mask into contiguous registers
+    memcpy(&shadow_gpio->gplev0, output_state_mask, (GPIO_REGISTER_SIZE >> 3) << 1);
 }
 
-static void v1b_gpio_state_set(void* base_address, const kraken_bool_t state) {
+static void v1b_gpio_state_init(void* base_address, void* shadow_memory,
+                                             const kraken_io_c_handle_t* ios, size_t io_count) {
+    volatile bcm2835_gpio_t* gpio = base_address;
+    memset(shadow_memory, 0x00, sizeof(bcm2835_gpio_t));
+    // Build function selection mask for all IOs
+    uint32_t fsel_mask[2];
+    uint32_t output_mask[2];
+    for(size_t i = 0; i < io_count; i++) {
+        const kraken_io_t* io = (const kraken_io_t*)ios[i];
+        const uint32_t bcm_pin = io->pin_config.device_pin;
+        const uint32_t fsel_bank = bcm_pin / GPIO_FSEL_BANK_SIZE;
+        const uint32_t fsel_bit = bcm_pin % GPIO_FSEL_BANK_SIZE * 3;
+        fsel_mask[fsel_bank] |= (io->mode & 0b111) << fsel_bit;
+        if(io->mode != KRAKEN_IO_MODE_OUT) {
+            continue;
+        }
+        const uint32_t output_bank = bcm_pin / GPIO_REGISTER_SIZE;
+        const uint32_t output_bit = bcm_pin % GPIO_REGISTER_SIZE;
+        output_mask[output_bank] |= 0b1 << output_bit;
+    }
+    // Update IO functions
+    gpio->gpfsel0.value = fsel_mask[0];
+    gpio->gpfsel1.value = fsel_mask[1];
+    // Clear all outputs to their default state
+    gpio->gpclr0.value = output_mask[0];
+    gpio->gpclr1.value = output_mask[1];
+}
+
+static void v1b_gpio_state_set(void* base_address, const kraken_bool_t state, const kraken_pin_config_t* pin) {
     bcm2835_gpio_t* gpio = base_address;
 }
 
-static kraken_bool_t v1b_mux_state_get(int fd) {
+static kraken_bool_t v1b_i2c_mux_state_get(int fd, const kraken_pin_config_t* pin) {
     // TODO: implement I2C dance for getting state
     return KRAKEN_FALSE;
 }
 
-static void v1b_mux_state_set(int fd, const kraken_bool_t state) {
+static void v1b_i2c_mux_state_set(int fd, const kraken_bool_t state, const kraken_pin_config_t* pin) {
     // TODO: implement I2C dance for setting state
 }
 
@@ -66,8 +138,8 @@ static const kraken_mux_config_t g_v1b_mux_configs[] = {
             .address = 0x20,
             .pins = g_v1b_mux_pins,
             .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_pins),
-            .pfn_state_get = &v1b_mux_state_get,
-            .pfn_state_set = &v1b_mux_state_set
+            .pfn_state_get = &v1b_i2c_mux_state_get,
+            .pfn_state_set = &v1b_i2c_mux_state_set
         }
     },
     { // IO1
@@ -77,8 +149,8 @@ static const kraken_mux_config_t g_v1b_mux_configs[] = {
             .address = 0x21,
             .pins = g_v1b_mux_pins,
             .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_pins),
-            .pfn_state_get = &v1b_mux_state_get,
-            .pfn_state_set = &v1b_mux_state_set
+            .pfn_state_get = &v1b_i2c_mux_state_get,
+            .pfn_state_set = &v1b_i2c_mux_state_set
         }
     }
 };
@@ -120,8 +192,8 @@ const kraken_board_config_t g_config_v1b = {
         .registers_size = sizeof(bcm2835_gpio_t),
         .pins = g_v1b_gpio_pins,
         .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_gpio_pins),
-        .pfn_state_get = &v1b_gpio_state_get,
-        .pfn_state_set = &v1b_gpio_state_set
+        .pfn_state_update = &v1b_gpio_state_update,
+        .pfn_state_init = &v1b_gpio_state_init
     },
     .mux_configs = g_v1b_mux_configs,
     .mux_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_configs),

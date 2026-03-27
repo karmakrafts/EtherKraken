@@ -20,17 +20,16 @@
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
 
-kraken_error_t kraken_i2c_mux_port_create(kraken_i2c_mux_port_t** port_addr, uint32_t index,
-                                          const kraken_i2c_mux_config_t* config) {
+kraken_error_t kraken_i2c_mux_port_create(kraken_i2c_mux_port_t** port_addr, const kraken_i2c_mux_config_t* config) {
     KRAKEN_CHECK_PTR(port_addr, KRAKEN_ERR_INVALID_ARG, "Invalid port address");
     KRAKEN_CHECK_PTR(config, KRAKEN_ERR_INVALID_ARG, "Config pointer is null");
 
     kraken_i2c_mux_port_t* port = malloc(sizeof(kraken_i2c_mux_port_t));
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_OP, "Could not allocate MUX port");
 
+    memcpy(&port->config, config, sizeof(kraken_i2c_mux_config_t));
+
     port->type = KRAKEN_PORT_TYPE_I2C_MUX;
-    port->index = index;
-    port->address = config->address;
 
     const int fd = open(config->bus, O_RDWR);
     KRAKEN_CHECK(fd != -1, KRAKEN_ERR_INVALID_OP, "Could not open MUX bus");

@@ -21,12 +21,12 @@
 
 typedef struct kraken_gpio_port {
     kraken_port_type_t type;
-    kraken_io_t* ios;
+    kraken_io_t** ios;
     size_t io_count;
     int fd;
     kraken_gpio_config_t config;
     void* registers;
-    size_t registers_size;
+    void* shadow_memory;
 } kraken_gpio_port_t;
 
 kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kraken_gpio_config_t* config);

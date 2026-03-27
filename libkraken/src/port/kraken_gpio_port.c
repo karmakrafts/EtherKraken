@@ -49,14 +49,17 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
     KRAKEN_CHECK_RESULT(flock(fd, LOCK_EX), KRAKEN_ERR_INVALID_OP, "Could not acquire exclusive lock on IO device");
     port->fd = fd;
 
+    // We map the entire page but only expose the subregion where the GPIO registers are mapped into
     KRAKEN_CHECK(config->registers_size <= config->mapped_size, KRAKEN_ERR_INVALID_ARG,
                  "Register region must be <= mapped size");
-    // We map the entire page but only expose the subregion where the GPIO registers are mapped into
     void* base_address = mmap(nullptr, config->mapped_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-
     KRAKEN_CHECK_PTR(base_address, KRAKEN_ERR_INVALID_OP, "Could not map GPIO memory");
     port->registers = base_address;
-    port->registers_size = config->registers_size;
+
+    // Create shadow memory with the same size as the registers
+    void* shadow_memory = malloc(config->registers_size);
+    KRAKEN_CHECK_PTR(shadow_memory, KRAKEN_ERR_INVALID_OP, "Could not allocate GPIO shadow memory");
+    port->shadow_memory = shadow_memory;
 
     *port_addr = port;
     return KRAKEN_OK;
@@ -65,11 +68,12 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
 kraken_error_t kraken_gpio_port_destroy(kraken_gpio_port_t* port) {
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Invalid port address");
     KRAKEN_CHECK(port->type == KRAKEN_PORT_TYPE_GPIO, KRAKEN_ERR_INVALID_ARG, "Port is not a GPIO port");
-    KRAKEN_CHECK_RESULT(munmap(port->registers, port->registers_size), KRAKEN_ERR_INVALID_OP,
+    KRAKEN_CHECK_RESULT(munmap(port->registers, port->config.registers_size), KRAKEN_ERR_INVALID_OP,
                         "Could not unmap GPIO memory");
     KRAKEN_CHECK_RESULT(flock(port->fd, LOCK_UN), KRAKEN_ERR_INVALID_OP,
                         "Could not release exclusive lock on IO device");
     KRAKEN_CHECK_RESULT(close(port->fd), KRAKEN_ERR_INVALID_OP, "Could not close IO device");
+    free(port->shadow_memory);
     free(port);
     return KRAKEN_OK;
 }

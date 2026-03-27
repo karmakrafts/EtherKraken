@@ -22,7 +22,11 @@
 
 typedef struct kraken_port {
     union {
-        kraken_port_type_t type;
+        struct {
+            kraken_port_type_t type;
+            kraken_io_t** ios;
+            size_t io_count;
+        };
         kraken_gpio_port_t gpio;
         kraken_i2c_mux_port_t i2c_mux;
         kraken_spi_mux_port_t spi_mux;
