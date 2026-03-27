@@ -57,22 +57,29 @@ static const kraken_pin_config_t g_v1b_mux_pins[] = {
     { .device_pin = 8, .port_pin = 18 }
 };
 
+// TODO: change to SPI muxes for on-board IOs when PCB is adjusted
 static const kraken_mux_config_t g_v1b_mux_configs[] = {
     { // IO0
-        .bus = "/dev/i2c-1",
-        .address = 0x20,
-        .pins = g_v1b_mux_pins,
-        .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_pins),
-        .pfn_state_get = &v1b_mux_state_get,
-        .pfn_state_set = &v1b_mux_state_set
+        .i2c = {
+            .type = KRAKEN_MUX_TYPE_I2C,
+            .bus = "/dev/i2c-1",
+            .address = 0x20,
+            .pins = g_v1b_mux_pins,
+            .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_pins),
+            .pfn_state_get = &v1b_mux_state_get,
+            .pfn_state_set = &v1b_mux_state_set
+        }
     },
     { // IO1
-        .bus = "/dev/i2c-1",
-        .address = 0x21,
-        .pins = g_v1b_mux_pins,
-        .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_pins),
-        .pfn_state_get = &v1b_mux_state_get,
-        .pfn_state_set = &v1b_mux_state_set
+        .i2c = {
+            .type = KRAKEN_MUX_TYPE_I2C,
+            .bus = "/dev/i2c-1",
+            .address = 0x21,
+            .pins = g_v1b_mux_pins,
+            .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_pins),
+            .pfn_state_get = &v1b_mux_state_get,
+            .pfn_state_set = &v1b_mux_state_set
+        }
     }
 };
 
@@ -106,6 +113,8 @@ static const kraken_pin_config_t g_v1b_gpio_pins[] = {
 
 const kraken_board_config_t g_config_v1b = {
     .gpio_config = {
+        .device_tree_entry = "/proc/device-tree/soc/gpiomem",
+        .device_type = "bcm2835",
         .device = "/dev/gpiomem",
         .mapped_size = 4096,
         .registers_size = sizeof(bcm2835_gpio_t),

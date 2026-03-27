@@ -16,13 +16,15 @@
 #define LIBKRAKEN_KRAKEN_IO_PORT_H
 
 #include "kraken_handles.h"
+#include "kraken_error.h"
 
 KRAKEN_API_BEGIN
 
 // Port types correspond to physical ports on the board
 typedef enum kraken_port_type : uint8_t {
     KRAKEN_PORT_TYPE_GPIO,
-    KRAKEN_PORT_TYPE_MUX
+    KRAKEN_PORT_TYPE_I2C_MUX,
+    KRAKEN_PORT_TYPE_SPI_MUX
 } kraken_port_type_t;
 
 /// Retrieves the type of the given port.

@@ -21,6 +21,32 @@
 #include <mtd/mtd-user.h>
 #include <sys/ioctl.h>
 
+kraken_error_t kraken_flash_create(kraken_flash_t** flash_addr, const char* device) {
+    KRAKEN_CHECK_PTR(flash_addr, KRAKEN_ERR_INVALID_ARG, "Invalid flash address");
+
+    kraken_flash_t* flash = malloc(sizeof(kraken_flash_t));
+    KRAKEN_CHECK_PTR(flash, KRAKEN_ERR_INVALID_OP, "Could not allocate flash");
+    flash->path = device;
+
+    const int fd = open(device, O_RDWR);
+    KRAKEN_CHECK(fd != -1, KRAKEN_ERR_INVALID_OP, "Could not open flash device");
+    flash->fd = fd;
+
+    struct mtd_info_user mtd_info = {};
+    KRAKEN_CHECK_RESULT(ioctl(flash->fd, MEMGETINFO, &mtd_info), KRAKEN_ERR_INVALID_OP,
+                        "Could not retrieve MTD device information");
+    flash->size = (size_t) mtd_info.size;
+
+    *flash_addr = flash;
+    return KRAKEN_OK;
+}
+
+kraken_error_t kraken_flash_destroy(kraken_flash_t* flash) {
+    KRAKEN_CHECK_RESULT(close(flash->fd), KRAKEN_ERR_INVALID_OP, "Could not close flash device");
+    free(flash);
+    return KRAKEN_OK;
+}
+
 KRAKEN_EXPORT kraken_error_t kraken_flash_clear(kraken_flash_handle_t handle) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid flash handle");
     const kraken_flash_t* flash = (const kraken_flash_t*) handle;

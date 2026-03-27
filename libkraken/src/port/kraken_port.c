@@ -46,8 +46,12 @@ KRAKEN_EXPORT kraken_error_t kraken_port_type_get_name(const kraken_port_type_t 
             *name = "GPIO";
             break;
         }
-        case KRAKEN_PORT_TYPE_MUX: {
-            *name = "MUX";
+        case KRAKEN_PORT_TYPE_I2C_MUX: {
+            *name = "I2C MUX";
+            break;
+        }
+        case KRAKEN_PORT_TYPE_SPI_MUX: {
+            *name = "SPI MUX";
             break;
         }
         default: {

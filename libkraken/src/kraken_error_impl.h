@@ -20,6 +20,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "kraken_error.h"
+
 void kraken_last_error_set(const char* error);
 
 #ifdef KRAKEN_DEBUG

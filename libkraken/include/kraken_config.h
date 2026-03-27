@@ -20,14 +20,16 @@
 KRAKEN_API_BEGIN
 
 typedef struct kraken_pin_config {
-    uint32_t device_pin;
-    uint32_t port_pin;
+    uint32_t device_pin; // Pin on the actual IC
+    uint32_t port_pin;   // Pin on the port header on the board
 } kraken_pin_config_t;
 
 typedef kraken_bool_t (*pfn_kraken_gpio_state_get)(const void* base_address);
 typedef void (*pfn_kraken_gpio_state_set)(void* base_address, kraken_bool_t state);
 
 typedef struct kraken_gpio_config {
+    const char* device_tree_entry;
+    const char* device_type; // bcm2835 etc. used for compatibility checking
     const char* device;
     size_t registers_size;
     size_t mapped_size;
@@ -37,16 +39,41 @@ typedef struct kraken_gpio_config {
     pfn_kraken_gpio_state_set pfn_state_set;
 } kraken_gpio_config_t;
 
-typedef kraken_bool_t (*pfn_kraken_mux_state_get)(int fd);
-typedef void (*pfn_kraken_mux_state_set)(int fd, kraken_bool_t state);
+typedef enum kraken_mux_type : uint8_t {
+    KRAKEN_MUX_TYPE_I2C,
+    KRAKEN_MUX_TYPE_SPI
+} kraken_mux_type_t;
 
-typedef struct kraken_mux_config {
-    const char* bus;
-    kraken_mux_address_t address;
+typedef kraken_bool_t (*pfn_kraken_i2c_mux_state_get)(int fd);
+typedef void (*pfn_kraken_i2c_mux_state_set)(int fd, kraken_bool_t state);
+
+typedef struct kraken_i2c_mux_config {
+    kraken_mux_type_t type;
     const kraken_pin_config_t* pins;
     size_t pin_count;
-    pfn_kraken_mux_state_get pfn_state_get;
-    pfn_kraken_mux_state_set pfn_state_set;
+    pfn_kraken_i2c_mux_state_get pfn_state_get;
+    pfn_kraken_i2c_mux_state_set pfn_state_set;
+    const char* bus;
+    kraken_i2c_address_t address;
+} kraken_i2c_mux_config_t;
+
+typedef kraken_bool_t (*pfn_kraken_spi_mux_state_get)(const void* base_address);
+typedef void (*pfn_kraken_spi_mux_state_set)(void* base_address, kraken_bool_t state);
+
+typedef struct kraken_spi_mux_config {
+    kraken_mux_type_t type;
+    const kraken_pin_config_t* pins;
+    size_t pin_count;
+    pfn_kraken_spi_mux_state_get pfn_state_get;
+    pfn_kraken_spi_mux_state_set pfn_state_set;
+} kraken_spi_mux_config_t;
+
+typedef struct kraken_mux_config {
+    union {
+        kraken_mux_type_t type;
+        kraken_i2c_mux_config_t i2c;
+        kraken_spi_mux_config_t spi;
+    };
 } kraken_mux_config_t;
 
 typedef struct kraken_board_config {

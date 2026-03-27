@@ -12,17 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LIBKRAKEN_KRAKEN_BOARD_IMPL_H
-#define LIBKRAKEN_KRAKEN_BOARD_IMPL_H
+#ifndef LIBKRAKEN_KRAKEN_GPIO_PORT_H
+#define LIBKRAKEN_KRAKEN_GPIO_PORT_H
 
-#include "kraken_flash_impl.h"
-#include "port/kraken_port_impl.h"
+#include "kraken_config.h"
+#include "kraken_port.h"
 
-typedef struct _kraken_board_t {//NOLINT
-    kraken_board_config_t config;
-    kraken_port_t** ports;
-    size_t num_ports;
-    kraken_flash_t* flash;
-} kraken_board_t;
+typedef struct kraken_gpio_port {
+    kraken_port_type_t type;
+    int fd;
+    kraken_gpio_config_t config;
+    void* registers;
+    size_t registers_size;
+} kraken_gpio_port_t;
 
-#endif//LIBKRAKEN_KRAKEN_BOARD_IMPL_H
+kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kraken_gpio_config_t* config);
+
+kraken_error_t kraken_gpio_port_destroy(kraken_gpio_port_t* port);
+
+#endif//LIBKRAKEN_KRAKEN_GPIO_PORT_H

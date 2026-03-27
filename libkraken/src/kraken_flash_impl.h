@@ -21,4 +21,8 @@ typedef struct kraken_flash {
     size_t size;// The size of the flash in bytes
 } kraken_flash_t;
 
+kraken_error_t kraken_flash_create(kraken_flash_t** flash_addr, const char* device);
+
+kraken_error_t kraken_flash_destroy(kraken_flash_t* flash);
+
 #endif//LIBKRAKEN_KRAKEN_FLASH_IMPL_H
