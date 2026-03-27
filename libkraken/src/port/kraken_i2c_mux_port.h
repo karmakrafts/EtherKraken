@@ -16,10 +16,13 @@
 #define LIBKRAKEN_KRAKEN_I2C_MUX_PORT_H
 
 #include "kraken_config.h"
+#include "kraken_io_impl.h"
 #include "kraken_port.h"
 
 typedef struct kraken_i2c_mux_port {
     kraken_port_type_t type;
+    kraken_io_t* ios;
+    size_t io_count;
     int fd;
     kraken_i2c_mux_config_t config;
     uint32_t index;

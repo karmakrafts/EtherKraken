@@ -16,16 +16,20 @@
 #include "kraken_error_impl.h"
 #include "kraken_port_impl.h"
 
-KRAKEN_EXPORT kraken_error_t kraken_port_get_type(const kraken_port_c_handle_t port, kraken_port_type_t* type) {
-    KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Port handle is null");
-    // TODO: implement this
+KRAKEN_EXPORT kraken_error_t kraken_port_get_type(const kraken_port_c_handle_t handle, kraken_port_type_t* type) {
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Port handle is null");
+    KRAKEN_CHECK_PTR(type, KRAKEN_ERR_INVALID_ARG, "Type pointer is null");
+    const kraken_port_t* port = (const kraken_port_t*) handle;
+    *type = port->type;
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_port_get_ios(const kraken_port_c_handle_t port, kraken_io_handle_t* ios,
+KRAKEN_EXPORT kraken_error_t kraken_port_get_ios(const kraken_port_c_handle_t handle, kraken_io_handle_t* ios,
                                                  size_t* count) {
-    KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Port handle is null");
-    // TODO: implement this
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Port handle is null");
+    const kraken_port_t* port = (const kraken_port_t*) handle;
+    if(ios) {}
+    if(count) {}
     return KRAKEN_OK;
 }
 

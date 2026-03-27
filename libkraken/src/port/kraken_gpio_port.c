@@ -45,7 +45,7 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
     memcpy(&port->config, config, sizeof(kraken_gpio_config_t));
 
     const int fd = open(config->device, O_RDWR);
-    KRAKEN_CHECK(fd != -1, KRAKEN_ERR_INVALID_OP, "Could not open IO device at /dev/gpiomem");
+    KRAKEN_CHECK(fd != -1, KRAKEN_ERR_INVALID_OP, "Could not open GPIO device memory");
     KRAKEN_CHECK_RESULT(flock(fd, LOCK_EX), KRAKEN_ERR_INVALID_OP, "Could not acquire exclusive lock on IO device");
     port->fd = fd;
 

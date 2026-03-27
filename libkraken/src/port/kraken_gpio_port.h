@@ -16,10 +16,13 @@
 #define LIBKRAKEN_KRAKEN_GPIO_PORT_H
 
 #include "kraken_config.h"
+#include "kraken_io_impl.h"
 #include "kraken_port.h"
 
 typedef struct kraken_gpio_port {
     kraken_port_type_t type;
+    kraken_io_t* ios;
+    size_t io_count;
     int fd;
     kraken_gpio_config_t config;
     void* registers;

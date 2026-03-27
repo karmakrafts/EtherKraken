@@ -20,6 +20,8 @@
 
 typedef struct kraken_spi_mux_port {
     kraken_port_type_t type;
+    kraken_io_t* ios;
+    size_t io_count;
     int fd;
     kraken_spi_mux_config_t config;
 } kraken_spi_mux_port_t;
