@@ -19,6 +19,7 @@
 #include "kraken_config.h"
 #include "kraken_error.h"
 #include "kraken_handles.h"
+#include "kraken_port.h"
 
 KRAKEN_API_BEGIN
 
@@ -79,6 +80,9 @@ KRAKEN_EXPORT kraken_error_t kraken_board_destroy(kraken_board_handle_t handle);
 
 KRAKEN_EXPORT kraken_error_t kraken_board_get_port_for_io(kraken_board_c_handle_t handle, kraken_io_c_handle_t io,
                                                           kraken_port_handle_t* port);
+
+KRAKEN_EXPORT kraken_error_t kraken_board_get_ports_for_type(kraken_board_c_handle_t handle, kraken_port_type_t type,
+                                                             kraken_port_handle_t* ports, size_t* count);
 
 KRAKEN_API_END
 

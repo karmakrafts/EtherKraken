@@ -95,7 +95,6 @@ const kraken_board_config_t g_config_v1b = {
         .device_tree_entry = "/proc/device-tree/soc/gpiomem",
         .device_type = "bcm2835",
         .device = "/dev/gpiomem",
-        .mapped_size = 4096,
         .registers_size = sizeof(bcm2835_gpio_t),
         .pins = g_v1b_gpio_pins,
         .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_gpio_pins),
@@ -105,7 +104,7 @@ const kraken_board_config_t g_config_v1b = {
     .mux_configs = g_v1b_mux_configs,
     .mux_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_configs),
     .flash_device = "/dev/mtd0",
-    .aux_pwr_en_pin = BCM2835_PIN_BCM27 // Pin 13 on daughterboard header
+    .aux_power_pin = BCM2835_PIN_BCM27 // Pin 13 on daughterboard header
 };
 
 // clang-format on

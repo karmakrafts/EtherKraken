@@ -37,7 +37,6 @@ typedef struct kraken_gpio_config {
     const char* device_type;        // bcm2835 etc. used for compatibility checking
     const char* device;             // /dev/..
     size_t registers_size;          // Actual size of the register region in bytes
-    size_t mapped_size;             // Size of the mapped GPIO region in bytes, usually rounded to pages
     const kraken_pin_config_t* pins;// A pointer to all pin configurations for the GPIO device
     size_t pin_count;               // The number of pins as specified by the pointer above
     pfn_kraken_gpio_state_update pfn_state_update;
@@ -94,7 +93,7 @@ typedef struct kraken_board_config {
     const kraken_mux_config_t* mux_configs;
     size_t mux_count;
     const char* flash_device;
-    uint32_t aux_pwr_en_pin;// BCM associated pin number
+    uint32_t aux_power_pin;// BCM associated pin number
 } kraken_board_config_t;
 
 KRAKEN_API_END

@@ -26,6 +26,8 @@ typedef struct kraken_spi_mux_port {
     int fd;
     kraken_spi_mux_config_t config;
     void* registers;
+    size_t mapped_registers_size;
+    void* shadow_memory;
 } kraken_spi_mux_port_t;
 
 kraken_error_t kraken_spi_mux_port_create(kraken_spi_mux_port_t** port_addr, const kraken_spi_mux_config_t* config);

@@ -29,10 +29,12 @@ kraken_error_t mcp23017_i2c_mux_state_update(int fd, void* shadow_memory, const 
 kraken_error_t mcp23017_i2c_mux_state_init(const int fd, void*, const kraken_io_c_handle_t* ios,
                                            const size_t io_count) {
     // Update IOCON register to ensure banking is disabled and SEQOP bit is set
+    // clang-format off
     const mcp23017_iocon_t iocon = {
-            .flags.bank = MCP23017_IOCON_BANK_0,
-            .flags.seqop = MCP23017_SEQOP_STATE_ENABLED// Ensure register auto-increment works
+        .flags.bank = MCP23017_IOCON_BANK_0,
+        .flags.seqop = MCP23017_SEQOP_STATE_ENABLED// Ensure register auto-increment works
     };
+    // clang-format on
     const uint8_t iocon_data[] = {MCP23017_REGISTER_IOCON, iocon.value};
     KRAKEN_CHECK(write(fd, iocon_data, sizeof(iocon_data)) > 0, KRAKEN_ERR_INVALID_OP,
                  "Could not update MUX IOCON register");
@@ -60,8 +62,16 @@ kraken_error_t mcp23017_spi_mux_state_update(void* base_address, void* shadow_me
     return KRAKEN_OK;
 }
 
-kraken_error_t mcp23017_spi_mux_state_init(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+kraken_error_t mcp23017_spi_mux_state_init(void* base_address, void*, const kraken_io_c_handle_t* ios,
                                            size_t io_count) {
     volatile mcp23017_t* registers = base_address;
+    // Update IOCON register to ensure banking is disabled and SEQOP bit is cleared
+    // clang-format off
+    const mcp23017_iocon_t iocon = {
+        .flags.bank = MCP23017_IOCON_BANK_0,
+        .flags.seqop = MCP23017_SEQOP_STATE_DISABLED
+    };
+    // clang-format on
+    registers->iocona.value = iocon.value;
     return KRAKEN_OK;
 }

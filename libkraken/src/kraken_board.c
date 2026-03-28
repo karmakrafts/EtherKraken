@@ -104,7 +104,7 @@ KRAKEN_EXPORT kraken_error_t kraken_board_get_ports(const kraken_board_c_handle_
 
 KRAKEN_EXPORT kraken_error_t kraken_board_aux_power_get(const kraken_board_c_handle_t handle,
                                                         kraken_aux_power_state_t* state) {
-    // TODO: implement this
+    const kraken_board_t* board = (const kraken_board_t*) handle;
     return KRAKEN_OK;
 }
 
@@ -162,4 +162,50 @@ KRAKEN_EXPORT kraken_error_t kraken_board_get_port_for_io(const kraken_board_c_h
     }
     kraken_last_error_set("No known port associated with the given IO");
     return KRAKEN_ERR_INVALID_ARG;
+}
+
+KRAKEN_EXPORT kraken_error_t kraken_board_get_ports_for_type(const kraken_board_c_handle_t handle,
+                                                             kraken_port_type_t type, kraken_port_handle_t* ports,
+                                                             size_t* count) {
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid board handle");
+    const kraken_board_t* board = (const kraken_board_t*) handle;
+    if(ports) {
+        size_t matching_count = 0;
+        if(count) {// Custom buffer bounds specified
+            const size_t max_count = *count;
+            for(size_t i = 0; i < board->num_ports; i++) {
+                if(matching_count == max_count) {
+                    break;
+                }
+                const kraken_port_t* current_port = board->ports[i];
+                if(current_port->type != type) {
+                    continue;
+                }
+                ports[matching_count++] = (kraken_port_handle_t) current_port;
+            }
+        }
+        else {
+            // We copy all ports with the given type
+            for(size_t i = 0; i < board->num_ports; i++) {
+                const kraken_port_t* current_port = board->ports[i];
+                if(current_port->type != type) {
+                    continue;
+                }
+                ports[matching_count++] = (kraken_port_handle_t) current_port;
+            }
+        }
+        return KRAKEN_OK;
+    }
+    if(count) {
+        size_t matching_count = 0;
+        for(size_t i = 0; i < board->num_ports; i++) {
+            const kraken_port_t* current_port = board->ports[i];
+            if(current_port->type != type) {
+                continue;
+            }
+            matching_count++;
+        }
+        *count = matching_count;
+    }
+    return KRAKEN_OK;
 }

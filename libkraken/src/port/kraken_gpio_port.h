@@ -26,6 +26,7 @@ typedef struct kraken_gpio_port {
     int fd;
     kraken_gpio_config_t config;
     void* registers;
+    size_t mapped_registers_size;
     void* shadow_memory;
 } kraken_gpio_port_t;
 

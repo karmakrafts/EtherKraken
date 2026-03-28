@@ -31,7 +31,8 @@ static kraken_error_t check_compatibility(const kraken_gpio_config_t* config) {
     KRAKEN_CHECK(read(dte_fd, dte_buffer, stat.st_size) == stat.st_size, KRAKEN_ERR_INVALID_OP,
                  "Could not read GPIO DTE property");
     close(dte_fd);
-    return KRAKEN_OK;
+    // Check if device type is a substring of the DTE data to determine if hardware is supported
+    return strstr(dte_buffer, config->device_type) != nullptr ? KRAKEN_OK : KRAKEN_ERR_INVALID_OP;
 }
 
 kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kraken_gpio_config_t* config) {
@@ -49,12 +50,15 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
     KRAKEN_CHECK_RESULT(flock(fd, LOCK_EX), KRAKEN_ERR_INVALID_OP, "Could not acquire exclusive lock on IO device");
     port->fd = fd;
 
-    // We map the entire page but only expose the subregion where the GPIO registers are mapped into
-    KRAKEN_CHECK(config->registers_size <= config->mapped_size, KRAKEN_ERR_INVALID_ARG,
-                 "Register region must be <= mapped size");
-    void* base_address = mmap(nullptr, config->mapped_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    // Map the GPIO registers accordingly and round mapped size up to next page boundary
+    const size_t page_size = sysconf(_SC_PAGESIZE);
+    const size_t registers_size = config->registers_size;
+    const size_t align_mask = page_size - 1;
+    const size_t mapped_size = registers_size + align_mask & ~align_mask;
+    void* base_address = mmap(nullptr, mapped_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     KRAKEN_CHECK_PTR(base_address, KRAKEN_ERR_INVALID_OP, "Could not map GPIO memory");
     port->registers = base_address;
+    port->mapped_registers_size = mapped_size;
 
     // Create shadow memory with the same size as the registers
     void* shadow_memory = calloc(1, config->registers_size);
@@ -68,7 +72,7 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
 kraken_error_t kraken_gpio_port_destroy(kraken_gpio_port_t* port) {
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Invalid port address");
     KRAKEN_CHECK(port->type == KRAKEN_PORT_TYPE_GPIO, KRAKEN_ERR_INVALID_ARG, "Port is not a GPIO port");
-    KRAKEN_CHECK_RESULT(munmap(port->registers, port->config.registers_size), KRAKEN_ERR_INVALID_OP,
+    KRAKEN_CHECK_RESULT(munmap(port->registers, port->mapped_registers_size), KRAKEN_ERR_INVALID_OP,
                         "Could not unmap GPIO memory");
     KRAKEN_CHECK_RESULT(flock(port->fd, LOCK_UN), KRAKEN_ERR_INVALID_OP,
                         "Could not release exclusive lock on IO device");
