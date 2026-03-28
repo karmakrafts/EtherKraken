@@ -39,7 +39,7 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
     KRAKEN_CHECK_PTR(config, KRAKEN_ERR_INVALID_ARG, "Config pointer is null");
     KRAKEN_CHECK_ERROR(check_compatibility(config), "GPIO hardware is incompatible");
 
-    kraken_gpio_port_t* port = malloc(sizeof(kraken_gpio_port_t));
+    kraken_gpio_port_t* port = kraken_alloc(kraken_gpio_port_t);
     port->type = KRAKEN_PORT_TYPE_GPIO;
 
     memcpy(&port->config, config, sizeof(kraken_gpio_config_t));
@@ -57,7 +57,7 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
     port->registers = base_address;
 
     // Create shadow memory with the same size as the registers
-    void* shadow_memory = malloc(config->registers_size);
+    void* shadow_memory = calloc(1, config->registers_size);
     KRAKEN_CHECK_PTR(shadow_memory, KRAKEN_ERR_INVALID_OP, "Could not allocate GPIO shadow memory");
     port->shadow_memory = shadow_memory;
 

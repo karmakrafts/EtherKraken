@@ -15,7 +15,13 @@
 #ifndef LIBKRAKEN_MCP23017_H
 #define LIBKRAKEN_MCP23017_H
 
+/**
+ * @see https://ww1.microchip.com/downloads/en/devicedoc/20001952c.pdf
+ */
+
 #include "kraken_api.h"
+#include "kraken_error.h"
+#include "kraken_handles.h"
 
 #define MCP23017_DEFINE_FLAG_STATE(s, S, Z, O)                                                                         \
     typedef enum mcp23017_##s##_state : uint8_t {MCP23017_##S##_STATE_##Z,                                             \
@@ -128,5 +134,42 @@ typedef struct mcp23017_iocon {
         uint8_t value;
     };
 } mcp23017_iocon_t;
+
+typedef struct mcp23017 {
+    mcp23017_iodir_t iordira;
+    mcp23017_iodir_t iordirb;
+    mcp23017_ipol_t ipola;
+    mcp23017_ipol_t ipolb;
+    mcp23017_gpinten_t gpintena;
+    mcp23017_gpinten_t gpintenb;
+    mcp23017_defval_t defvala;
+    mcp23017_defval_t defvalb;
+    mcp23017_intcon_t intcona;
+    mcp23017_intcon_t intconb;
+    mcp23017_iocon_t iocona;
+    mcp23017_iocon_t ioconb;// same as iocona
+    mcp23017_gppu_t gppua;
+    mcp23017_gppu_t gppub;
+    mcp23017_intf_t intfa;
+    mcp23017_intf_t intfb;
+    mcp23017_intcap_t intcapa;
+    mcp23017_intcap_t intcapb;
+    mcp23017_gpio_t gpioa;
+    mcp23017_gpio_t gpiob;
+    mcp23017_olat_t olata;
+    mcp23017_olat_t olatb;
+} mcp23017_t;
+
+kraken_error_t mcp23017_i2c_mux_state_update(int fd, void* shadow_memory, const kraken_io_c_handle_t* ios,
+                                             size_t io_count);
+
+kraken_error_t mcp23017_i2c_mux_state_init(int fd, void* shadow_memory, const kraken_io_c_handle_t* ios,
+                                           size_t io_count);
+
+kraken_error_t mcp23017_spi_mux_state_update(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+                                             size_t io_count);
+
+kraken_error_t mcp23017_spi_mux_state_init(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+                                           size_t io_count);
 
 #endif//LIBKRAKEN_MCP23017_H

@@ -23,8 +23,20 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+#include "kraken_error_impl.h"
+
 #define KRAKEN_ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define KRAKEN_INTERNAL __attribute__((visibility("hidden")))
+
+#define kraken_alloc(t) calloc(1, sizeof(t))
+#define kraken_alloc_array(t, s) calloc(s, sizeof(t))
+
+#define kraken_assert(x)                                                                                               \
+    do {                                                                                                               \
+        if(!(x)) {                                                                                                     \
+            kraken_panic("Assertion failed for expression %s", #x);                                                    \
+        }                                                                                                              \
+    } while(0)
 
 static uint64_t get_system_counter_freq() {
     volatile uint64_t freq = 0;

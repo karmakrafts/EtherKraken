@@ -24,6 +24,7 @@ typedef struct kraken_i2c_mux_port {
     kraken_io_t** ios;
     size_t num_ios;
     int fd;
+    void* shadow_memory;
     kraken_i2c_mux_config_t config;
 } kraken_i2c_mux_port_t;
 

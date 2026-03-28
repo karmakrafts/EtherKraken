@@ -17,6 +17,7 @@
 
 #include "kraken_api.h"
 #include "kraken_handles.h"
+#include "kraken_error.h"
 
 KRAKEN_API_BEGIN
 
@@ -25,10 +26,10 @@ typedef struct kraken_pin_config {
     uint32_t port_pin;  // Pin on the port header on the board
 } kraken_pin_config_t;
 
-typedef void (*pfn_kraken_gpio_state_update)(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+typedef kraken_error_t (*pfn_kraken_gpio_state_update)(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
                                              size_t io_count);
 
-typedef void (*pfn_kraken_gpio_state_init)(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+typedef kraken_error_t (*pfn_kraken_gpio_state_init)(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
                                            size_t io_count);
 
 typedef struct kraken_gpio_config {
@@ -48,9 +49,11 @@ typedef enum kraken_mux_type : uint8_t {
     KRAKEN_MUX_TYPE_SPI
 } kraken_mux_type_t;
 
-typedef void (*pfn_kraken_i2c_mux_state_update)(int fd, const kraken_io_c_handle_t* ios, size_t io_count);
+typedef kraken_error_t (*pfn_kraken_i2c_mux_state_update)(int fd, void* shadow_memory, const kraken_io_c_handle_t* ios,
+                                                size_t io_count);
 
-typedef void (*pfn_kraken_i2c_mux_state_init)(int fd, const kraken_io_c_handle_t* ios, size_t io_count);
+typedef kraken_error_t (*pfn_kraken_i2c_mux_state_init)(int fd, void* shadow_memory, const kraken_io_c_handle_t* ios,
+                                              size_t io_count);
 
 typedef struct kraken_i2c_mux_config {
     kraken_mux_type_t type;
@@ -58,14 +61,15 @@ typedef struct kraken_i2c_mux_config {
     size_t pin_count;
     const char* bus;
     kraken_i2c_address_t address;
+    size_t shadow_memory_size;
     pfn_kraken_i2c_mux_state_update pfn_state_update;
     pfn_kraken_i2c_mux_state_init pfn_state_init;
 } kraken_i2c_mux_config_t;
 
-typedef void (*pfn_kraken_spi_mux_state_update)(void* base_address, void* shadow_memory,
+typedef kraken_error_t (*pfn_kraken_spi_mux_state_update)(void* base_address, void* shadow_memory,
                                                 const kraken_io_c_handle_t* ios, size_t io_count);
 
-typedef void (*pfn_kraken_spi_mux_state_init)(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+typedef kraken_error_t (*pfn_kraken_spi_mux_state_init)(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
                                               size_t io_count);
 
 typedef struct kraken_spi_mux_config {
@@ -73,8 +77,8 @@ typedef struct kraken_spi_mux_config {
     const kraken_pin_config_t* pins;
     size_t pin_count;
     const char* device;
-    pfn_kraken_spi_mux_state_update pfn_state_get;
-    pfn_kraken_spi_mux_state_init pfn_state_set;
+    pfn_kraken_spi_mux_state_update pfn_state_update;
+    pfn_kraken_spi_mux_state_init pfn_state_init;
 } kraken_spi_mux_config_t;
 
 typedef struct kraken_mux_config {

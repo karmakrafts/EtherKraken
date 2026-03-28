@@ -37,14 +37,14 @@ KRAKEN_EXPORT kraken_error_t kraken_board_config_init(const kraken_board_type_t 
 
 KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* config, kraken_board_handle_t* handle) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Board handle pointer is null");
-    kraken_board_t* board = malloc(sizeof(kraken_board_t));
+    kraken_board_t* board = kraken_alloc(kraken_board_t);
     KRAKEN_CHECK_PTR(board, KRAKEN_ERR_INVALID_OP, "Could not allocate board instance");
 
     memcpy(&board->config, config, sizeof(kraken_board_config_t));// Copy config to board instance
     const size_t num_ports = config->mux_count + 1;
     board->num_ports = num_ports;
 
-    kraken_port_t** ports = malloc(sizeof(kraken_port_t*) * num_ports);
+    kraken_port_t** ports = kraken_alloc_array(kraken_port_t*, num_ports);
     for(size_t i = 0; i < num_ports; i++) {
         ports[i] = nullptr;// Ensure no dangling pointers since this keeps state
     }

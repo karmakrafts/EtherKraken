@@ -14,6 +14,7 @@
 
 #include "kraken_io.h"
 #include "kraken_error_impl.h"
+#include "kraken_internal.h"
 #include "kraken_io_impl.h"
 
 kraken_error_t kraken_io_create(kraken_io_t** io_addr, const char* name, const kraken_pin_config_t* pin_config,
@@ -23,7 +24,7 @@ kraken_error_t kraken_io_create(kraken_io_t** io_addr, const char* name, const k
     KRAKEN_CHECK_PTR(supported_modes, KRAKEN_ERR_INVALID_ARG, "Supported modes pointer is null");
     KRAKEN_CHECK(num_supported_modes >= 1, KRAKEN_ERR_INVALID_ARG, "IO must support at least one mode");
 
-    kraken_io_t* io = malloc(sizeof(kraken_io_t));
+    kraken_io_t* io = kraken_alloc(kraken_io_t);
     KRAKEN_CHECK_PTR(io, KRAKEN_ERR_INVALID_OP, "Could not allocate IO instance");
 
     memcpy(&io->pin_config, pin_config, sizeof(kraken_pin_config_t));

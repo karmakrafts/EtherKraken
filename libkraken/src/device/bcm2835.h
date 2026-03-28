@@ -16,6 +16,8 @@
 #define LIBKRAKEN_BCM2835_H
 
 #include "kraken_api.h"
+#include "kraken_error.h"
+#include "kraken_handles.h"
 
 ///
 /// See https://pip-assets.raspberrypi.com/categories/579-raspberry-pi-zero/documents/RP-008249-DS-1-bcm2835-peripherals.pdf?disposition=inline
@@ -178,5 +180,11 @@ typedef struct _bcm2835_gpio_t {// NOLINT
     uint32_t _reserved11;
     uint8_t test : 4;
 } bcm2835_gpio_t;
+
+kraken_error_t bcm2835_gpio_state_update(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+                                         size_t io_count);
+
+kraken_error_t bcm2835_gpio_state_init(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+                                       size_t io_count);
 
 #endif//LIBKRAKEN_BCM2835_H
