@@ -27,16 +27,10 @@ When you have all dependencies installed, simply invoke `build.sh` in the `libkr
 ### Building kraken-core
 
 `kraken-core` is the high level Kotlin/Native wrapper around the `libkraken` HAL.  
-In order to build it, you only need [a JDK](https://www.azul.com/downloads/?package=jdk#zulu).
+In order to build it, you only need [a JDK](https://www.azul.com/downloads/?package=jdk#zulu) on an Ubuntu/Debian based Linux distribution.
 
 Simply run the following command in the root of the repository:
 
 ```shell
 ./gradlew build
-```
-
-Or on Windows:
-
-```
-gradlew build
 ```
