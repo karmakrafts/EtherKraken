@@ -17,9 +17,9 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 import dev.karmakrafts.conventions.configureJava
-import dev.karmakrafts.conventions.dokka.configureDokka
 import dev.karmakrafts.conventions.kotlin.defaultCompilerOptions
 import dev.karmakrafts.conventions.setProjectInfo
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
@@ -29,17 +29,34 @@ plugins {
     signing
 }
 
+check(Os.isFamily(Os.FAMILY_UNIX)) { "libkraken interop module requires Linux host to build" }
 configureJava(rootProject.libs.versions.java)
 
-configureDokka {
-    withJava()
-    withKotlin()
+val compileLibKraken = tasks.register("compileLibKraken", Exec::class) {
+    group = "interop"
+    inputs.dir(rootDir.resolve("libkraken").resolve("include"))
+    inputs.dir(rootDir.resolve("libkraken").resolve("src"))
+    outputs.dir(rootDir.resolve("libkraken").resolve("build-release"))
+    workingDir = rootDir.resolve("libkraken")
+    commandLine("/bin/bash", "build.sh")
 }
 
 kotlin {
     defaultCompilerOptions()
     withSourcesJar()
-    linuxArm64()
+    linuxArm64 {
+        compilations {
+            named("main") {
+                cinterops {
+                    create("libkraken") {
+                        tasks.named(interopProcessingTaskName) {
+                            dependsOn(compileLibKraken)
+                        }
+                    }
+                }
+            }
+        }
+    }
     applyDefaultHierarchyTemplate()
     sourceSets {
         commonTest {
