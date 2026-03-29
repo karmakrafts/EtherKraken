@@ -19,7 +19,7 @@ constexpr uint32_t GPIO_REGISTER_SIZE = sizeof(bcm2835_gppinreg_t);
 constexpr uint32_t GPIO_FSEL_BANK_SIZE = 10;
 
 KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void* shadow_memory,
-                                                       const kraken_io_c_handle_t* ios, const size_t io_count) {
+                                                       kraken_io_handle_t* ios, const size_t io_count) {
     volatile bcm2835_gpio_t* gpio = base_address;
     // Capture input state at the start of the update
     const uint32_t input_state_mask[] = {gpio->gplev0.value, gpio->gplev1.value};
@@ -51,7 +51,7 @@ KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void*
 }
 
 KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void* shadow_memory,
-                                                     const kraken_io_c_handle_t* ios, const size_t io_count) {
+                                                     kraken_io_handle_t* ios, const size_t io_count) {
     volatile bcm2835_gpio_t* gpio = base_address;
     memset(shadow_memory, 0x00, sizeof(bcm2835_gpio_t));
     // Build function selection mask for all IOs

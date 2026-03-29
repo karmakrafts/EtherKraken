@@ -184,10 +184,10 @@ typedef struct _bcm2835_gpio_t {// NOLINT
 } bcm2835_gpio_t;
 
 KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void* shadow_memory,
-                                                       const kraken_io_c_handle_t* ios, size_t io_count);
+                                                       kraken_io_handle_t* ios, size_t io_count);
 
 KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void* shadow_memory,
-                                                     const kraken_io_c_handle_t* ios, size_t io_count);
+                                                     kraken_io_handle_t* ios, size_t io_count);
 
 KRAKEN_API_END
 

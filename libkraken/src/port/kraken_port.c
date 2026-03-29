@@ -47,7 +47,7 @@ KRAKEN_EXPORT kraken_error_t kraken_port_update(kraken_port_handle_t handle) {
             gpio_port->config.pfn_state_update(
                 gpio_port->registers,
                 gpio_port->shadow_memory,
-                (const kraken_io_c_handle_t*)gpio_port->ios,
+                (kraken_io_handle_t*)gpio_port->ios,
                 gpio_port->num_ios);
             // clang-format on
             break;
