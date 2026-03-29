@@ -28,7 +28,7 @@
 
 #define KRAKEN_EXPORT __attribute__((visibility("default")))
 
-typedef unsigned _BitInt(7) kraken_i2c_address_t;// I²C addresses are 7-bit
+typedef uint8_t kraken_i2c_address_t;// I²C addresses are 7-bit
 
 typedef enum kraken_bool : uint8_t {
     KRAKEN_TRUE,

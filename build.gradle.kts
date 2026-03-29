@@ -15,10 +15,8 @@
  */
 
 import dev.karmakrafts.conventions.GitLabCI
-import dev.karmakrafts.conventions.apache2License
 import dev.karmakrafts.conventions.authenticatedSonatype
 import dev.karmakrafts.conventions.defaultDependencyLocking
-import dev.karmakrafts.conventions.setRepository
 import dev.karmakrafts.conventions.signPublications
 import java.time.Duration
 

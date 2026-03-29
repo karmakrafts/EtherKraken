@@ -20,7 +20,7 @@
 
 // clang-format off
 
-static const kraken_pin_config_t g_v1b_mux_pins[] = {
+static kraken_pin_config_t g_v1b_mux_pins[] = {
     // Port A
     { .device_pin = 21, .port_pin = 3 },
     { .device_pin = 22, .port_pin = 5 },
@@ -41,7 +41,7 @@ static const kraken_pin_config_t g_v1b_mux_pins[] = {
     { .device_pin = 8, .port_pin = 18 }
 };
 
-static const kraken_mux_config_t g_v1b_mux_configs[] = {
+static kraken_mux_config_t g_v1b_mux_configs[] = {
     { // IO0
         .spi = {
             .type = KRAKEN_MUX_TYPE_SPI,
@@ -63,7 +63,7 @@ static const kraken_mux_config_t g_v1b_mux_configs[] = {
 };
 
 // On the V1B, only 6 GPIOS from the SoC are actually programmable on the EXT connector
-static const kraken_pin_config_t g_v1b_gpio_pins[] = {
+static kraken_pin_config_t g_v1b_gpio_pins[] = {
     {
         .device_pin = BCM2835_PIN_BCM13,
         .port_pin = 8

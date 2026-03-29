@@ -80,6 +80,15 @@ KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* co
     return KRAKEN_OK;
 }
 
+KRAKEN_EXPORT kraken_error_t kraken_board_get_config(kraken_board_c_handle_t handle,
+                                                     const kraken_board_config_t** config) {
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid board handle");
+    KRAKEN_CHECK_PTR(config, KRAKEN_ERR_INVALID_ARG, "Config address pointer is null");
+    const kraken_board_t* board = (const kraken_board_t*) handle;
+    *config = &board->config;
+    return KRAKEN_OK;
+}
+
 KRAKEN_EXPORT kraken_error_t kraken_board_get_flash(const kraken_board_c_handle_t handle,
                                                     kraken_flash_handle_t* flash) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid board handle");

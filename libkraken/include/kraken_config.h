@@ -33,11 +33,11 @@ typedef kraken_error_t (*pfn_kraken_gpio_state_init)(void* base_address, void* s
                                            size_t io_count);
 
 typedef struct kraken_gpio_config {
-    const char* device_tree_entry;  // /proc/device-tree/..
-    const char* device_type;        // bcm2835 etc. used for compatibility checking
-    const char* device;             // /dev/..
+    char* device_tree_entry;  // /proc/device-tree/..
+    char* device_type;        // bcm2835 etc. used for compatibility checking
+    char* device;             // /dev/..
     size_t registers_size;          // Actual size of the register region in bytes
-    const kraken_pin_config_t* pins;// A pointer to all pin configurations for the GPIO device
+    kraken_pin_config_t* pins;// A pointer to all pin configurations for the GPIO device
     size_t pin_count;               // The number of pins as specified by the pointer above
     pfn_kraken_gpio_state_update pfn_state_update;
     pfn_kraken_gpio_state_init pfn_state_init;
@@ -56,9 +56,9 @@ typedef kraken_error_t (*pfn_kraken_i2c_mux_state_init)(int fd, void* shadow_mem
 
 typedef struct kraken_i2c_mux_config {
     kraken_mux_type_t type;
-    const kraken_pin_config_t* pins;
+    kraken_pin_config_t* pins;
     size_t pin_count;
-    const char* bus;
+    char* bus;
     kraken_i2c_address_t address;
     size_t shadow_memory_size;
     pfn_kraken_i2c_mux_state_update pfn_state_update;
@@ -73,9 +73,9 @@ typedef kraken_error_t (*pfn_kraken_spi_mux_state_init)(void* base_address, void
 
 typedef struct kraken_spi_mux_config {
     kraken_mux_type_t type;
-    const kraken_pin_config_t* pins;
+    kraken_pin_config_t* pins;
     size_t pin_count;
-    const char* device;
+    char* device;
     pfn_kraken_spi_mux_state_update pfn_state_update;
     pfn_kraken_spi_mux_state_init pfn_state_init;
 } kraken_spi_mux_config_t;
@@ -90,9 +90,9 @@ typedef struct kraken_mux_config {
 
 typedef struct kraken_board_config {
     kraken_gpio_config_t gpio_config;
-    const kraken_mux_config_t* mux_configs;
+    kraken_mux_config_t* mux_configs;
     size_t mux_count;
-    const char* flash_device;
+    char* flash_device;
     uint32_t aux_power_pin;// BCM associated pin number
 } kraken_board_config_t;
 
