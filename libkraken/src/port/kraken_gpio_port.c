@@ -15,6 +15,7 @@
 #include "kraken_gpio_port.h"
 #include "kraken_error_impl.h"
 #include "kraken_internal.h"
+#include "kraken_log_impl.h"
 
 #include <sys/stat.h>
 
@@ -22,8 +23,12 @@ static kraken_error_t check_compatibility(const kraken_gpio_config_t* config) {
     char* dte_path = nullptr;
     KRAKEN_CHECK(asprintf(&dte_path, "%s/compatible", config->device_tree_entry) > 0, KRAKEN_ERR_INVALID_OP,
                  "Could not determine GPIO DTE path");
+
+    kraken_log_debug("Reading GPIO device tree entry from %s", dte_path);
     const int dte_fd = open(dte_path, O_RDONLY);
     free(dte_path);
+
+    kraken_log_debug("Reading GPIO DTE stats");
     struct stat stat = {};
     KRAKEN_CHECK_RESULT(fstat(dte_fd, &stat), KRAKEN_ERR_INVALID_OP, "Could not determine size of DTE property");
 
@@ -32,6 +37,7 @@ static kraken_error_t check_compatibility(const kraken_gpio_config_t* config) {
     KRAKEN_CHECK(read(dte_fd, dte_buffer, stat.st_size) == stat.st_size, KRAKEN_ERR_INVALID_OP,
                  "Could not read GPIO DTE property");
     close(dte_fd);
+    kraken_log_debug("Detected GPIO compatibility: %s", dte_buffer);
     // Check if device type is a substring of the DTE data to determine if hardware is supported
     return strstr(dte_buffer, config->device_type) != nullptr ? KRAKEN_OK : KRAKEN_ERR_INVALID_OP;
 }

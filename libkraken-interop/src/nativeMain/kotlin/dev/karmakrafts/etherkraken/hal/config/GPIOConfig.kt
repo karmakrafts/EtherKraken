@@ -16,13 +16,12 @@
 
 package dev.karmakrafts.etherkraken.hal.config
 
-import kotlinx.cinterop.ArenaBase
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocArray
-import kotlinx.cinterop.cstr
 import kotlinx.cinterop.get
-import kotlinx.cinterop.placeTo
+import kotlinx.cinterop.nativeHeap
 import libkraken.kraken_gpio_config_t
+import platform.posix.strdup
 
 @OptIn(ExperimentalForeignApi::class)
 data class GPIOConfig(
@@ -32,13 +31,13 @@ data class GPIOConfig(
     val registersSize: Long,
     val pins: List<PinConfig>
 ) {
-    internal fun applyTo(config: kraken_gpio_config_t, arena: ArenaBase) = with(config) {
-        device_tree_entry = deviceTreeEntry.cstr.placeTo(arena)
-        device_type = deviceType.cstr.placeTo(arena)
-        this.device = this@GPIOConfig.device.cstr.placeTo(arena)
+    internal fun applyTo(config: kraken_gpio_config_t) = with(config) {
+        device_tree_entry = strdup(deviceTreeEntry)
+        device_type = strdup(deviceType)
+        this.device = strdup(this@GPIOConfig.device)
         registers_size = registersSize.toULong()
         if (this@GPIOConfig.pins.isNotEmpty()) {
-            pins = arena.allocArray(this@GPIOConfig.pins.size)
+            pins = nativeHeap.allocArray(this@GPIOConfig.pins.size)
             for (index in this@GPIOConfig.pins.indices) {
                 val pinConfig = this@GPIOConfig.pins[index]
                 pinConfig.applyTo(pins!![index])
@@ -53,7 +52,11 @@ class GPIOConfigBuilder @PublishedApi internal constructor() {
     lateinit var device: String
     lateinit var deviceType: String
     var registersSize: Long = 0L
-    val pins: ArrayList<PinConfig> = ArrayList()
+    private val pins: ArrayList<PinConfig> = ArrayList()
+
+    fun pin(devicePin: UInt, portPin: UInt = devicePin) {
+        pins += PinConfig(devicePin, portPin)
+    }
 
     @PublishedApi
     internal fun build(): GPIOConfig = GPIOConfig( // @formatter:off

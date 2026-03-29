@@ -34,6 +34,7 @@ import libkraken.kraken_port_get_type
 import libkraken.kraken_port_handle_t
 import libkraken.kraken_port_type_t
 import libkraken.kraken_port_type_tVar
+import libkraken.kraken_port_update
 import platform.posix.size_tVar
 
 value class Port(val handle: kraken_port_handle_t) {
@@ -52,6 +53,10 @@ value class Port(val handle: kraken_port_handle_t) {
             kraken_port_get_name(handle, buffer, size.ptr).check()
             buffer.toKStringFromUtf8()
         }
+
+    fun update() {
+        kraken_port_update(handle).check()
+    }
 
     fun enumerateIOs(): Sequence<IO> = sequence {
         memScoped {

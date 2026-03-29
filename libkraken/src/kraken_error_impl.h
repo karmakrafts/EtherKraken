@@ -70,13 +70,12 @@ static _Noreturn void kraken_panic(const char* fmt, ...) {
     va_start(args);
     if(vasprintf(&formatted_message, fmt, args) == -1) {
         va_end(args);
-        exit(-1);
-        __builtin_unreachable();
+        __builtin_trap();
     }
     va_end(args);
     printf("%s\n", formatted_message);
     free(formatted_message);
-    __builtin_unreachable();
+    __builtin_trap();
 }
 
 #endif//LIBKRAKEN_KRAKEN_ERROR_IMPL_H

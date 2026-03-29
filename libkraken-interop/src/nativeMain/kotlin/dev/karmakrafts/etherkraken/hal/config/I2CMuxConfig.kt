@@ -18,13 +18,12 @@
 
 package dev.karmakrafts.etherkraken.hal.config
 
-import kotlinx.cinterop.ArenaBase
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocArray
-import kotlinx.cinterop.cstr
 import kotlinx.cinterop.get
-import kotlinx.cinterop.placeTo
+import kotlinx.cinterop.nativeHeap
 import libkraken.kraken_mux_config_t
+import platform.posix.strdup
 
 data class I2CMuxConfig( // @formatter:off
     val bus: String,
@@ -32,12 +31,12 @@ data class I2CMuxConfig( // @formatter:off
     val shadowMemorySize: Long,
     val pins: List<PinConfig>
 ) : MuxConfig { // @formatter:on
-    override fun applyTo(config: kraken_mux_config_t, arena: ArenaBase) = with(config.i2c) {
-        this.bus = this@I2CMuxConfig.bus.cstr.placeTo(arena)
+    override fun applyTo(config: kraken_mux_config_t) = with(config.i2c) {
+        this.bus = strdup(this@I2CMuxConfig.bus)
         this.address = this@I2CMuxConfig.address
         shadow_memory_size = shadowMemorySize.toULong()
         if (this@I2CMuxConfig.pins.isNotEmpty()) {
-            this.pins = arena.allocArray(this@I2CMuxConfig.pins.size)
+            this.pins = nativeHeap.allocArray(this@I2CMuxConfig.pins.size)
             pin_count = this@I2CMuxConfig.pins.size.toULong()
             for (index in this@I2CMuxConfig.pins.indices) {
                 val pinConfig = this@I2CMuxConfig.pins[index]
@@ -53,6 +52,10 @@ class I2CMuxConfigBuilder @PublishedApi internal constructor() {
     var address: UByte = 0x20U
     var shadowMemorySize: Long = 0
     private val pins: ArrayList<PinConfig> = ArrayList()
+
+    fun pin(devicePin: UInt, portPin: UInt = devicePin) {
+        pins += PinConfig(devicePin, portPin)
+    }
 
     @PublishedApi
     internal fun build(): I2CMuxConfig = I2CMuxConfig(bus, address, shadowMemorySize, pins)

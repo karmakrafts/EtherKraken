@@ -18,21 +18,20 @@
 
 package dev.karmakrafts.etherkraken.hal.config
 
-import kotlinx.cinterop.ArenaBase
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
-import kotlinx.cinterop.cstr
 import kotlinx.cinterop.free
 import kotlinx.cinterop.get
 import kotlinx.cinterop.nativeHeap
-import kotlinx.cinterop.placeTo
 import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
 import libkraken.kraken_board_config_init
 import libkraken.kraken_board_config_t
 import libkraken.kraken_board_type_t
+import libkraken.kraken_mux_type_t
+import platform.posix.strdup
 
 value class BoardConfig @PublishedApi internal constructor(val address: CPointer<kraken_board_config_t>) : AutoCloseable {
     constructor() : this(nativeHeap.alloc<kraken_board_config_t>().ptr)
@@ -46,9 +45,22 @@ value class BoardConfig @PublishedApi internal constructor(val address: CPointer
             device_tree_entry?.let(nativeHeap::free)
             device_type?.let(nativeHeap::free)
             device?.let(nativeHeap::free)
+            pins?.let(nativeHeap::free)
         }
         address.pointed.flash_device?.let(nativeHeap::free)
         address.pointed.mux_configs?.let(nativeHeap::free)
+        for (index in 0UL..<address.pointed.mux_count) {
+            val muxConfig = address.pointed.mux_configs!![index.toLong()]
+            when (muxConfig.type) {
+                kraken_mux_type_t.KRAKEN_MUX_TYPE_I2C -> muxConfig.i2c.apply {
+                    pins?.let(nativeHeap::free)
+                }
+
+                kraken_mux_type_t.KRAKEN_MUX_TYPE_SPI -> muxConfig.spi.apply {
+                    pins?.let(nativeHeap::free)
+                }
+            }
+        }
         nativeHeap.free(address)
     }
 }
@@ -76,17 +88,16 @@ class BoardConfigBuilder @PublishedApi internal constructor() {
 
     @PublishedApi
     internal fun build(): BoardConfig = BoardConfig().apply {
-        val heapArena = ArenaBase(nativeHeap)
-        gpioConfig.applyTo(address.pointed.gpio_config, heapArena)
+        gpioConfig.applyTo(address.pointed.gpio_config)
         flashDevice?.let { flashDevice ->
-            address.pointed.flash_device = flashDevice.cstr.placeTo(heapArena)
+            address.pointed.flash_device = strdup(flashDevice)
         }
         if (muxConfigs.isNotEmpty()) {
-            address.pointed.mux_configs = heapArena.allocArray(muxConfigs.size)
+            address.pointed.mux_configs = nativeHeap.allocArray(muxConfigs.size)
             address.pointed.mux_count = muxConfigs.size.toULong()
             for (index in muxConfigs.indices) {
                 val targetConfig = address.pointed.mux_configs!![index]
-                muxConfigs[index].applyTo(targetConfig, heapArena)
+                muxConfigs[index].applyTo(targetConfig)
             }
         }
     }

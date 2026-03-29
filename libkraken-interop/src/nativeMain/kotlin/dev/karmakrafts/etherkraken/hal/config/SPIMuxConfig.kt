@@ -18,22 +18,21 @@
 
 package dev.karmakrafts.etherkraken.hal.config
 
-import kotlinx.cinterop.ArenaBase
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.allocArray
-import kotlinx.cinterop.cstr
 import kotlinx.cinterop.get
-import kotlinx.cinterop.placeTo
+import kotlinx.cinterop.nativeHeap
 import libkraken.kraken_mux_config_t
+import platform.posix.strdup
 
 data class SPIMuxConfig( // @formatter:off
     val device: String,
     val pins: List<PinConfig>
 ) : MuxConfig { // @formatter:on
-    override fun applyTo(config: kraken_mux_config_t, arena: ArenaBase) = with(config.spi) {
-        this.device = this@SPIMuxConfig.device.cstr.placeTo(arena)
+    override fun applyTo(config: kraken_mux_config_t) = with(config.spi) {
+        this.device = strdup(this@SPIMuxConfig.device)
         if (this@SPIMuxConfig.pins.isNotEmpty()) {
-            this.pins = arena.allocArray(this@SPIMuxConfig.pins.size)
+            this.pins = nativeHeap.allocArray(this@SPIMuxConfig.pins.size)
             pin_count = this@SPIMuxConfig.pins.size.toULong()
             for (index in this@SPIMuxConfig.pins.indices) {
                 val pinConfig = this@SPIMuxConfig.pins[index]
@@ -47,6 +46,10 @@ data class SPIMuxConfig( // @formatter:off
 class SPIMuxConfigBuilder @PublishedApi internal constructor() {
     lateinit var device: String
     private val pins: ArrayList<PinConfig> = ArrayList()
+
+    fun pin(devicePin: UInt, portPin: UInt = devicePin) {
+        pins += PinConfig(devicePin, portPin)
+    }
 
     @PublishedApi
     internal fun build(): SPIMuxConfig = SPIMuxConfig(device, pins)

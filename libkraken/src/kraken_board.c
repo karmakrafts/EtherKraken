@@ -19,6 +19,7 @@
 #include "kraken_error_impl.h"
 #include "kraken_flash_impl.h"
 #include "kraken_internal.h"
+#include "kraken_log_impl.h"
 #include "port/kraken_gpio_port.h"
 #include "port/kraken_i2c_mux_port.h"
 #include "port/kraken_spi_mux_port.h"
@@ -40,20 +41,24 @@ KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* co
     kraken_board_t* board = kraken_alloc(kraken_board_t);
     KRAKEN_CHECK_PTR(board, KRAKEN_ERR_INVALID_OP, "Could not allocate board instance");
 
+    kraken_log_debug("Copying board config to board instance");
     memcpy(&board->config, config, sizeof(kraken_board_config_t));// Copy config to board instance
+
+    // Calculate and update port count
     const size_t num_ports = config->mux_count + 1;
     board->num_ports = num_ports;
+    kraken_log_debug("Allocating memory for %zu ports", num_ports);
 
     kraken_port_t** ports = kraken_alloc_array(kraken_port_t*, num_ports);
-    for(size_t i = 0; i < num_ports; i++) {
-        ports[i] = nullptr;// Ensure no dangling pointers since this keeps state
-    }
     KRAKEN_CHECK_PTR(ports, KRAKEN_ERR_INVALID_OP, "Could not allocate IO ports");
+    memset(ports, 0x00, sizeof(kraken_port_t*) * num_ports);
     const kraken_gpio_config_t* gpio_config = &config->gpio_config;
     // Port 0 is always SoC GPIO
+    kraken_log_debug("Creating GPIO port");
     kraken_gpio_port_create((kraken_gpio_port_t**) &ports[0], gpio_config);
-    // Create any auxillary MUX ports attached via I2C or SPI
+    //// Create any auxillary MUX ports attached via I2C or SPI
     for(size_t i = 0; i < config->mux_count; i++) {// IOn
+        kraken_log_debug("Creating MUX port %zu", i);
         const kraken_mux_config_t* mux_config = &config->mux_configs[i];
         kraken_port_t** port = &ports[i + 1];
         switch(mux_config->type) {
@@ -72,6 +77,7 @@ KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* co
     // Optionally set up flash device if specified
     kraken_flash_t* flash = nullptr;
     if(config->flash_device) {
+        kraken_log_debug("Creating flash device %s", config->flash_device);
         KRAKEN_CHECK_ERROR(kraken_flash_create(&flash, config->flash_device), "Could not create flash instance");
     }
     board->flash = flash;
@@ -80,7 +86,7 @@ KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* co
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_board_get_config(kraken_board_c_handle_t handle,
+KRAKEN_EXPORT kraken_error_t kraken_board_get_config(const kraken_board_c_handle_t handle,
                                                      const kraken_board_config_t** config) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid board handle");
     KRAKEN_CHECK_PTR(config, KRAKEN_ERR_INVALID_ARG, "Config address pointer is null");
@@ -125,28 +131,34 @@ KRAKEN_EXPORT kraken_error_t kraken_board_aux_power_set(kraken_board_handle_t ha
 KRAKEN_EXPORT kraken_error_t kraken_board_destroy(kraken_board_handle_t handle) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_OP, "Invalid board handle");
     kraken_board_t* board = (kraken_board_t*) handle;
-    KRAKEN_CHECK_ERROR(kraken_gpio_port_destroy((kraken_gpio_port_t*) board->ports[0]), "Could not destroy GPIO port");
     for(size_t i = 0; i < board->num_ports; i++) {
         kraken_port_t* port = board->ports[i];
         switch(port->type) {
             case KRAKEN_PORT_TYPE_GPIO: {
+                kraken_log_debug("Destroying GPIO port");
                 KRAKEN_CHECK_ERROR(kraken_gpio_port_destroy(&port->gpio), "Could not destroy GPIO port");
                 break;
             }
+            default: break;
             case KRAKEN_PORT_TYPE_I2C_MUX: {
+                kraken_log_debug("Destroying MUX port %zu", i);
                 KRAKEN_CHECK_ERROR(kraken_i2c_mux_port_destroy(&port->i2c_mux), "Could not destroy I2C MUX port");
                 break;
             }
             case KRAKEN_PORT_TYPE_SPI_MUX: {
+                kraken_log_debug("Destroying MUX port %zu", i);
                 KRAKEN_CHECK_ERROR(kraken_spi_mux_port_destroy(&port->spi_mux), "Could not destroy SPI MUX port");
                 break;
             }
         }
     }
     if(board->flash) {
+        kraken_log_debug("Destroying flash device");
         kraken_flash_destroy(board->flash);
     }
+    kraken_log_debug("Freeing ports memory");
     free(board->ports);// Free ports array memory
+    kraken_log_debug("Freeing board instance memory");
     free(board);
     return KRAKEN_OK;
 }

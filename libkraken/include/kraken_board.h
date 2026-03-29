@@ -51,7 +51,8 @@ KRAKEN_EXPORT kraken_error_t kraken_board_config_init(kraken_board_type_t type, 
 ///     @code KRAKEN_ERR_INVALID_OP@endcode when the config is invalid or board initialization fails.
 KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* config, kraken_board_handle_t* handle);
 
-KRAKEN_EXPORT kraken_error_t kraken_board_get_config(kraken_board_c_handle_t handle, const kraken_board_config_t** config);
+KRAKEN_EXPORT kraken_error_t kraken_board_get_config(kraken_board_c_handle_t handle,
+                                                     const kraken_board_config_t** config);
 
 /// Enumerates the ports associated with the given board.
 ///

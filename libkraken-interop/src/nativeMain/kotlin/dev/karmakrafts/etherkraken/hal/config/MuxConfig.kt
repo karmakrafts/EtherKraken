@@ -18,10 +18,9 @@
 
 package dev.karmakrafts.etherkraken.hal.config
 
-import kotlinx.cinterop.ArenaBase
 import kotlinx.cinterop.ExperimentalForeignApi
 import libkraken.kraken_mux_config_t
 
 sealed interface MuxConfig {
-    fun applyTo(config: kraken_mux_config_t, arena: ArenaBase)
+    fun applyTo(config: kraken_mux_config_t)
 }

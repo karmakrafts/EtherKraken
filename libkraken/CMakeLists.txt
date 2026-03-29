@@ -14,7 +14,7 @@ add_library(kraken SHARED
 target_include_directories(kraken PRIVATE "src/")
 target_include_directories(kraken PUBLIC "include/")
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-	target_compile_definitions(kraken PRIVATE KRAKEN_DEBUG=1)
+	target_compile_definitions(kraken PUBLIC KRAKEN_DEBUG=1)
 endif ()
 
 add_library(kraken-static STATIC
@@ -24,5 +24,5 @@ add_library(kraken-static STATIC
 target_include_directories(kraken-static PRIVATE "src/")
 target_include_directories(kraken-static PUBLIC "include/")
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-	target_compile_definitions(kraken-static PRIVATE KRAKEN_DEBUG=1)
+	target_compile_definitions(kraken-static PUBLIC KRAKEN_DEBUG=1)
 endif ()

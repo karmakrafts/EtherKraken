@@ -1,4 +1,5 @@
 package = libkraken
 headers = libkraken.h
 compilerOpts = -I../libkraken/include
-linkerOpts = -L../libkraken/build-release -lkraken-static
+libraryPaths = ../libkraken/build-debug
+staticLibraries = libkraken-static.a

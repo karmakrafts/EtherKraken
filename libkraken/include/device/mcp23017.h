@@ -163,16 +163,16 @@ typedef struct mcp23017 {
 } mcp23017_t;
 
 KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_update(int fd, void* shadow_memory, const kraken_io_c_handle_t* ios,
-                                             size_t io_count);
+                                                           size_t io_count);
 
 KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_init(int fd, void* shadow_memory, const kraken_io_c_handle_t* ios,
-                                           size_t io_count);
+                                                         size_t io_count);
 
-KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_update(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
-                                             size_t io_count);
+KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_update(void* base_address, void* shadow_memory,
+                                                           const kraken_io_c_handle_t* ios, size_t io_count);
 
-KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_init(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
-                                           size_t io_count);
+KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_init(void* base_address, void* shadow_memory,
+                                                         const kraken_io_c_handle_t* ios, size_t io_count);
 
 KRAKEN_API_END
 

@@ -38,3 +38,4 @@ dependencyResolutionManagement {
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include("libkraken-interop")
+include("libkraken-selftest")

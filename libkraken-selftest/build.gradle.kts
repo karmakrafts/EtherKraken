@@ -18,57 +18,35 @@
 
 import dev.karmakrafts.conventions.configureJava
 import dev.karmakrafts.conventions.kotlin.defaultCompilerOptions
-import dev.karmakrafts.conventions.setProjectInfo
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.dokka)
-    `maven-publish`
-    signing
 }
 
 configureJava(rootProject.libs.versions.java)
-
-val compileLibKraken = tasks.register("compileLibKraken", Exec::class) {
-    group = "interop"
-    inputs.dir(rootDir.resolve("libkraken").resolve("include"))
-    inputs.dir(rootDir.resolve("libkraken").resolve("src"))
-    outputs.dir(rootDir.resolve("libkraken").resolve("build-release"))
-    workingDir = rootDir.resolve("libkraken")
-    commandLine("/bin/bash", "build.sh")
-}
 
 kotlin {
     defaultCompilerOptions()
     withSourcesJar()
     linuxArm64 {
-        compilations {
-            named("main") {
-                cinterops {
-                    create("libkraken") {
-                        tasks.named(interopProcessingTaskName) {
-                            dependsOn(compileLibKraken)
-                        }
-                    }
-                }
+        binaries {
+            executable {
+                entryPoint = "$group.selftest.main"
             }
         }
     }
     applyDefaultHierarchyTemplate()
     sourceSets {
+        commonMain {
+            dependencies {
+                implementation(projects.libkrakenInterop)
+            }
+        }
         commonTest {
             dependencies {
                 implementation(libs.kotlin.test)
             }
         }
     }
-}
-
-publishing {
-    setProjectInfo(
-        name = "libkraken Interop",
-        description = "CInterop module for the libkraken HAL",
-        url = "https://git.karmakrafts.dev/kk/hardware-projects/etherkraken"
-    )
 }
