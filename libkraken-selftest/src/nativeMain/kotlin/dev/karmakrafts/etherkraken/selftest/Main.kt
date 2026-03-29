@@ -25,6 +25,7 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.sizeOf
 import kotlinx.cinterop.toLong
 import libkraken.bcm2835_gpio_t
+import libkraken.bcm2835_pin_t
 
 fun main() {
     println("==================== RUNNING SELFTEST ====================")
@@ -35,6 +36,12 @@ fun main() {
             deviceType = "bcm2835"
             device = "/dev/gpiomem"
             registersSize = sizeOf<bcm2835_gpio_t>()
+            pin(bcm2835_pin_t.BCM2835_PIN_BCM13.value, 8U)
+            pin(bcm2835_pin_t.BCM2835_PIN_BCM25.value, 10U)
+            pin(bcm2835_pin_t.BCM2835_PIN_BCM24.value, 12U)
+            pin(bcm2835_pin_t.BCM2835_PIN_BCM23.value, 14U)
+            pin(bcm2835_pin_t.BCM2835_PIN_BCM22.value, 16U)
+            pin(bcm2835_pin_t.BCM2835_PIN_BCM26.value, 18U)
         }
     }.use { config ->
         Board.create(config).use { board ->

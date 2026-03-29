@@ -40,8 +40,9 @@ kraken_error_t kraken_i2c_mux_port_create(kraken_i2c_mux_port_t** port_addr, con
     // Allocate shadow memory if requested
     const size_t shadow_mem_size = config->shadow_memory_size;
     if(shadow_mem_size > 0) {
-        void* shadow_memory = calloc(1, shadow_mem_size);
+        void* shadow_memory = malloc(shadow_mem_size);
         KRAKEN_CHECK_PTR(shadow_memory, KRAKEN_ERR_INVALID_OP, "Could not allocate I2C MUX shadow memory");
+        memset(shadow_memory, 0x00, shadow_mem_size);
         port->shadow_memory = shadow_memory;
     }
 
