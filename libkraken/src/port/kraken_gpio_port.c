@@ -50,26 +50,34 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
     kraken_gpio_port_t* port = kraken_alloc(kraken_gpio_port_t);
     port->type = KRAKEN_PORT_TYPE_GPIO;
 
+    kraken_log_debug("Copying GPIO config to port instance");
     memcpy(&port->config, config, sizeof(kraken_gpio_config_t));
 
     const int fd = open(config->device, O_RDWR);
     KRAKEN_CHECK(fd != -1, KRAKEN_ERR_INVALID_OP, "Could not open GPIO device memory");
+    kraken_log_debug("Opened GPIO device FD %d", fd);
     KRAKEN_CHECK_RESULT(flock(fd, LOCK_EX), KRAKEN_ERR_INVALID_OP, "Could not acquire exclusive lock on IO device");
+    kraken_log_debug("Acquired exclusive lock on GPIO FD");
     port->fd = fd;
 
     // Map the GPIO registers accordingly and round mapped size up to next page boundary
     const size_t page_size = sysconf(_SC_PAGESIZE);
+    kraken_log_debug("Mapping GPIO device with default page size of %zu bytes", page_size);
     const size_t registers_size = config->registers_size;
     const size_t align_mask = page_size - 1;
     const size_t mapped_size = registers_size + align_mask & ~align_mask;
+    kraken_log_debug("Mapping GPIO device with %zu bytes (%zu bytes aligned)", registers_size, mapped_size);
     void* base_address = mmap(nullptr, mapped_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     KRAKEN_CHECK_PTR(base_address, KRAKEN_ERR_INVALID_OP, "Could not map GPIO memory");
+    kraken_log_debug("Mapped GPIO device base at %p", base_address);
     port->registers = base_address;
     port->mapped_registers_size = mapped_size;
 
     // Create shadow memory with the same size as the registers
-    void* shadow_memory = calloc(1, config->registers_size);
+    void* shadow_memory = malloc(config->registers_size);
     KRAKEN_CHECK_PTR(shadow_memory, KRAKEN_ERR_INVALID_OP, "Could not allocate GPIO shadow memory");
+    kraken_log_debug("Allocated GPIO shadow memory at %p", shadow_memory);
+    memset(shadow_memory, 0x00, config->registers_size);
     port->shadow_memory = shadow_memory;
 
     *port_addr = port;
@@ -79,12 +87,17 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
 kraken_error_t kraken_gpio_port_destroy(kraken_gpio_port_t* port) {
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Invalid port address");
     KRAKEN_CHECK(port->type == KRAKEN_PORT_TYPE_GPIO, KRAKEN_ERR_INVALID_ARG, "Port is not a GPIO port");
+    kraken_log_debug("Unmapping GPIO device memory");
     KRAKEN_CHECK_RESULT(munmap(port->registers, port->mapped_registers_size), KRAKEN_ERR_INVALID_OP,
                         "Could not unmap GPIO memory");
+    kraken_log_debug("Releasing exclusive lock on GPIO FD");
     KRAKEN_CHECK_RESULT(flock(port->fd, LOCK_UN), KRAKEN_ERR_INVALID_OP,
                         "Could not release exclusive lock on IO device");
+    kraken_log_debug("Closing GPIO FD");
     KRAKEN_CHECK_RESULT(close(port->fd), KRAKEN_ERR_INVALID_OP, "Could not close IO device");
+    kraken_log_debug("Freeing GPIO shadow memory");
     free(port->shadow_memory);
+    kraken_log_debug("Freeing GPIO port instance memory");
     free(port);
     return KRAKEN_OK;
 }

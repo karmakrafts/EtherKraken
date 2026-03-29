@@ -37,7 +37,13 @@
 
 void kraken_log(kraken_log_level_t level, const char* message);
 
+#ifdef KRAKEN_DEBUG
 KRAKEN_DEFINE_LOG_FN(DEBUG, debug)
+#else
+static void kraken_log_debug(const char* fmt, ...) {
+}
+#endif
+
 KRAKEN_DEFINE_LOG_FN(INFO, info)
 KRAKEN_DEFINE_LOG_FN(WARN, warn)
 KRAKEN_DEFINE_LOG_FN(ERROR, error)
