@@ -21,5 +21,7 @@
 #include "kraken_handles.h"
 #include "kraken_io.h"
 #include "kraken_port.h"
+#include "device/bcm2835.h"
+#include "device/mcp23017.h"
 
 #endif//LIBKRAKEN_LIBKRAKEN_H

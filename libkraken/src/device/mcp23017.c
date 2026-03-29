@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "mcp23017.h"
+#include "../../include/device/mcp23017.h"
 #include "kraken_internal.h"
 #include "kraken_io_impl.h"
 
@@ -20,13 +20,13 @@
 
 constexpr size_t MCP23017_REGISTER_SIZE = 8;
 
-kraken_error_t mcp23017_i2c_mux_state_update(int fd, void* shadow_memory, const kraken_io_c_handle_t* ios,
+KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_update(int fd, void* shadow_memory, const kraken_io_c_handle_t* ios,
                                              size_t io_count) {
     mcp23017_t* shadow_registers = shadow_memory;
     return KRAKEN_OK;
 }
 
-kraken_error_t mcp23017_i2c_mux_state_init(const int fd, void*, const kraken_io_c_handle_t* ios,
+KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_init(const int fd, void*, const kraken_io_c_handle_t* ios,
                                            const size_t io_count) {
     // Update IOCON register to ensure banking is disabled and SEQOP bit is set
     // clang-format off
@@ -55,14 +55,14 @@ kraken_error_t mcp23017_i2c_mux_state_init(const int fd, void*, const kraken_io_
     return KRAKEN_OK;
 }
 
-kraken_error_t mcp23017_spi_mux_state_update(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_update(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
                                              size_t io_count) {
     volatile mcp23017_t* registers = base_address;
     mcp23017_t* shadow_registers = shadow_memory;
     return KRAKEN_OK;
 }
 
-kraken_error_t mcp23017_spi_mux_state_init(void* base_address, void*, const kraken_io_c_handle_t* ios,
+KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_init(void* base_address, void*, const kraken_io_c_handle_t* ios,
                                            size_t io_count) {
     volatile mcp23017_t* registers = base_address;
     // Update IOCON register to ensure banking is disabled and SEQOP bit is cleared

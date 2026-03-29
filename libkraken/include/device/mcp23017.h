@@ -23,6 +23,8 @@
 #include "kraken_error.h"
 #include "kraken_handles.h"
 
+KRAKEN_API_BEGIN
+
 #define MCP23017_DEFINE_FLAG_STATE(s, S, Z, O)                                                                         \
     typedef enum mcp23017_##s##_state : uint8_t {MCP23017_##S##_STATE_##Z,                                             \
                                                  MCP23017_##S##_STATE_##O} mcp23017_##s##_state_t;
@@ -160,16 +162,18 @@ typedef struct mcp23017 {
     mcp23017_olat_t olatb;
 } mcp23017_t;
 
-kraken_error_t mcp23017_i2c_mux_state_update(int fd, void* shadow_memory, const kraken_io_c_handle_t* ios,
+KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_update(int fd, void* shadow_memory, const kraken_io_c_handle_t* ios,
                                              size_t io_count);
 
-kraken_error_t mcp23017_i2c_mux_state_init(int fd, void* shadow_memory, const kraken_io_c_handle_t* ios,
+KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_init(int fd, void* shadow_memory, const kraken_io_c_handle_t* ios,
                                            size_t io_count);
 
-kraken_error_t mcp23017_spi_mux_state_update(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_update(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
                                              size_t io_count);
 
-kraken_error_t mcp23017_spi_mux_state_init(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_init(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
                                            size_t io_count);
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_MCP23017_H

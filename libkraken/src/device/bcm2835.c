@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "bcm2835.h"
+#include "../../include/device/bcm2835.h"
 #include "kraken_io_impl.h"
 
 constexpr uint32_t GPIO_REGISTER_SIZE = sizeof(bcm2835_gppinreg_t);
 constexpr uint32_t GPIO_FSEL_BANK_SIZE = 10;
 
-kraken_error_t bcm2835_gpio_state_update(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
                                          const size_t io_count) {
     volatile bcm2835_gpio_t* gpio = base_address;
     // Capture input state at the start of the update
@@ -50,7 +50,7 @@ kraken_error_t bcm2835_gpio_state_update(void* base_address, void* shadow_memory
     return KRAKEN_OK;
 }
 
-kraken_error_t bcm2835_gpio_state_init(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
+KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void* shadow_memory, const kraken_io_c_handle_t* ios,
                                        const size_t io_count) {
     volatile bcm2835_gpio_t* gpio = base_address;
     memset(shadow_memory, 0x00, sizeof(bcm2835_gpio_t));
