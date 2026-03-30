@@ -21,6 +21,7 @@
 #include <stdlib.h>
 
 #include "kraken_error.h"
+#include "kraken_log_impl.h"
 
 void kraken_last_error_set(const char* error);
 
@@ -64,18 +65,12 @@ void kraken_last_error_set(const char* error);
 #define KRAKEN_CHECK_ERROR(e, m)
 #endif
 
-static _Noreturn void kraken_panic(const char* fmt, ...) {
-    char* formatted_message = nullptr;
-    va_list args;
-    va_start(args, fmt);
-    if(vasprintf(&formatted_message, fmt, args) == -1) {
-        va_end(args);
-        __builtin_trap();
-    }
-    va_end(args);
-    printf("%s\n", formatted_message);
-    free(formatted_message);
-    __builtin_trap();
-}
+#define kraken_panic(fmt, ...)                                                                                         \
+    do {                                                                                                               \
+        char* formatted_message = kraken_format("!HAL PANIC! " fmt, ##__VA_ARGS__);                                    \
+        kraken_log_error(formatted_message);                                                                           \
+        kraken_free(formatted_message);                                                                                \
+        __builtin_trap();                                                                                              \
+    } while(0)
 
 #endif//LIBKRAKEN_KRAKEN_ERROR_IMPL_H

@@ -15,7 +15,10 @@
 #ifndef LIBKRAKEN_KRAKEN_LOG_IMPL_H
 #define LIBKRAKEN_KRAKEN_LOG_IMPL_H
 
+#include "kraken_alloc.h"
+#include "kraken_internal.h"
 #include "kraken_log.h"
+#include "kraken_string.h"
 
 #include <malloc.h>
 #include <stdarg.h>
@@ -23,16 +26,12 @@
 
 #define KRAKEN_DEFINE_LOG_FN(L, l)                                                                                     \
     static void kraken_log_##l(const char* fmt, ...) {                                                                 \
-        char* formatted_message = nullptr;                                                                             \
         va_list args;                                                                                                  \
         va_start(args, fmt);                                                                                           \
-        if(vasprintf(&formatted_message, fmt, args) == -1) {                                                           \
-            va_end(args);                                                                                              \
-            return;                                                                                                    \
-        }                                                                                                              \
+        char* formatted_message = kraken_format_v(fmt, args);                                                          \
         va_end(args);                                                                                                  \
         kraken_log(KRAKEN_LOG_LEVEL_##L, formatted_message);                                                           \
-        free(formatted_message);                                                                                       \
+        kraken_free(formatted_message);                                                                                \
     }
 
 void kraken_log(kraken_log_level_t level, const char* message);

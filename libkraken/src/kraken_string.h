@@ -12,27 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LIBKRAKEN_KRAKEN_API_H
-#define LIBKRAKEN_KRAKEN_API_H
+#ifndef LIBKRAKEN_KRAKEN_STRING_H
+#define LIBKRAKEN_KRAKEN_STRING_H
 
-#include <stdint.h>
-#include <string.h>
+#include <stdarg.h>
 
-#ifdef __cplusplus
-#define KRAKEN_API_BEGIN extern "C" {
-#define KRAKEN_API_END }
-#else
-#define KRAKEN_API_BEGIN
-#define KRAKEN_API_END
-#endif
+char* kraken_format(const char* fmt, ...);
+char* kraken_format_v(const char* fmt, va_list args);
 
-#define KRAKEN_EXPORT __attribute__((visibility("default")))
-
-typedef uint8_t kraken_i2c_address_t;// I²C addresses are 7-bit
-
-typedef enum kraken_bool : uint8_t {
-    KRAKEN_FALSE,
-    KRAKEN_TRUE
-} kraken_bool_t;
-
-#endif//LIBKRAKEN_KRAKEN_API_H
+#endif//LIBKRAKEN_KRAKEN_STRING_H

@@ -19,7 +19,7 @@
 #include "port/kraken_port_impl.h"
 
 typedef struct _kraken_board_t {//NOLINT
-    kraken_board_config_t config;
+    kraken_board_config_t* config;
     kraken_port_t** ports;
     size_t num_ports;
     kraken_flash_t* flash;

@@ -17,7 +17,7 @@
 #ifndef LIBKRAKEN_ETHERKRAKEN_V1B_H
 #define LIBKRAKEN_ETHERKRAKEN_V1B_H
 
-#include "kraken_config.h"
+#include "config/kraken_config.h"
 
 extern const kraken_board_config_t g_config_v1b;
 

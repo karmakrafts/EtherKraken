@@ -22,6 +22,7 @@ import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
+import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
@@ -48,11 +49,9 @@ value class Port(val handle: kraken_port_handle_t) {
 
     inline val name: String
         get() = memScoped {
-            val size = alloc<size_tVar>()
-            kraken_port_get_name(handle, null, size.ptr).check()
-            val buffer = allocArray<ByteVar>(size.value.toLong())
-            kraken_port_get_name(handle, buffer, size.ptr).check()
-            buffer.toKStringFromUtf8()
+            val name = allocPointerTo<ByteVar>()
+            kraken_port_get_name(handle, name.ptr).check()
+            name.value?.toKStringFromUtf8() ?: "Unknown"
         }
 
     fun update() {
@@ -63,17 +62,19 @@ value class Port(val handle: kraken_port_handle_t) {
         kraken_port_reinit(handle).check()
     }
 
-    fun enumerateIOs(): Sequence<IO> = sequence {
+    fun enumerateIOs(): List<IO> {
+        val ios = ArrayList<IO>()
         memScoped {
             val count = alloc<size_tVar>()
             kraken_port_get_ios(handle, null, count.ptr).check()
-            val ios = allocArray<kraken_io_handle_tVar>(count.value.toLong())
-            kraken_port_get_ios(handle, ios, count.ptr).check()
+            val iosHandles = allocArray<kraken_io_handle_tVar>(count.value.toLong())
+            kraken_port_get_ios(handle, iosHandles, count.ptr).check()
             for (index in 0UL..<count.value) {
-                yield(IO(checkNotNull(ios[index.toLong()]) {
+                ios += IO(checkNotNull(iosHandles[index.toLong()]) {
                     "Could not retrieve IO address"
-                }))
+                })
             }
         }
+        return ios
     }
 }

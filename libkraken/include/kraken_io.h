@@ -15,7 +15,7 @@
 #ifndef LIBKRAKEN_KRAKEN_PIN_H
 #define LIBKRAKEN_KRAKEN_PIN_H
 
-#include "kraken_config.h"
+#include "config/kraken_config.h"
 #include "kraken_error.h"
 #include "kraken_handles.h"
 
@@ -32,7 +32,7 @@ KRAKEN_EXPORT kraken_error_t kraken_io_get_mode(kraken_io_c_handle_t handle, kra
 KRAKEN_EXPORT kraken_error_t kraken_io_set_mode(kraken_io_handle_t io, kraken_io_mode_t mode);
 KRAKEN_EXPORT kraken_error_t kraken_io_get(kraken_io_c_handle_t io, kraken_bool_t* state);
 KRAKEN_EXPORT kraken_error_t kraken_io_set(kraken_io_handle_t io, kraken_bool_t state);
-KRAKEN_EXPORT kraken_error_t kraken_io_get_name(kraken_io_c_handle_t io, char* buffer, size_t* size);
+KRAKEN_EXPORT kraken_error_t kraken_io_get_name(kraken_io_c_handle_t io, const char** name);
 KRAKEN_EXPORT kraken_error_t kraken_io_get_pin_config(kraken_io_c_handle_t io, kraken_pin_config_t* config);
 
 KRAKEN_API_END

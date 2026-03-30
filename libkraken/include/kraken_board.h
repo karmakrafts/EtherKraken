@@ -15,8 +15,8 @@
 #ifndef LIBKRAKEN_KRAKEN_BOARD_H
 #define LIBKRAKEN_KRAKEN_BOARD_H
 
+#include "config/kraken_config.h"
 #include "kraken_api.h"
-#include "kraken_config.h"
 #include "kraken_error.h"
 #include "kraken_handles.h"
 #include "kraken_port.h"

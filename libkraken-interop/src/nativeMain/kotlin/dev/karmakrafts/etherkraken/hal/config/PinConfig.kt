@@ -21,11 +21,13 @@ package dev.karmakrafts.etherkraken.hal.config
 import kotlinx.cinterop.ExperimentalForeignApi
 import libkraken.kraken_pin_config_t
 
-data class PinConfig(
-    val devicePin: UInt, val portPin: UInt
+data class PinConfig( // @formatter:off
+    val devicePin: UInt,
+    val portPin: UInt
 ) {
-    fun applyTo(config: kraken_pin_config_t) = with(config) {
-        device_pin = devicePin
-        port_pin = portPin
+    // @formatter:on
+    internal fun init(config: kraken_pin_config_t) {
+        config.device_pin = devicePin
+        config.port_pin = portPin
     }
 }

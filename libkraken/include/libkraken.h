@@ -15,10 +15,11 @@
 #ifndef LIBKRAKEN_LIBKRAKEN_H
 #define LIBKRAKEN_LIBKRAKEN_H
 
+#include "config/kraken_config.h"
 #include "device/bcm2835.h"
 #include "device/mcp23017.h"
+#include "kraken_alloc.h"
 #include "kraken_board.h"
-#include "kraken_config.h"
 #include "kraken_flash.h"
 #include "kraken_handles.h"
 #include "kraken_io.h"

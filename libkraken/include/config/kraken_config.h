@@ -92,8 +92,8 @@ typedef struct kraken_mux_config {
 } kraken_mux_config_t;
 
 typedef struct kraken_board_config {
-    kraken_gpio_config_t gpio_config;
-    kraken_mux_config_t* mux_configs;
+    kraken_gpio_config_t* gpio_config;
+    kraken_mux_config_t** mux_configs;
     size_t mux_count;
     char* flash_device;
 } kraken_board_config_t;

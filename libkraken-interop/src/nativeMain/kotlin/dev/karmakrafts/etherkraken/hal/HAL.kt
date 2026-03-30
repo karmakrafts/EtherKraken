@@ -30,6 +30,7 @@ object HAL {
 
     fun init() {
         if (!isInitialized.compareAndSet(expectedValue = false, newValue = true)) return
+        // Set basic log callback so we get stdout from the HAL
         kraken_log_set_consumer(staticCFunction { level, message ->
             val levelName = levelNames[level.ordinal]
             println("[HAL $levelName] ${message?.toKStringFromUtf8() ?: ""}")

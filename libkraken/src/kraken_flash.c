@@ -24,7 +24,7 @@
 kraken_error_t kraken_flash_create(kraken_flash_t** flash_addr, const char* device) {
     KRAKEN_CHECK_PTR(flash_addr, KRAKEN_ERR_INVALID_ARG, "Invalid flash address");
 
-    kraken_flash_t* flash = kraken_alloc(kraken_flash_t);
+    kraken_flash_t* flash = kraken_calloc(sizeof(kraken_flash_t));
     KRAKEN_CHECK_PTR(flash, KRAKEN_ERR_INVALID_OP, "Could not allocate flash");
     flash->path = device;
 
@@ -43,7 +43,7 @@ kraken_error_t kraken_flash_create(kraken_flash_t** flash_addr, const char* devi
 
 kraken_error_t kraken_flash_destroy(kraken_flash_t* flash) {
     KRAKEN_CHECK_RESULT(close(flash->fd), KRAKEN_ERR_INVALID_OP, "Could not close flash device");
-    free(flash);
+    kraken_free(flash);
     return KRAKEN_OK;
 }
 

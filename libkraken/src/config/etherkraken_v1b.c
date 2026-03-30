@@ -41,25 +41,28 @@ static kraken_pin_config_t g_v1b_mux_pins[] = {
     { .device_pin = 8, .port_pin = 18 }
 };
 
-static kraken_mux_config_t g_v1b_mux_configs[] = {
-    { // IO0
-        .spi = {
-            .type = KRAKEN_MUX_TYPE_SPI,
-            .pins = g_v1b_mux_pins,
-            .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_pins),
-            .pfn_state_update = &mcp23017_spi_mux_state_update,
-            .pfn_state_init = &mcp23017_spi_mux_state_init
-        }
-    },
-    { // IO1
-        .spi = {
-            .type = KRAKEN_MUX_TYPE_SPI,
-            .pins = g_v1b_mux_pins,
-            .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_pins),
-            .pfn_state_update = &mcp23017_spi_mux_state_update,
-            .pfn_state_init = &mcp23017_spi_mux_state_init
-        }
+static kraken_mux_config_t g_v1b_mux_config_io0 = {
+    .spi = {
+        .type = KRAKEN_MUX_TYPE_SPI,
+        .pins = g_v1b_mux_pins,
+        .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_pins),
+        .pfn_state_update = &mcp23017_spi_mux_state_update,
+        .pfn_state_init = &mcp23017_spi_mux_state_init
     }
+};
+static kraken_mux_config_t g_v1b_mux_config_io1 = {
+    .spi = {
+        .type = KRAKEN_MUX_TYPE_SPI,
+        .pins = g_v1b_mux_pins,
+        .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_pins),
+        .pfn_state_update = &mcp23017_spi_mux_state_update,
+        .pfn_state_init = &mcp23017_spi_mux_state_init
+    }
+};
+
+static kraken_mux_config_t* g_v1b_mux_configs[] = {
+    &g_v1b_mux_config_io0,
+    &g_v1b_mux_config_io1
 };
 
 // On the V1B, only 8 GPIOS from the SoC are actually programmable
@@ -100,17 +103,19 @@ static kraken_pin_config_t g_v1b_gpio_pins[] = {
     }
 };
 
+static kraken_gpio_config_t g_v1b_gpio_config = {
+    .device_tree_entry = "/proc/device-tree/soc/gpiomem",
+    .device_type = "bcm2835",
+    .device = "/dev/gpiomem",
+    .registers_size = sizeof(bcm2835_gpio_t),
+    .pins = g_v1b_gpio_pins,
+    .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_gpio_pins),
+    .pfn_state_update = &bcm2835_gpio_state_update,
+    .pfn_state_init = &bcm2835_gpio_state_init
+};
+
 const kraken_board_config_t g_config_v1b = {
-    .gpio_config = {
-        .device_tree_entry = "/proc/device-tree/soc/gpiomem",
-        .device_type = "bcm2835",
-        .device = "/dev/gpiomem",
-        .registers_size = sizeof(bcm2835_gpio_t),
-        .pins = g_v1b_gpio_pins,
-        .pin_count = KRAKEN_ARRAY_SIZE(g_v1b_gpio_pins),
-        .pfn_state_update = &bcm2835_gpio_state_update,
-        .pfn_state_init = &bcm2835_gpio_state_init
-    },
+    .gpio_config = &g_v1b_gpio_config,
     .mux_configs = g_v1b_mux_configs,
     .mux_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_configs),
     .flash_device = "/dev/mtd0"

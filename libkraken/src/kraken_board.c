@@ -15,6 +15,7 @@
 #include "libkraken.h"
 
 #include "config/etherkraken_v1b.h"
+#include "config/kraken_config_impl.h"
 #include "kraken_board_impl.h"
 #include "kraken_error_impl.h"
 #include "kraken_flash_impl.h"
@@ -38,27 +39,28 @@ KRAKEN_EXPORT kraken_error_t kraken_board_config_init(const kraken_board_type_t 
 
 KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* config, kraken_board_handle_t* handle) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Board handle pointer is null");
-    kraken_board_t* board = kraken_alloc(kraken_board_t);
+    kraken_board_t* board = kraken_calloc(sizeof(kraken_board_t));
     KRAKEN_CHECK_PTR(board, KRAKEN_ERR_INVALID_OP, "Could not allocate board instance");
 
     kraken_log_debug("Copying board config to board instance");
-    memcpy(&board->config, config, sizeof(kraken_board_config_t));// Copy config to board instance
+    KRAKEN_CHECK_ERROR(kraken_board_config_copy(config, &board->config),
+                       "Could not copy board config to board instance");
 
     // Calculate and update port count
-    const size_t num_ports = config->mux_count + 1;
+    const size_t num_ports = board->config->mux_count + 1;
     board->num_ports = num_ports;
     kraken_log_debug("Allocating memory for %zu ports", num_ports);
 
-    kraken_port_t** ports = kraken_alloc_array(kraken_port_t*, num_ports);
+    kraken_port_t** ports = kraken_calloc(sizeof(kraken_port_t*) * num_ports);
     KRAKEN_CHECK_PTR(ports, KRAKEN_ERR_INVALID_OP, "Could not allocate IO ports");
-    const kraken_gpio_config_t* gpio_config = &config->gpio_config;
+    const kraken_gpio_config_t* gpio_config = board->config->gpio_config;
     // Port 0 is always SoC GPIO
     kraken_log_debug("Creating GPIO port");
     kraken_gpio_port_create((kraken_gpio_port_t**) &ports[0], gpio_config);
     // Create any auxillary MUX ports attached via I2C or SPI
     for(size_t i = 0; i < config->mux_count; i++) {// IOn
         kraken_log_debug("Creating MUX port %zu", i);
-        const kraken_mux_config_t* mux_config = &config->mux_configs[i];
+        const kraken_mux_config_t* mux_config = config->mux_configs[i];
         kraken_port_t** port = &ports[i + 1];
         switch(mux_config->type) {
             case KRAKEN_MUX_TYPE_I2C: {
@@ -90,7 +92,7 @@ KRAKEN_EXPORT kraken_error_t kraken_board_get_config(const kraken_board_c_handle
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid board handle");
     KRAKEN_CHECK_PTR(config, KRAKEN_ERR_INVALID_ARG, "Config address pointer is null");
     const kraken_board_t* board = (const kraken_board_t*) handle;
-    *config = &board->config;
+    *config = board->config;
     return KRAKEN_OK;
 }
 
@@ -145,9 +147,10 @@ KRAKEN_EXPORT kraken_error_t kraken_board_destroy(kraken_board_handle_t handle) 
         kraken_flash_destroy(board->flash);
     }
     kraken_log_debug("Freeing ports memory");
-    free(board->ports);// Free ports array memory
+    kraken_free(board->ports);// Free ports array memory
+    kraken_board_config_destroy(board->config);
     kraken_log_debug("Freeing board instance memory");
-    free(board);
+    kraken_free(board);
     return KRAKEN_OK;
 }
 

@@ -19,13 +19,12 @@
 package dev.karmakrafts.etherkraken.hal.config
 
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.MemScope
 import kotlinx.cinterop.allocArray
-import kotlinx.cinterop.get
-import kotlinx.cinterop.nativeHeap
+import kotlinx.cinterop.cstr
 import libkraken.kraken_gpio_config_t
 import libkraken.pfn_kraken_gpio_state_init
 import libkraken.pfn_kraken_gpio_state_update
-import platform.posix.strdup
 
 data class GPIOConfig(
     val deviceTreeEntry: String,
@@ -37,22 +36,17 @@ data class GPIOConfig(
     val initCallback: pfn_kraken_gpio_state_init,
     val alias: String
 ) {
-    internal fun applyTo(config: kraken_gpio_config_t) = with(config) {
-        device_tree_entry = strdup(deviceTreeEntry)
-        device_type = strdup(deviceType)
-        this.device = strdup(this@GPIOConfig.device)
-        this.alias = strdup(this@GPIOConfig.alias)
-        registers_size = registersSize.toULong()
-        pfn_state_update = updateCallback
-        pfn_state_init = initCallback
-        if (this@GPIOConfig.pins.isNotEmpty()) {
-            pin_count = this@GPIOConfig.pins.size.toULong()
-            pins = nativeHeap.allocArray(this@GPIOConfig.pins.size)
-            for (index in this@GPIOConfig.pins.indices) {
-                val pinConfig = this@GPIOConfig.pins[index]
-                pinConfig.applyTo(pins!![index])
-            }
-        }
+    internal context(scope: MemScope)
+    fun init(config: kraken_gpio_config_t) = with(scope) {
+        config.device_tree_entry = deviceTreeEntry.cstr.ptr
+        config.device = device.cstr.ptr
+        config.device_type = deviceType.cstr.ptr
+        config.registers_size = registersSize.toULong()
+        config.alias = alias.cstr.ptr
+        config.pfn_state_update = updateCallback
+        config.pfn_state_init = initCallback
+        config.pins = allocArray(pins.size) { pins[it].init(this) }
+        config.pin_count = pins.size.toULong()
     }
 }
 

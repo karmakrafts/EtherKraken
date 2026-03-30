@@ -100,14 +100,14 @@ typedef enum bcm2835_fsel : uint8_t {
     BCM2825_FSEL_ALT5 = 0b010
 } bcm2835_fsel_t;
 
-typedef struct _bcm2835_gppud_t {//NOLINT
+typedef struct __attribute__((packed)) _bcm2835_gppud_t {//NOLINT
     bcm2835_pud_t pud : 2;
     uint32_t _reserved : 30;
 } bcm2835_gppud_t;
 
-typedef struct _bcm2835_gppinreg_t {//NOLINT
-    union {
-        struct {
+typedef struct __attribute__((packed)) _bcm2835_gppinreg_t {//NOLINT
+    union __attribute__((packed)) {
+        struct __attribute__((packed)) {
             kraken_bool_t pin0 : 1;
             kraken_bool_t pin1 : 1;
             kraken_bool_t pin2 : 1;
@@ -145,9 +145,9 @@ typedef struct _bcm2835_gppinreg_t {//NOLINT
     };
 } bcm2835_gppinreg_t;
 
-typedef struct _bcm2835_gpfsel_t {// NOLINT
-    union {
-        struct {
+typedef struct __attribute__((packed)) _bcm2835_gpfsel_t {// NOLINT
+    union __attribute__((packed)) {
+        struct __attribute__((packed)) {
             bcm2835_fsel_t fsel0 : 3;
             bcm2835_fsel_t fsel1 : 3;
             bcm2835_fsel_t fsel2 : 3;
@@ -164,13 +164,13 @@ typedef struct _bcm2835_gpfsel_t {// NOLINT
     };
 } bcm2835_gpfsel_t;
 
-typedef struct _bcm2835_gpio_t {// NOLINT
-    bcm2835_gpfsel_t gpfsel0;   // FSEL0 - FSEL9
-    bcm2835_gpfsel_t gpfsel1;   // FSEL10 - FSEL19
-    bcm2835_gpfsel_t gpfsel2;   // FSEL20 - FSEL29
-    bcm2835_gpfsel_t gpfsel3;   // FSEL30 - FSEL39
-    bcm2835_gpfsel_t gpfsel4;   // FSEL40 - FSEL49
-    bcm2835_gpfsel_t gpfsel5;   // FSEL50 - FSEL53
+typedef struct __attribute__((packed)) _bcm2835_gpio_t {// NOLINT
+    bcm2835_gpfsel_t gpfsel0;                           // FSEL0 - FSEL9
+    bcm2835_gpfsel_t gpfsel1;                           // FSEL10 - FSEL19
+    bcm2835_gpfsel_t gpfsel2;                           // FSEL20 - FSEL29
+    bcm2835_gpfsel_t gpfsel3;                           // FSEL30 - FSEL39
+    bcm2835_gpfsel_t gpfsel4;                           // FSEL40 - FSEL49
+    bcm2835_gpfsel_t gpfsel5;                           // FSEL50 - FSEL53
     uint32_t _reserved0;
     bcm2835_gppinreg_t gpset0;
     bcm2835_gppinreg_t gpset1;

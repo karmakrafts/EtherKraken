@@ -27,9 +27,7 @@
 
 #define KRAKEN_ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define KRAKEN_INTERNAL __attribute__((visibility("hidden")))
-
-#define kraken_alloc(t) (t*) malloc(sizeof(t))
-#define kraken_alloc_array(t, s) (t*) malloc(sizeof(t) * (s))
+#define KRAKEN_INLINE __attribute__((always_inline))
 
 #define kraken_assert(x)                                                                                               \
     do {                                                                                                               \

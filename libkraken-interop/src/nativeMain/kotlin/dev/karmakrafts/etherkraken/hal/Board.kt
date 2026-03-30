@@ -20,7 +20,6 @@ import dev.karmakrafts.etherkraken.hal.config.BoardConfig
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
-import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.get
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
@@ -28,7 +27,6 @@ import kotlinx.cinterop.value
 import libkraken.kraken_board_config_t
 import libkraken.kraken_board_create
 import libkraken.kraken_board_destroy
-import libkraken.kraken_board_get_config
 import libkraken.kraken_board_get_ports
 import libkraken.kraken_board_get_ports_for_type
 import libkraken.kraken_board_handle_t
@@ -42,48 +40,41 @@ value class Board private constructor(val handle: kraken_board_handle_t) : AutoC
     companion object {
         fun create(config: BoardConfig): Board = memScoped {
             val handle = alloc<kraken_board_handle_tVar>()
-            kraken_board_create(config.address, handle.ptr).check()
+            kraken_board_create(alloc<kraken_board_config_t> {
+                config.init(this)
+            }.ptr, handle.ptr).check()
             Board(checkNotNull(handle.value) {
                 "Could not create HAL board instance"
             })
         }
     }
 
-    inline val config: BoardConfig
-        get() = memScoped {
-            val config = allocPointerTo<kraken_board_config_t>()
-            kraken_board_get_config(handle, config.ptr).check()
-            BoardConfig(checkNotNull(config.value) {
-                "Could not retrieve board config"
+    fun enumeratePorts(): List<Port> = memScoped {
+        val ports = ArrayList<Port>()
+        val count = alloc<size_tVar>()
+        kraken_board_get_ports(handle, null, count.ptr).check()
+        val portHandles = allocArray<kraken_port_handle_tVar>(count.value.toLong())
+        kraken_board_get_ports(handle, portHandles, count.ptr).check()
+        for (index in 0UL..<count.value) {
+            ports += Port(checkNotNull(portHandles[index.toLong()]) {
+                "Could not retrieve port address"
             })
         }
-
-    fun enumeratePorts(): Sequence<Port> = sequence {
-        memScoped {
-            val count = alloc<size_tVar>()
-            kraken_board_get_ports(handle, null, count.ptr).check()
-            val ports = allocArray<kraken_port_handle_tVar>(count.value.toLong())
-            kraken_board_get_ports(handle, ports, count.ptr).check()
-            for (index in 0UL..<count.value) {
-                yield(Port(checkNotNull(ports[index.toLong()]) {
-                    "Could not retrieve port address"
-                }))
-            }
-        }
+        ports
     }
 
-    fun enumeratePorts(type: kraken_port_type_t): Sequence<Port> = sequence {
-        memScoped {
-            val count = alloc<size_tVar>()
-            kraken_board_get_ports_for_type(handle, type, null, count.ptr).check()
-            val ports = allocArray<kraken_port_handle_tVar>(count.value.toLong())
-            kraken_board_get_ports_for_type(handle, type, ports, count.ptr).check()
-            for (index in 0UL..<count.value) {
-                yield(Port(checkNotNull(ports[index.toLong()]) {
-                    "Could not retrieve port address"
-                }))
-            }
+    fun enumeratePorts(type: kraken_port_type_t): List<Port> = memScoped {
+        val ports = ArrayList<Port>()
+        val count = alloc<size_tVar>()
+        kraken_board_get_ports_for_type(handle, type, null, count.ptr).check()
+        val portHandles = allocArray<kraken_port_handle_tVar>(count.value.toLong())
+        kraken_board_get_ports_for_type(handle, type, portHandles, count.ptr).check()
+        for (index in 0UL..<count.value) {
+            ports += Port(checkNotNull(portHandles[index.toLong()]) {
+                "Could not retrieve port address"
+            })
         }
+        ports
     }
 
     override fun close() {

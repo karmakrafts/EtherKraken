@@ -15,7 +15,7 @@
 #ifndef LIBKRAKEN_KRAKEN_SPI_MUX_PORT_H
 #define LIBKRAKEN_KRAKEN_SPI_MUX_PORT_H
 
-#include "kraken_config.h"
+#include "config/kraken_config.h"
 #include "kraken_io_impl.h"
 #include "kraken_port.h"
 
@@ -24,7 +24,7 @@ typedef struct kraken_spi_mux_port {
     kraken_io_t** ios;
     size_t num_ios;
     int fd;
-    kraken_spi_mux_config_t config;
+    kraken_spi_mux_config_t* config;
     void* registers;
     size_t mapped_registers_size;
     void* shadow_memory;

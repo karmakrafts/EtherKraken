@@ -15,9 +15,9 @@
 #include "kraken_error_impl.h"
 #include "kraken_log_impl.h"
 
-static _Atomic pfn_kraken_log_consumer g_log_consumer = nullptr;
+static _Atomic(pfn_kraken_log_consumer) g_log_consumer = nullptr;
 
-KRAKEN_EXPORT kraken_error_t kraken_log_set_consumer(pfn_kraken_log_consumer consumer) {
+KRAKEN_EXPORT kraken_error_t kraken_log_set_consumer(const pfn_kraken_log_consumer consumer) {
     g_log_consumer = consumer;
     return KRAKEN_OK;
 }

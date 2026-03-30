@@ -61,14 +61,7 @@ KRAKEN_EXPORT kraken_error_t kraken_port_update(kraken_port_c_handle_t handle);
 ///     @code KRAKEN_ERR_INVALID_OP@endcode when the update operation fails.
 KRAKEN_EXPORT kraken_error_t kraken_port_reinit(kraken_port_c_handle_t handle);
 
-/// Retrieves the human-readable name of the given port.
-///
-/// @param handle The port to retrieve the name of.
-/// @param buffer A pointer to a buffer large enough to fit the given port's name.
-/// @param size A pointer to a variable to be populated with the size of the given port's name in bytes.
-/// @return @code KRAKEN_OK@endcode when successful,
-///     @code KRAKEN_ERR_INVALID_ARG@endcode when the given port handle is invalid.
-KRAKEN_EXPORT kraken_error_t kraken_port_get_name(kraken_port_c_handle_t handle, char* buffer, size_t* size);
+KRAKEN_EXPORT kraken_error_t kraken_port_get_name(kraken_port_c_handle_t handle, const char** name);
 
 /// Retrieves the human-readable name of the given port type.
 ///

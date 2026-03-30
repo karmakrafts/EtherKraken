@@ -41,6 +41,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.libkrakenInterop)
+                implementation(libs.filament.core)
             }
         }
         commonTest {

@@ -15,7 +15,7 @@
 #ifndef LIBKRAKEN_KRAKEN_I2C_MUX_PORT_H
 #define LIBKRAKEN_KRAKEN_I2C_MUX_PORT_H
 
-#include "kraken_config.h"
+#include "config/kraken_config.h"
 #include "kraken_io_impl.h"
 #include "kraken_port.h"
 
@@ -25,7 +25,7 @@ typedef struct kraken_i2c_mux_port {
     size_t num_ios;
     int fd;
     void* shadow_memory;
-    kraken_i2c_mux_config_t config;
+    kraken_i2c_mux_config_t* config;
 } kraken_i2c_mux_port_t;
 
 kraken_error_t kraken_i2c_mux_port_create(kraken_i2c_mux_port_t** port_addr, const kraken_i2c_mux_config_t* config);

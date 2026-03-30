@@ -15,8 +15,8 @@
 #ifndef LIBKRAKEN_KRAKEN_IO_IMPL_H
 #define LIBKRAKEN_KRAKEN_IO_IMPL_H
 
+#include "config/kraken_config.h"
 #include "kraken_api.h"
-#include "kraken_config.h"
 #include "kraken_io.h"
 
 typedef struct kraken_io {

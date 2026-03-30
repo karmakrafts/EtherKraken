@@ -19,11 +19,8 @@
 package dev.karmakrafts.etherkraken.hal.config
 
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.allocArray
-import kotlinx.cinterop.get
-import kotlinx.cinterop.nativeHeap
+import kotlinx.cinterop.MemScope
 import libkraken.kraken_mux_config_t
-import platform.posix.strdup
 
 data class I2CMuxConfig( // @formatter:off
     val bus: String,
@@ -31,18 +28,8 @@ data class I2CMuxConfig( // @formatter:off
     val shadowMemorySize: Long,
     val pins: List<PinConfig>
 ) : MuxConfig { // @formatter:on
-    override fun applyTo(config: kraken_mux_config_t) = with(config.i2c) {
-        this.bus = strdup(this@I2CMuxConfig.bus)
-        this.address = this@I2CMuxConfig.address
-        shadow_memory_size = shadowMemorySize.toULong()
-        if (this@I2CMuxConfig.pins.isNotEmpty()) {
-            this.pins = nativeHeap.allocArray(this@I2CMuxConfig.pins.size)
-            pin_count = this@I2CMuxConfig.pins.size.toULong()
-            for (index in this@I2CMuxConfig.pins.indices) {
-                val pinConfig = this@I2CMuxConfig.pins[index]
-                pinConfig.applyTo(pins!![index])
-            }
-        }
+    context(scope: MemScope)
+    override fun init(config: kraken_mux_config_t) {
     }
 }
 

@@ -20,40 +20,52 @@ package dev.karmakrafts.etherkraken.selftest
 
 import dev.karmakrafts.etherkraken.hal.Board
 import dev.karmakrafts.etherkraken.hal.HAL
+import dev.karmakrafts.etherkraken.hal.IO
 import dev.karmakrafts.etherkraken.hal.config.BoardConfig
 import dev.karmakrafts.etherkraken.hal.config.DefaultGPIOType
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.toLong
 import libkraken.bcm2835_pin_t
+import libkraken.kraken_io_mode_t
 import libkraken.kraken_port_type_t
+import platform.posix.usleep
 
 fun main() {
     println("==================== RUNNING SELFTEST ====================")
     HAL.init() // Register logging callbacks for debugging and initialize internal state
-    BoardConfig {
+    Board.create(BoardConfig {
         gpio(DefaultGPIOType.BCM2835) {
             deviceTreeEntry("/proc/device-tree/soc/gpiomem")
             device("/dev/gpiomem")
-            pin(bcm2835_pin_t.BCM2835_PIN_BCM13.value, 8U)
-            pin(bcm2835_pin_t.BCM2835_PIN_BCM25.value, 10U)
-            pin(bcm2835_pin_t.BCM2835_PIN_BCM24.value, 12U)
-            pin(bcm2835_pin_t.BCM2835_PIN_BCM23.value, 14U)
-            pin(bcm2835_pin_t.BCM2835_PIN_BCM22.value, 16U)
-            pin(bcm2835_pin_t.BCM2835_PIN_BCM26.value, 18U)
-            pin(bcm2835_pin_t.BCM2835_PIN_BCM27.value, 0U) // AUX power state
-            pin(bcm2835_pin_t.BCM2835_PIN_BCM47.value, 0U) // LED
+            pin(bcm2835_pin_t.BCM2835_PIN_BCM2.value, 1000U)
+            pin(bcm2835_pin_t.BCM2835_PIN_BCM3.value, 1001U)
+            pin(bcm2835_pin_t.BCM2835_PIN_BCM4.value, 1002U)
         }
-    }.use { config ->
-        Board.create(config).use { board ->
-            println("Created HAL board instance at 0x${board.handle.toLong().toHexString()}")
-            for (port in board.enumeratePorts()) {
-                println("Enumerating port at 0x${port.handle.toLong().toHexString()}")
-                if (port.type == kraken_port_type_t.KRAKEN_PORT_TYPE_GPIO) {
-                    println("Found GPIO port, initializing..")
-                    port.reinit()
-                    println("Initialized GPIO port, updating initial state")
-                    //port.update()
-                    //println("GPIO port ready!")
+    }).use { board ->
+        println("Created HAL board instance at 0x${board.handle.toLong().toHexString()}")
+        for (port in board.enumeratePorts()) {
+            println("Enumerating port at 0x${port.handle.toLong().toHexString()}")
+            if (port.type == kraken_port_type_t.KRAKEN_PORT_TYPE_GPIO) {
+                println("Found GPIO port, initializing..")
+                val ios = port.enumerateIOs()
+                for (io in ios) {
+                    println("Enumerating IO '${io.name}' at 0x${io.handle.toLong().toHexString()}")
+                    io.mode = kraken_io_mode_t.KRAKEN_IO_MODE_OUT
+                }
+                port.reinit()
+
+                println("Initialized GPIO port, updating initial state")
+                port.update()
+
+                var lastIo: IO? = null
+                for (i in 0..<30) {
+                    lastIo?.state = false
+                    port.update()
+                    val io = ios[i % 3]
+                    io.state = true
+                    port.update()
+                    lastIo = io
+                    usleep(250000U)
                 }
             }
         }

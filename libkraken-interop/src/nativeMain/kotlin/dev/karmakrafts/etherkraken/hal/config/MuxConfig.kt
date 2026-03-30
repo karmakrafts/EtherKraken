@@ -19,8 +19,9 @@
 package dev.karmakrafts.etherkraken.hal.config
 
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.MemScope
 import libkraken.kraken_mux_config_t
 
 sealed interface MuxConfig {
-    fun applyTo(config: kraken_mux_config_t)
+    context(scope: MemScope) fun init(config: kraken_mux_config_t)
 }

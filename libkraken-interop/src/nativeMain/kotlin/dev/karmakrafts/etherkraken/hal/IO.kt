@@ -21,7 +21,7 @@ package dev.karmakrafts.etherkraken.hal
 import kotlinx.cinterop.ByteVar
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
-import kotlinx.cinterop.allocArray
+import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toKStringFromUtf8
@@ -36,7 +36,6 @@ import libkraken.kraken_io_mode_t
 import libkraken.kraken_io_mode_tVar
 import libkraken.kraken_io_set
 import libkraken.kraken_io_set_mode
-import platform.posix.size_tVar
 
 value class IO(val handle: kraken_io_handle_t) {
     inline var mode: kraken_io_mode_t
@@ -61,10 +60,8 @@ value class IO(val handle: kraken_io_handle_t) {
 
     inline val name: String
         get() = memScoped {
-            val size = alloc<size_tVar>()
-            kraken_io_get_name(handle, null, size.ptr).check()
-            val buffer = allocArray<ByteVar>(size.value.toLong())
-            kraken_io_get_name(handle, buffer, size.ptr).check()
-            buffer.toKStringFromUtf8()
+            val name = allocPointerTo<ByteVar>()
+            kraken_io_get_name(handle, name.ptr).check()
+            name.value?.toKStringFromUtf8() ?: "Unknown"
         }
 }

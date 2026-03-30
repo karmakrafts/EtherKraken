@@ -18,52 +18,28 @@
 
 package dev.karmakrafts.etherkraken.hal.config
 
-import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.MemScope
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.allocArray
-import kotlinx.cinterop.free
-import kotlinx.cinterop.get
-import kotlinx.cinterop.nativeHeap
-import kotlinx.cinterop.pointed
+import kotlinx.cinterop.cstr
 import kotlinx.cinterop.ptr
-import libkraken.kraken_board_config_init
 import libkraken.kraken_board_config_t
-import libkraken.kraken_board_type_t
-import libkraken.kraken_mux_type_t
-import platform.posix.free
-import platform.posix.strdup
+import libkraken.kraken_gpio_config_t
+import libkraken.kraken_mux_config_t
 
-value class BoardConfig @PublishedApi internal constructor(val address: CPointer<kraken_board_config_t>) : AutoCloseable {
-    constructor() : this(nativeHeap.alloc<kraken_board_config_t>().ptr)
-
-    constructor(boardType: kraken_board_type_t) : this(nativeHeap.alloc<kraken_board_config_t>().ptr.apply {
-        kraken_board_config_init(boardType, this)
-    })
-
-    override fun close() {
-        address.pointed.gpio_config.apply {
-            device_tree_entry?.let(::free)
-            device_type?.let(::free)
-            device?.let(::free)
-            pins?.let(nativeHeap::free)
-            alias?.let(::free)
+data class BoardConfig( // @formatter:off
+    val gpioConfig: GPIOConfig,
+    val muxConfigs: List<MuxConfig>,
+    val flashDevice: String?
+) {
+    internal context(scope: MemScope) fun init(config: kraken_board_config_t) = with(scope) {
+        config.flash_device = flashDevice?.cstr?.ptr
+        config.gpio_config = alloc<kraken_gpio_config_t> { gpioConfig.init(this) }.ptr
+        config.mux_configs = allocArray(muxConfigs.size) {
+            alloc<kraken_mux_config_t>{ muxConfigs[it].init(this) }.ptr
         }
-        address.pointed.flash_device?.let(::free)
-        address.pointed.mux_configs?.let(nativeHeap::free)
-        for (index in 0UL..<address.pointed.mux_count) {
-            val muxConfig = address.pointed.mux_configs!![index.toLong()]
-            when (muxConfig.type) {
-                kraken_mux_type_t.KRAKEN_MUX_TYPE_I2C -> muxConfig.i2c.apply {
-                    pins?.let(nativeHeap::free)
-                }
-
-                kraken_mux_type_t.KRAKEN_MUX_TYPE_SPI -> muxConfig.spi.apply {
-                    pins?.let(nativeHeap::free)
-                }
-            }
-        }
-        nativeHeap.free(address)
+        config.mux_count = muxConfigs.size.toULong()
     }
 }
 
@@ -95,20 +71,7 @@ class BoardConfigBuilder @PublishedApi internal constructor() {
     }
 
     @PublishedApi
-    internal fun build(): BoardConfig = BoardConfig().apply {
-        gpioConfig.applyTo(address.pointed.gpio_config)
-        flashDevice?.let { flashDevice ->
-            address.pointed.flash_device = strdup(flashDevice)
-        }
-        if (muxConfigs.isNotEmpty()) {
-            address.pointed.mux_configs = nativeHeap.allocArray(muxConfigs.size)
-            address.pointed.mux_count = muxConfigs.size.toULong()
-            for (index in muxConfigs.indices) {
-                val targetConfig = address.pointed.mux_configs!![index]
-                muxConfigs[index].applyTo(targetConfig)
-            }
-        }
-    }
+    internal fun build(): BoardConfig = BoardConfig(gpioConfig, muxConfigs, flashDevice)
 }
 
 typealias BoardConfigSpec = BoardConfigBuilder.() -> Unit
