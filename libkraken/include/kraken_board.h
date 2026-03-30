@@ -27,12 +27,6 @@ typedef enum kraken_board_type : uint8_t {
     KRAKEN_BOARD_TYPE_1B// EtherKraken V1 Rev. B
 } kraken_board_type_t;
 
-// On-state of the on-board 3.3V supply rails to allow efficient deep-sleep
-typedef enum kraken_aux_power_state : uint8_t {
-    KRAKEN_AUX_POWER_STATE_ON,
-    KRAKEN_AUX_POWER_STATE_OFF
-} kraken_aux_power_state_t;
-
 /// Initializes the given configuration with the defaults for the specified board.
 ///
 /// @param type The board type to initialize the config for.
@@ -73,11 +67,6 @@ KRAKEN_EXPORT kraken_error_t kraken_board_get_ports(kraken_board_c_handle_t hand
 /// @return @code KRAKEN_OK@endcode when successful,
 ///     @code KRAKEN_ERR_INVALID_ARG@endcode when the given handle or pointer is invalid.
 KRAKEN_EXPORT kraken_error_t kraken_board_get_flash(kraken_board_c_handle_t handle, kraken_flash_handle_t* flash);
-
-KRAKEN_EXPORT kraken_error_t kraken_board_aux_power_get(kraken_board_c_handle_t handle,
-                                                        kraken_aux_power_state_t* state);
-
-KRAKEN_EXPORT kraken_error_t kraken_board_aux_power_set(kraken_board_handle_t handle, kraken_aux_power_state_t state);
 
 KRAKEN_EXPORT kraken_error_t kraken_board_destroy(kraken_board_handle_t handle);
 

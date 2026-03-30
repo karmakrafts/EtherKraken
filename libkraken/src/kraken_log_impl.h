@@ -25,7 +25,7 @@
     static void kraken_log_##l(const char* fmt, ...) {                                                                 \
         char* formatted_message = nullptr;                                                                             \
         va_list args;                                                                                                  \
-        va_start(args);                                                                                                \
+        va_start(args, fmt);                                                                                           \
         if(vasprintf(&formatted_message, fmt, args) == -1) {                                                           \
             va_end(args);                                                                                              \
             return;                                                                                                    \

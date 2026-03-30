@@ -51,7 +51,15 @@ KRAKEN_EXPORT kraken_error_t kraken_port_get_ios(kraken_port_c_handle_t handle, 
 /// @return @code KRAKEN_OK@endcode when successful,
 ///     @code KRAKEN_ERR_INVALID_ARG@endcode when the given port handle is invalid,
 ///     @code KRAKEN_ERR_INVALID_OP@endcode when the update operation fails.
-KRAKEN_EXPORT kraken_error_t kraken_port_update(kraken_port_handle_t handle);
+KRAKEN_EXPORT kraken_error_t kraken_port_update(kraken_port_c_handle_t handle);
+
+/// Re-initializes the port to reflect any changes to the mode of the associated IOs.
+///
+/// @param handle The port to re-initialize.
+/// @return @code KRAKEN_OK@endcode when successful,
+///     @code KRAKEN_ERR_INVALID_ARG@endcode when the given port handle is invalid,
+///     @code KRAKEN_ERR_INVALID_OP@endcode when the update operation fails.
+KRAKEN_EXPORT kraken_error_t kraken_port_reinit(kraken_port_c_handle_t handle);
 
 /// Retrieves the human-readable name of the given port.
 ///

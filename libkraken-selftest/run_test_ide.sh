@@ -18,29 +18,44 @@
 
 set -euo pipefail
 
-read -p "Enter device IP: " DEVICE_IP
+DEVICE_IP=""
+DEVICE_USER=""
+DEVICE_PASSWORD=""
+DEVICE_DEBUG_STATE=""
+
+while getopts "a:u:p:d:" opt; do
+    case $opt in
+        a)
+            DEVICE_IP="$OPTARG"
+            ;;
+        u)
+            DEVICE_USER="$OPTARG"
+            ;;
+        p)
+            DEVICE_PASSWORD="$OPTARG"
+            ;;
+        d)
+            DEVICE_DEBUG_STATE="$OPTARG"
+            ;;
+        *)
+            echo "Ignoring unknown argument -$opt"
+            ;;
+    esac
+done
+
 if [[ -z "$DEVICE_IP" ]]; then
     echo "Invalid device IP"
     exit 1
 fi
-
-read -p "Enter device user (default 'etherkraken'): " DEVICE_USER
 if [[ -z "$DEVICE_USER" ]]; then
     DEVICE_USER="etherkraken"
 fi
-
-read -sp "Enter device password (default 'etherkraken'): " DEVICE_PASSWORD
 if [[ -z "$DEVICE_PASSWORD" ]]; then
     DEVICE_PASSWORD="etherkraken"
 fi
-echo
-
-read -p "Enter device debugging state (default 'false'): " DEVICE_DEBUG_STATE
 if [[ -z "$DEVICE_DEBUG_STATE" ]]; then
     DEVICE_DEBUG_STATE="false"
 fi
-
-echo
 
 echo "Building selftest binary.."
 ./../gradlew clean \
@@ -58,7 +73,10 @@ sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP chmod +x /home/$DEVICE_U
 
 echo "Running selftest.."
 if [[ "$DEVICE_DEBUG_STATE" = "true" ]]; then
-    sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && gdbserver :6767 ./selftest"
+    # Launch gdbserver on remote device in the background and disconnect stdin so SSH can disconnect
+    echo "Launching remote GDB server.."
+    sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP \
+        "nohup gdbserver :6767 /home/$DEVICE_USER/selftest > /tmp/gdbserver.log 2>&1 < /dev/null & disown"
 else
     sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && ./selftest"
 fi

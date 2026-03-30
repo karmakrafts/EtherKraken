@@ -51,12 +51,11 @@ KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* co
 
     kraken_port_t** ports = kraken_alloc_array(kraken_port_t*, num_ports);
     KRAKEN_CHECK_PTR(ports, KRAKEN_ERR_INVALID_OP, "Could not allocate IO ports");
-    memset(ports, 0x00, sizeof(kraken_port_t*) * num_ports);
     const kraken_gpio_config_t* gpio_config = &config->gpio_config;
     // Port 0 is always SoC GPIO
     kraken_log_debug("Creating GPIO port");
     kraken_gpio_port_create((kraken_gpio_port_t**) &ports[0], gpio_config);
-    //// Create any auxillary MUX ports attached via I2C or SPI
+    // Create any auxillary MUX ports attached via I2C or SPI
     for(size_t i = 0; i < config->mux_count; i++) {// IOn
         kraken_log_debug("Creating MUX port %zu", i);
         const kraken_mux_config_t* mux_config = &config->mux_configs[i];
@@ -114,17 +113,6 @@ KRAKEN_EXPORT kraken_error_t kraken_board_get_ports(const kraken_board_c_handle_
     if(count) {
         *count = board->num_ports;
     }
-    return KRAKEN_OK;
-}
-
-KRAKEN_EXPORT kraken_error_t kraken_board_aux_power_get(const kraken_board_c_handle_t handle,
-                                                        kraken_aux_power_state_t* state) {
-    const kraken_board_t* board = (const kraken_board_t*) handle;
-    return KRAKEN_OK;
-}
-
-KRAKEN_EXPORT kraken_error_t kraken_board_aux_power_set(kraken_board_handle_t handle, kraken_aux_power_state_t state) {
-    // TODO: implement this
     return KRAKEN_OK;
 }
 

@@ -53,7 +53,17 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
     kraken_log_debug("Copying GPIO config to port instance");
     memcpy(&port->config, config, sizeof(kraken_gpio_config_t));
 
-    const int fd = open(config->device, O_RDWR);
+    // Copy alias to port name
+    const size_t alias_size = strlen(config->alias) + 1;
+    char* owned_alias = malloc(128);
+    memset(owned_alias, 0x00, 128);
+    kraken_log_debug("Copying %zu bytes of GPIO port name data", alias_size);
+    memcpy(owned_alias, config->alias, alias_size);
+    KRAKEN_CHECK_PTR(owned_alias, KRAKEN_ERR_INVALID_OP, "Could not allocate port name");
+    port->name = owned_alias;
+
+    // Acquire an exclusive FD on the GPIO device
+    const int fd = open(config->device, O_RDWR | O_SYNC);
     KRAKEN_CHECK(fd != -1, KRAKEN_ERR_INVALID_OP, "Could not open GPIO device memory");
     kraken_log_debug("Opened GPIO device FD %d", fd);
     KRAKEN_CHECK_RESULT(flock(fd, LOCK_EX), KRAKEN_ERR_INVALID_OP, "Could not acquire exclusive lock on IO device");
@@ -76,9 +86,26 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
     // Create shadow memory with the same size as the registers
     void* shadow_memory = malloc(config->registers_size);
     KRAKEN_CHECK_PTR(shadow_memory, KRAKEN_ERR_INVALID_OP, "Could not allocate GPIO shadow memory");
-    kraken_log_debug("Allocated GPIO shadow memory at %p", shadow_memory);
+    kraken_log_debug("Allocated %zu bytes of GPIO shadow memory at %p", config->registers_size, shadow_memory);
     memset(shadow_memory, 0x00, config->registers_size);
     port->shadow_memory = shadow_memory;
+
+    // Create all associated IOs by iterating all pin configs
+    kraken_io_t** ios = kraken_alloc_array(kraken_io_t*, config->pin_count);
+    kraken_log_debug("Allocated IO memory at %p", (void*) ios);
+    constexpr kraken_io_mode_t supported_modes[] = {KRAKEN_IO_MODE_OUT, KRAKEN_IO_MODE_IN};
+    for(size_t index = 0; index < config->pin_count; index++) {
+        const kraken_pin_config_t* pin_config = &config->pins[index];
+        char* name = nullptr;
+        KRAKEN_CHECK(asprintf(&name, "IO%u (Pin %u)", pin_config->device_pin, pin_config->port_pin) > 0,
+                     KRAKEN_ERR_INVALID_OP, "Could not format GPIO IO name");
+        kraken_log_debug("Creating %s", name);
+        KRAKEN_CHECK_ERROR(kraken_io_create(&ios[index], name, pin_config, supported_modes, 2),
+                           "Could not create IO for GPIO port");
+        free(name);
+    }
+    port->ios = ios;
+    port->num_ios = config->pin_count;
 
     *port_addr = port;
     return KRAKEN_OK;
@@ -95,7 +122,14 @@ kraken_error_t kraken_gpio_port_destroy(kraken_gpio_port_t* port) {
                         "Could not release exclusive lock on IO device");
     kraken_log_debug("Closing GPIO FD");
     KRAKEN_CHECK_RESULT(close(port->fd), KRAKEN_ERR_INVALID_OP, "Could not close IO device");
-    kraken_log_debug("Freeing GPIO shadow memory");
+    for(size_t index = 0; index < port->num_ios; index++) {
+        kraken_io_destroy(port->ios[index]);
+    }
+    kraken_log_debug("Freeing GPIO port name memory");
+    free(port->name);
+    kraken_log_debug("Freeing GPIO port IO memory");
+    free(port->ios);
+    kraken_log_debug("Freeing GPIO port shadow memory");
     free(port->shadow_memory);
     kraken_log_debug("Freeing GPIO port instance memory");
     free(port);

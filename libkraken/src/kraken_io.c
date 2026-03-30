@@ -16,6 +16,7 @@
 #include "kraken_error_impl.h"
 #include "kraken_internal.h"
 #include "kraken_io_impl.h"
+#include "kraken_log_impl.h"
 
 kraken_error_t kraken_io_create(kraken_io_t** io_addr, const char* name, const kraken_pin_config_t* pin_config,
                                 const kraken_io_mode_t* supported_modes, const size_t num_supported_modes) {
@@ -25,17 +26,25 @@ kraken_error_t kraken_io_create(kraken_io_t** io_addr, const char* name, const k
     KRAKEN_CHECK(num_supported_modes >= 1, KRAKEN_ERR_INVALID_ARG, "IO must support at least one mode");
 
     kraken_io_t* io = kraken_alloc(kraken_io_t);
+    memset(io, 0x00, sizeof(kraken_io_t));
+    kraken_log_debug("Allocated IO at %p", (void*) io);
     KRAKEN_CHECK_PTR(io, KRAKEN_ERR_INVALID_OP, "Could not allocate IO instance");
 
     memcpy(&io->pin_config, pin_config, sizeof(kraken_pin_config_t));
 
     const size_t name_size = strlen(name) + 1;
-    void* heap_name = malloc(name_size);
-    KRAKEN_CHECK_PTR(heap_name, KRAKEN_ERR_INVALID_OP, "Could not allocate IO name");
-    memcpy(heap_name, name, name_size);
-    io->name = heap_name;
+    kraken_log_debug("Allocating %zu bytes of IO name memory", name_size);
+    char* owned_name = malloc(name_size);
+    KRAKEN_CHECK_PTR(owned_name, KRAKEN_ERR_INVALID_OP, "Could not allocate IO name");
+    kraken_log_debug("Allocated IO name at %p", (void*) owned_name);
+    memcpy(owned_name, name, name_size);
+    io->name = owned_name;
 
-    memcpy(&io->supported_modes, supported_modes, sizeof(kraken_io_mode_t) * num_supported_modes);
+    kraken_io_mode_t* owned_supported_modes = kraken_alloc_array(kraken_io_mode_t, num_supported_modes);
+    KRAKEN_CHECK_PTR(owned_supported_modes, KRAKEN_ERR_INVALID_OP, "Could not allocate supported IO modes");
+    kraken_log_debug("Allocated IO modes at %p", (void*) owned_supported_modes);
+    memcpy(owned_supported_modes, supported_modes, sizeof(kraken_io_mode_t) * num_supported_modes);
+    io->supported_modes = owned_supported_modes;
     io->num_supported_modes = num_supported_modes;
 
     *io_addr = io;

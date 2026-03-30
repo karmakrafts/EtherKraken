@@ -36,8 +36,8 @@ fi
 echo "Building debug libraries.."
 cmake -B build-debug -G "Unix Makefiles" \
 	-DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-	-DCMAKE_BUILD_TYPE=Debug \
-	-DCMAKE_C_FLAGS=-O0
+	-DCMAKE_BUILD_TYPE="Debug" \
+	-DCMAKE_C_FLAGS="-g -O0"
 cmake --build build-debug/ -- -j $NUM_THREADS
 echo "Built debug libraries"
 
@@ -45,7 +45,7 @@ echo "Built debug libraries"
 echo "Building release libraries.."
 cmake -B build-release -G "Unix Makefiles" \
 	-DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-	-DCMAKE_BUILD_TYPE=Release \
-	-DCMAKE_C_FLAGS=-O2
+	-DCMAKE_BUILD_TYPE="Release" \
+	-DCMAKE_C_FLAGS="-O2"
 cmake --build build-release/ -- -j $NUM_THREADS
 echo "Built release libraries"

@@ -67,7 +67,7 @@ void kraken_last_error_set(const char* error);
 static _Noreturn void kraken_panic(const char* fmt, ...) {
     char* formatted_message = nullptr;
     va_list args;
-    va_start(args);
+    va_start(args, fmt);
     if(vasprintf(&formatted_message, fmt, args) == -1) {
         va_end(args);
         __builtin_trap();

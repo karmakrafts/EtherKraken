@@ -31,6 +31,7 @@ import libkraken.kraken_board_config_init
 import libkraken.kraken_board_config_t
 import libkraken.kraken_board_type_t
 import libkraken.kraken_mux_type_t
+import platform.posix.free
 import platform.posix.strdup
 
 value class BoardConfig @PublishedApi internal constructor(val address: CPointer<kraken_board_config_t>) : AutoCloseable {
@@ -42,12 +43,13 @@ value class BoardConfig @PublishedApi internal constructor(val address: CPointer
 
     override fun close() {
         address.pointed.gpio_config.apply {
-            device_tree_entry?.let(nativeHeap::free)
-            device_type?.let(nativeHeap::free)
-            device?.let(nativeHeap::free)
+            device_tree_entry?.let(::free)
+            device_type?.let(::free)
+            device?.let(::free)
             pins?.let(nativeHeap::free)
+            alias?.let(::free)
         }
-        address.pointed.flash_device?.let(nativeHeap::free)
+        address.pointed.flash_device?.let(::free)
         address.pointed.mux_configs?.let(nativeHeap::free)
         for (index in 0UL..<address.pointed.mux_count) {
             val muxConfig = address.pointed.mux_configs!![index.toLong()]
@@ -72,10 +74,16 @@ class BoardConfigBuilder @PublishedApi internal constructor() {
 
     @PublishedApi
     internal val muxConfigs: ArrayList<MuxConfig> = ArrayList()
-    var flashDevice: String? = null
 
-    inline fun gpio(spec: GPIOConfigSpec) {
-        gpioConfig = GPIOConfig(spec)
+    @PublishedApi
+    internal var flashDevice: String? = null
+
+    fun flashDevice(device: String) {
+        flashDevice = device
+    }
+
+    inline fun gpio(type: GPIOType, spec: GPIOConfigSpec) {
+        gpioConfig = GPIOConfig(type, spec)
     }
 
     inline fun i2cMux(spec: I2CMuxConfigSpec) {

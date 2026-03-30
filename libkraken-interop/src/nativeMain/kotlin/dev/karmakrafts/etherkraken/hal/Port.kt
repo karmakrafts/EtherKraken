@@ -32,6 +32,7 @@ import libkraken.kraken_port_get_ios
 import libkraken.kraken_port_get_name
 import libkraken.kraken_port_get_type
 import libkraken.kraken_port_handle_t
+import libkraken.kraken_port_reinit
 import libkraken.kraken_port_type_t
 import libkraken.kraken_port_type_tVar
 import libkraken.kraken_port_update
@@ -56,6 +57,10 @@ value class Port(val handle: kraken_port_handle_t) {
 
     fun update() {
         kraken_port_update(handle).check()
+    }
+
+    fun reinit() {
+        kraken_port_reinit(handle).check()
     }
 
     fun enumerateIOs(): Sequence<IO> = sequence {

@@ -62,8 +62,9 @@ static kraken_mux_config_t g_v1b_mux_configs[] = {
     }
 };
 
-// On the V1B, only 6 GPIOS from the SoC are actually programmable on the EXT connector
+// On the V1B, only 8 GPIOS from the SoC are actually programmable
 static kraken_pin_config_t g_v1b_gpio_pins[] = {
+    // CTR lines on the EXT port
     {
         .device_pin = BCM2835_PIN_BCM13,
         .port_pin = 8
@@ -87,6 +88,15 @@ static kraken_pin_config_t g_v1b_gpio_pins[] = {
     {
         .device_pin = BCM2835_PIN_BCM26,
         .port_pin = 18
+    },
+    // Board-internal lines
+    { // AUX power state
+        .device_pin = BCM2835_PIN_BCM27,
+        .port_pin = 0
+    },
+    { // LED
+        .device_pin = BCM2835_PIN_BCM47,
+        .port_pin = 0
     }
 };
 
@@ -103,8 +113,7 @@ const kraken_board_config_t g_config_v1b = {
     },
     .mux_configs = g_v1b_mux_configs,
     .mux_count = KRAKEN_ARRAY_SIZE(g_v1b_mux_configs),
-    .flash_device = "/dev/mtd0",
-    .aux_power_pin = BCM2835_PIN_BCM27 // Pin 13 on daughterboard header
+    .flash_device = "/dev/mtd0"
 };
 
 // clang-format on

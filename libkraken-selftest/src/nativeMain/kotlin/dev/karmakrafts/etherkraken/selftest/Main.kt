@@ -21,32 +21,41 @@ package dev.karmakrafts.etherkraken.selftest
 import dev.karmakrafts.etherkraken.hal.Board
 import dev.karmakrafts.etherkraken.hal.HAL
 import dev.karmakrafts.etherkraken.hal.config.BoardConfig
+import dev.karmakrafts.etherkraken.hal.config.DefaultGPIOType
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.sizeOf
 import kotlinx.cinterop.toLong
-import libkraken.bcm2835_gpio_t
 import libkraken.bcm2835_pin_t
+import libkraken.kraken_port_type_t
 
 fun main() {
     println("==================== RUNNING SELFTEST ====================")
     HAL.init() // Register logging callbacks for debugging and initialize internal state
     BoardConfig {
-        gpio {
-            deviceTreeEntry = "/proc/device-tree/soc/gpiomem"
-            deviceType = "bcm2835"
-            device = "/dev/gpiomem"
-            registersSize = sizeOf<bcm2835_gpio_t>()
+        gpio(DefaultGPIOType.BCM2835) {
+            deviceTreeEntry("/proc/device-tree/soc/gpiomem")
+            device("/dev/gpiomem")
             pin(bcm2835_pin_t.BCM2835_PIN_BCM13.value, 8U)
             pin(bcm2835_pin_t.BCM2835_PIN_BCM25.value, 10U)
             pin(bcm2835_pin_t.BCM2835_PIN_BCM24.value, 12U)
             pin(bcm2835_pin_t.BCM2835_PIN_BCM23.value, 14U)
             pin(bcm2835_pin_t.BCM2835_PIN_BCM22.value, 16U)
             pin(bcm2835_pin_t.BCM2835_PIN_BCM26.value, 18U)
+            pin(bcm2835_pin_t.BCM2835_PIN_BCM27.value, 0U) // AUX power state
+            pin(bcm2835_pin_t.BCM2835_PIN_BCM47.value, 0U) // LED
         }
     }.use { config ->
         Board.create(config).use { board ->
             println("Created HAL board instance at 0x${board.handle.toLong().toHexString()}")
-            // TODO...
+            for (port in board.enumeratePorts()) {
+                println("Enumerating port at 0x${port.handle.toLong().toHexString()}")
+                if (port.type == kraken_port_type_t.KRAKEN_PORT_TYPE_GPIO) {
+                    println("Found GPIO port, initializing..")
+                    port.reinit()
+                    println("Initialized GPIO port, updating initial state")
+                    //port.update()
+                    //println("GPIO port ready!")
+                }
+            }
         }
     }
     println("==========================================================")

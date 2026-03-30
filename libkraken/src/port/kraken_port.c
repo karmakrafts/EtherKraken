@@ -37,12 +37,14 @@ KRAKEN_EXPORT kraken_error_t kraken_port_get_ios(const kraken_port_c_handle_t ha
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_port_update(kraken_port_handle_t handle) {
+KRAKEN_EXPORT kraken_error_t kraken_port_update(const kraken_port_c_handle_t handle) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Port handle is null");
-    kraken_port_t* port = (kraken_port_t*) handle;
+    const kraken_port_t* port = (const kraken_port_t*) handle;
     switch(port->type) {
         case KRAKEN_PORT_TYPE_GPIO: {
-            kraken_gpio_port_t* gpio_port = (kraken_gpio_port_t*) port;
+            const kraken_gpio_port_t* gpio_port = &port->gpio;
+            KRAKEN_CHECK_PTR(gpio_port->config.pfn_state_init, KRAKEN_ERR_INVALID_OP,
+                             "GPIO port is missing state update callback");
             // clang-format off
             gpio_port->config.pfn_state_update(
                 gpio_port->registers,
@@ -53,19 +55,96 @@ KRAKEN_EXPORT kraken_error_t kraken_port_update(kraken_port_handle_t handle) {
             break;
         }
         case KRAKEN_PORT_TYPE_I2C_MUX: {
-            // TODO: implement this
+            const kraken_i2c_mux_port_t* mux_port = &port->i2c_mux;
+            KRAKEN_CHECK_PTR(mux_port->config.pfn_state_init, KRAKEN_ERR_INVALID_OP,
+                             "I2C MUX port is missing state update callback");
+            // clang-format off
+            mux_port->config.pfn_state_update(
+                mux_port->fd,
+                mux_port->shadow_memory,
+                (kraken_io_handle_t*)mux_port->ios,
+                mux_port->num_ios);
+            // clang-format on
             break;
         }
         case KRAKEN_PORT_TYPE_SPI_MUX: {
-            // TODO: implement this
+            const kraken_spi_mux_port_t* mux_port = &port->spi_mux;
+            KRAKEN_CHECK_PTR(mux_port->config.pfn_state_init, KRAKEN_ERR_INVALID_OP,
+                             "SPI MUX port is missing state update callback");
+            // clang-format off
+            mux_port->config.pfn_state_update(
+                mux_port->registers,
+                mux_port->shadow_memory,
+                (kraken_io_handle_t*)mux_port->ios,
+                mux_port->num_ios);
+            // clang-format on
             break;
         }
     }
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t kraken_port_get_name(const kraken_port_c_handle_t port, char* buffer, size_t* size) {
-    // TODO: implement this
+KRAKEN_EXPORT kraken_error_t kraken_port_reinit(const kraken_port_c_handle_t handle) {
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Port handle is null");
+    const kraken_port_t* port = (const kraken_port_t*) handle;
+    switch(port->type) {
+        case KRAKEN_PORT_TYPE_GPIO: {
+            const kraken_gpio_port_t* gpio_port = &port->gpio;
+            KRAKEN_CHECK_PTR(gpio_port->config.pfn_state_init, KRAKEN_ERR_INVALID_OP,
+                             "GPIO port is missing state initialization callback");
+            // clang-format off
+            gpio_port->config.pfn_state_init(
+                gpio_port->registers,
+                gpio_port->shadow_memory,
+                (kraken_io_handle_t*)gpio_port->ios,
+                gpio_port->num_ios);
+            // clang-format on
+            break;
+        }
+        case KRAKEN_PORT_TYPE_I2C_MUX: {
+            const kraken_i2c_mux_port_t* mux_port = &port->i2c_mux;
+            KRAKEN_CHECK_PTR(mux_port->config.pfn_state_init, KRAKEN_ERR_INVALID_OP,
+                             "I2C MUX port is missing state initialization callback");
+            // clang-format off
+            mux_port->config.pfn_state_init(
+                mux_port->fd,
+                mux_port->shadow_memory,
+                (kraken_io_handle_t*)mux_port->ios,
+                mux_port->num_ios);
+            // clang-format on
+            break;
+        }
+        case KRAKEN_PORT_TYPE_SPI_MUX: {
+            const kraken_spi_mux_port_t* mux_port = &port->spi_mux;
+            KRAKEN_CHECK_PTR(mux_port->config.pfn_state_init, KRAKEN_ERR_INVALID_OP,
+                             "SPI MUX port is missing state initialization callback");
+            // clang-format off
+            mux_port->config.pfn_state_init(
+                mux_port->registers,
+                mux_port->shadow_memory,
+                (kraken_io_handle_t*)mux_port->ios,
+                mux_port->num_ios);
+            // clang-format on
+            break;
+        }
+    }
+    return KRAKEN_OK;
+}
+
+KRAKEN_EXPORT kraken_error_t kraken_port_get_name(const kraken_port_c_handle_t handle, char* buffer, size_t* size) {
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid port handle");
+    const kraken_port_t* port = (const kraken_port_t*) handle;
+    if(buffer) {
+        if(size) {
+            memcpy(buffer, port->name, *size);
+            return KRAKEN_OK;
+        }
+        memcpy(buffer, port->name, strlen(port->name) + 1);
+        return KRAKEN_OK;
+    }
+    if(size) {
+        *size = strlen(port->name) + 1;
+    }
     return KRAKEN_OK;
 }
 

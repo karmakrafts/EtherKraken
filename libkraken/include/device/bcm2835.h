@@ -27,26 +27,26 @@ KRAKEN_API_BEGIN
 ///
 
 typedef enum bcm2835_pin : uint32_t {
-    BCM2835_PIN_BCM0,// ID_SD
-    BCM2835_PIN_BCM1,// ID_SC
-    BCM2835_PIN_BCM2,// SDA1
-    BCM2835_PIN_BCM3,// SCL1
-    BCM2835_PIN_BCM4,// GPCLK0
+    BCM2835_PIN_BCM0,
+    BCM2835_PIN_BCM1,
+    BCM2835_PIN_BCM2,
+    BCM2835_PIN_BCM3,
+    BCM2835_PIN_BCM4,
     BCM2835_PIN_BCM5,
     BCM2835_PIN_BCM6,
-    BCM2835_PIN_BCM7, // SPI0_CE1
-    BCM2835_PIN_BCM8, // SPI0_CE0
-    BCM2835_PIN_BCM9, // SPI0_MISO
-    BCM2835_PIN_BCM10,// SPI0_MOSI
-    BCM2835_PIN_BCM11,// SPI0_SCLK
-    BCM2835_PIN_BCM12,// PWM0
-    BCM2835_PIN_BCM13,// PWM1
-    BCM2835_PIN_BCM14,// TXD
-    BCM2835_PIN_BCM15,// RXD
+    BCM2835_PIN_BCM7,
+    BCM2835_PIN_BCM8,
+    BCM2835_PIN_BCM9,
+    BCM2835_PIN_BCM10,
+    BCM2835_PIN_BCM11,
+    BCM2835_PIN_BCM12,
+    BCM2835_PIN_BCM13,
+    BCM2835_PIN_BCM14,
+    BCM2835_PIN_BCM15,
     BCM2835_PIN_BCM16,
     BCM2835_PIN_BCM17,
-    BCM2835_PIN_BCM18,// PWM0 - TODO this is probably not right?
-    BCM2835_PIN_BCM19,// SPI0_MISO - TODO this is probably not right
+    BCM2835_PIN_BCM18,
+    BCM2835_PIN_BCM19,
     BCM2835_PIN_BCM20,
     BCM2835_PIN_BCM21,
     BCM2835_PIN_BCM22,
@@ -54,7 +54,33 @@ typedef enum bcm2835_pin : uint32_t {
     BCM2835_PIN_BCM24,
     BCM2835_PIN_BCM25,
     BCM2835_PIN_BCM26,
-    BCM2835_PIN_BCM27
+    BCM2835_PIN_BCM27,
+    BCM2835_PIN_BCM28,
+    BCM2835_PIN_BCM29,
+    BCM2835_PIN_BCM30,
+    BCM2835_PIN_BCM31,
+    BCM2835_PIN_BCM32,
+    BCM2835_PIN_BCM33,
+    BCM2835_PIN_BCM34,
+    BCM2835_PIN_BCM35,
+    BCM2835_PIN_BCM36,
+    BCM2835_PIN_BCM37,
+    BCM2835_PIN_BCM38,
+    BCM2835_PIN_BCM39,
+    BCM2835_PIN_BCM40,
+    BCM2835_PIN_BCM41,
+    BCM2835_PIN_BCM42,
+    BCM2835_PIN_BCM43,
+    BCM2835_PIN_BCM44,
+    BCM2835_PIN_BCM45,
+    BCM2835_PIN_BCM46,
+    BCM2835_PIN_BCM47,
+    BCM2835_PIN_BCM48,
+    BCM2835_PIN_BCM49,
+    BCM2835_PIN_BCM50,
+    BCM2835_PIN_BCM51,
+    BCM2835_PIN_BCM52,
+    BCM2835_PIN_BCM53
 } bcm2835_pin_t;
 
 typedef enum bcm2835_pud : uint8_t {
@@ -183,11 +209,11 @@ typedef struct _bcm2835_gpio_t {// NOLINT
     uint8_t test : 4;
 } bcm2835_gpio_t;
 
-KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void* shadow_memory,
-                                                       kraken_io_handle_t* ios, size_t io_count);
+KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void* shadow_memory, kraken_io_handle_t* ios,
+                                                       size_t io_count);
 
-KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void* shadow_memory,
-                                                     kraken_io_handle_t* ios, size_t io_count);
+KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void* shadow_memory, kraken_io_handle_t* ios,
+                                                     size_t io_count);
 
 KRAKEN_API_END
 

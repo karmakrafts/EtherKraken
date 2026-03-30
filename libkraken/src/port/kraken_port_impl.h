@@ -26,6 +26,7 @@ typedef struct kraken_port {
             kraken_port_type_t type;
             kraken_io_t** ios;
             size_t num_ios;
+            char* name;
         };
         kraken_gpio_port_t gpio;
         kraken_i2c_mux_port_t i2c_mux;

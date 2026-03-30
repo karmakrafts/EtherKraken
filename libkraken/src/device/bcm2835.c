@@ -14,19 +14,23 @@
 
 #include "../../include/device/bcm2835.h"
 #include "kraken_io_impl.h"
+#include "kraken_log_impl.h"
 
 constexpr uint32_t GPIO_REGISTER_SIZE = sizeof(bcm2835_gppinreg_t);
 constexpr uint32_t GPIO_FSEL_BANK_SIZE = 10;
 
-KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void* shadow_memory,
-                                                       kraken_io_handle_t* ios, const size_t io_count) {
+KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void* shadow_memory, kraken_io_handle_t* ios,
+                                                       const size_t io_count) {
     volatile bcm2835_gpio_t* gpio = base_address;
+    kraken_log_debug("Performing BCM2835 GPIO state update");
     // Capture input state at the start of the update
     const uint32_t input_state_mask[] = {gpio->gplev0.value, gpio->gplev1.value};
+    kraken_log_debug("Read BCM2835 GPLEV0 register as %02X", input_state_mask[0]);
+    kraken_log_debug("Read BCM2835 GPLEV1 register as %02X", input_state_mask[1]);
 
     bcm2835_gpio_t* shadow_gpio = shadow_memory;
     // Compose the output state masks for the current io state
-    uint32_t output_state_mask[2];
+    uint32_t output_state_mask[2] = {0x00, 0x00};
     for(size_t io_index = 0; io_index < io_count; io_index++) {
         kraken_io_t* io = (kraken_io_t*) ios[io_index];
         const uint32_t bcm_pin = io->pin_config.device_pin;
@@ -41,22 +45,27 @@ KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void*
     const uint32_t toggle0 = shadow_gpio->gplev0.value ^ output_state_mask[0];
     const uint32_t toggle1 = shadow_gpio->gplev1.value ^ output_state_mask[1];
     // Update the IO banks; first set bits, then clear bits
+    kraken_log_debug("Writing BCM2835 GPSET0 register");
     gpio->gpset0.value = toggle0 & ~shadow_gpio->gplev0.value;
+    kraken_log_debug("Writing BCM2835 GPCLR0 register");
     gpio->gpclr0.value = ~toggle0 & shadow_gpio->gplev0.value;
+    kraken_log_debug("Writing BCM2835 GPSET1 register");
     gpio->gpset1.value = toggle1 & ~shadow_gpio->gplev1.value;
+    kraken_log_debug("Writing BCM2835 GPCLR1 register");
     gpio->gpclr1.value = ~toggle1 & shadow_gpio->gplev1.value;
     // Update level shadow state by copying state mask into contiguous registers
     memcpy(&shadow_gpio->gplev0, output_state_mask, (GPIO_REGISTER_SIZE >> 3) << 1);
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void* shadow_memory,
-                                                     kraken_io_handle_t* ios, const size_t io_count) {
+KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void* shadow_memory, kraken_io_handle_t* ios,
+                                                     const size_t io_count) {
     volatile bcm2835_gpio_t* gpio = base_address;
+    kraken_log_debug("Performing BCM2835 GPIO initialization");
     memset(shadow_memory, 0x00, sizeof(bcm2835_gpio_t));
     // Build function selection mask for all IOs
-    uint32_t fsel_mask[2];
-    uint32_t output_mask[2];
+    uint32_t fsel_mask[2] = {0x00, 0x00};
+    uint32_t output_mask[2] = {0x00, 0x00};
     for(size_t i = 0; i < io_count; i++) {
         const kraken_io_t* io = (const kraken_io_t*) ios[i];
         const uint32_t bcm_pin = io->pin_config.device_pin;
@@ -70,10 +79,14 @@ KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void* s
         output_mask[output_bank] |= (io->mode & 0b1) << output_bit;
     }
     // Update IO functions
+    kraken_log_debug("Writing BCM2835 GPFSEL0 register");
     gpio->gpfsel0.value = fsel_mask[0];
+    kraken_log_debug("Writing BCM2835 GPFSEL1 register");
     gpio->gpfsel1.value = fsel_mask[1];
     // Clear all outputs to their default state
+    kraken_log_debug("Writing BCM2835 GPCLR0 register");
     gpio->gpclr0.value = output_mask[0];
+    kraken_log_debug("Writing BCM2835 GPCLR1 register");
     gpio->gpclr1.value = output_mask[1];
     return KRAKEN_OK;
 }

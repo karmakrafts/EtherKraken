@@ -36,6 +36,7 @@ typedef struct kraken_gpio_config {
     char* device_tree_entry;  // /proc/device-tree/..
     char* device_type;        // bcm2835 etc. used for compatibility checking
     char* device;             // /dev/..
+    char* alias;              // "EXT", "IO0" etc.
     size_t registers_size;    // Actual size of the register region in bytes
     kraken_pin_config_t* pins;// A pointer to all pin configurations for the GPIO device
     size_t pin_count;         // The number of pins as specified by the pointer above
@@ -58,6 +59,7 @@ typedef struct kraken_i2c_mux_config {
     kraken_mux_type_t type;
     kraken_pin_config_t* pins;
     size_t pin_count;
+    char* alias;// "EXT", "IO0" etc.
     char* bus;
     kraken_i2c_address_t address;
     size_t shadow_memory_size;
@@ -75,6 +77,7 @@ typedef struct kraken_spi_mux_config {
     kraken_mux_type_t type;
     kraken_pin_config_t* pins;
     size_t pin_count;
+    char* alias;// "EXT", "IO0" etc.
     char* device;
     pfn_kraken_spi_mux_state_update pfn_state_update;
     pfn_kraken_spi_mux_state_init pfn_state_init;
@@ -93,7 +96,6 @@ typedef struct kraken_board_config {
     kraken_mux_config_t* mux_configs;
     size_t mux_count;
     char* flash_device;
-    uint32_t aux_power_pin;// BCM associated pin number
 } kraken_board_config_t;
 
 KRAKEN_API_END
