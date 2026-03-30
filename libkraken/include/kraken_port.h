@@ -20,53 +20,59 @@
 
 KRAKEN_API_BEGIN
 
-// Port types correspond to physical ports on the board
+/// @brief Represents the type of a port.
 typedef enum kraken_port_type : uint8_t {
-    KRAKEN_PORT_TYPE_GPIO,
-    KRAKEN_PORT_TYPE_I2C_MUX,
-    KRAKEN_PORT_TYPE_SPI_MUX
+    KRAKEN_PORT_TYPE_GPIO,   ///< A general purpose IO port.
+    KRAKEN_PORT_TYPE_I2C_MUX,///< An I2C multiplexer port.
+    KRAKEN_PORT_TYPE_SPI_MUX ///< A SPI multiplexer port.
 } kraken_port_type_t;
 
-/// Retrieves the type of the given port.
+/// @brief Retrieves the type of the given port.
 ///
-/// @param handle The port to get the type of.
-/// @param type A pointer to a variable to be populated with the type of the given port.
+/// @param[in] handle The port to get the type of.
+/// @param[out] type A pointer to a variable to be populated with the type of the given port.
 /// @return @code KRAKEN_OK@endcode when successful,
 ///     @code KRAKEN_ERR_INVALID_ARG@endcode when the given port handle or type pointer is invalid.
 KRAKEN_EXPORT kraken_error_t kraken_port_get_type(kraken_port_c_handle_t handle, kraken_port_type_t* type);
 
-/// Enumerates all programmable IOs exposed by the given port.
+/// @brief Enumerates all programmable IOs exposed by the given port.
 ///
-/// @param handle The port to enumerate all IOs of.
-/// @param ios A pre-allocated buffer to populate with all IO handles associated with the given port.
-/// @param count A pointer to a variable that's to be populated with the number of IOs associated with the given port.
+/// @param[in] handle The port to enumerate all IOs of.
+/// @param[out] ios A pre-allocated buffer to populate with all IO handles associated with the given port.
+/// @param[out] count A pointer to a variable that's to be populated with the number of IOs associated with the given port.
 /// @return @code KRAKEN_OK@endcode when successful,
 ///     @code KRAKEN_ERR_INVALID_ARG@endcode when the given port handle is invalid,
 ///     @code KRAKEN_ERR_INVALID_OP@endcode when the enumeration fails.
 KRAKEN_EXPORT kraken_error_t kraken_port_get_ios(kraken_port_c_handle_t handle, kraken_io_handle_t* ios, size_t* count);
 
-/// Submits any pending state changes of associated IOs to the given port.
+/// @brief Submits any pending state changes of associated IOs to the given port.
 ///
-/// @param handle The port to update.
+/// @param[in] handle The port to update.
 /// @return @code KRAKEN_OK@endcode when successful,
 ///     @code KRAKEN_ERR_INVALID_ARG@endcode when the given port handle is invalid,
 ///     @code KRAKEN_ERR_INVALID_OP@endcode when the update operation fails.
 KRAKEN_EXPORT kraken_error_t kraken_port_update(kraken_port_c_handle_t handle);
 
-/// Re-initializes the port to reflect any changes to the mode of the associated IOs.
+/// @brief Re-initializes the port to reflect any changes to the mode of the associated IOs.
 ///
-/// @param handle The port to re-initialize.
+/// @param[in] handle The port to re-initialize.
 /// @return @code KRAKEN_OK@endcode when successful,
 ///     @code KRAKEN_ERR_INVALID_ARG@endcode when the given port handle is invalid,
 ///     @code KRAKEN_ERR_INVALID_OP@endcode when the update operation fails.
 KRAKEN_EXPORT kraken_error_t kraken_port_reinit(kraken_port_c_handle_t handle);
 
+/// @brief Retrieves the name of the given port.
+///
+/// @param[in] handle The port to get the name of.
+/// @param[out] name A pointer to a constant string to be populated with the name of the given port.
+/// @return @code KRAKEN_OK@endcode when successful,
+///     @code KRAKEN_ERR_INVALID_ARG@endcode when the given port handle or name pointer is invalid.
 KRAKEN_EXPORT kraken_error_t kraken_port_get_name(kraken_port_c_handle_t handle, const char** name);
 
-/// Retrieves the human-readable name of the given port type.
+/// @brief Retrieves the human-readable name of the given port type.
 ///
-/// @param type The port type to retrieve the name of.
-/// @param name A pointer to a constant string to be populated with the name of the given port type.
+/// @param[in] type The port type to retrieve the name of.
+/// @param[out] name A pointer to a constant string to be populated with the name of the given port type.
 /// @return @code KRAKEN_OK@endcode when successful,
 ///     @code KRAKEN_ERR_INVALID_ARG@endcode when the given port handle is invalid.
 KRAKEN_EXPORT kraken_error_t kraken_port_type_get_name(kraken_port_type_t type, const char** name);

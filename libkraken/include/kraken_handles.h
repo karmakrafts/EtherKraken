@@ -19,16 +19,24 @@
 
 KRAKEN_API_BEGIN
 
+/// @brief Handle to a kraken board instance.
 typedef struct kraken_board_t* kraken_board_handle_t;
+/// @brief Const handle to a kraken board instance.
 typedef const struct kraken_board_t* kraken_board_c_handle_t;
 
+/// @brief Handle to a kraken port instance.
 typedef struct kraken_port_t* kraken_port_handle_t;
+/// @brief Const handle to a kraken port instance.
 typedef const struct kraken_port_t* kraken_port_c_handle_t;
 
+/// @brief Handle to a kraken I/O instance.
 typedef struct kraken_io_t* kraken_io_handle_t;
+/// @brief Const handle to a kraken I/O instance.
 typedef const struct kraken_io_t* kraken_io_c_handle_t;
 
+/// @brief Handle to a kraken flash instance.
 typedef struct kraken_flash_t* kraken_flash_handle_t;
+/// @brief Const handle to a kraken flash instance.
 typedef const struct kraken_flash_t* kraken_flash_c_handle_t;
 
 KRAKEN_API_END

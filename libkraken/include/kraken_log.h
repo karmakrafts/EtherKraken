@@ -20,16 +20,27 @@
 
 KRAKEN_API_BEGIN
 
+/// @brief Logging levels.
 typedef enum kraken_log_level : uint8_t {
-    KRAKEN_LOG_LEVEL_DEBUG,
-    KRAKEN_LOG_LEVEL_INFO,
-    KRAKEN_LOG_LEVEL_WARN,
-    KRAKEN_LOG_LEVEL_ERROR,
+    KRAKEN_LOG_LEVEL_DEBUG,///< Debug log level.
+    KRAKEN_LOG_LEVEL_INFO, ///< Informational log level.
+    KRAKEN_LOG_LEVEL_WARN, ///< Warning log level.
+    KRAKEN_LOG_LEVEL_ERROR,///< Error log level.
 } kraken_log_level_t;
 
+/// @brief Callback function type for log consumers.
+/// @param[in] level The log level of the message.
+/// @param[in] message The log message.
 typedef void (*pfn_kraken_log_consumer)(kraken_log_level_t level, const char* message);
 
+/// @brief Sets the log consumer for the library.
+/// @param[in] consumer The log consumer callback function.
+/// @return KRAKEN_SUCCESS on success, or an error code on failure.
 KRAKEN_EXPORT kraken_error_t kraken_log_set_consumer(pfn_kraken_log_consumer consumer);
+
+/// @brief Gets the current log consumer for the library.
+/// @param[out] consumer Pointer to store the current log consumer callback function.
+/// @return KRAKEN_SUCCESS on success, or an error code on failure.
 KRAKEN_EXPORT kraken_error_t kraken_log_get_consumer(pfn_kraken_log_consumer* consumer);
 
 KRAKEN_API_END

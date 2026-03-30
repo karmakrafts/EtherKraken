@@ -19,20 +19,27 @@
 #include <string.h>
 
 #ifdef __cplusplus
+/// @brief Marks the beginning of C API declarations.
 #define KRAKEN_API_BEGIN extern "C" {
+/// @brief Marks the end of C API declarations.
 #define KRAKEN_API_END }
 #else
+/// @brief Marks the beginning of C API declarations.
 #define KRAKEN_API_BEGIN
+/// @brief Marks the end of C API declarations.
 #define KRAKEN_API_END
 #endif
 
+/// @brief Marks a function as exported from the library.
 #define KRAKEN_EXPORT __attribute__((visibility("default")))
 
-typedef uint8_t kraken_i2c_address_t;// I²C addresses are 7-bit
+/// @brief I2C device address type.
+typedef uint8_t kraken_i2c_address_t;
 
+/// @brief Boolean type for use in the Kraken API.
 typedef enum kraken_bool : uint8_t {
-    KRAKEN_FALSE,
-    KRAKEN_TRUE
+    KRAKEN_FALSE,///< Logical false.
+    KRAKEN_TRUE  ///< Logical true.
 } kraken_bool_t;
 
 #endif//LIBKRAKEN_KRAKEN_API_H

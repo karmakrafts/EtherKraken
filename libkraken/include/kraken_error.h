@@ -19,14 +19,19 @@
 
 KRAKEN_API_BEGIN
 
+/// @brief Error codes returned by Kraken API functions.
 typedef enum kraken_error : int32_t {
-    KRAKEN_OK,
-    KRAKEN_EOF,
-    KRAKEN_ERR_INVALID_ARG,
-    KRAKEN_ERR_INVALID_OP
+    KRAKEN_OK,             ///< No error occurred.
+    KRAKEN_EOF,            ///< End of file reached.
+    KRAKEN_ERR_INVALID_ARG,///< An invalid argument was passed to the function.
+    KRAKEN_ERR_INVALID_OP  ///< The operation is invalid in the current state.
 } kraken_error_t;
 
+/// @brief Retrieves the last error message that occurred on the current thread.
+/// @return The last error message, or @code nullptr@endcode if no error occurred.
 KRAKEN_EXPORT const char* kraken_last_error_get();
+
+/// @brief Clears the last error message on the current thread.
 KRAKEN_EXPORT void kraken_last_error_clear();
 
 KRAKEN_API_END

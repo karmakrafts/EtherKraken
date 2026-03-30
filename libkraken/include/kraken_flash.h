@@ -21,9 +21,35 @@
 
 KRAKEN_API_BEGIN
 
+/// @brief Clears the contents of the flash memory.
+///
+/// @param[in] handle The handle to the flash memory to clear.
+/// @return KRAKEN_OK on success, or an error code on failure.
 KRAKEN_EXPORT kraken_error_t kraken_flash_clear(kraken_flash_handle_t handle);
+
+/// @brief Gets the total size of the flash memory.
+///
+/// @param[in] handle The handle to the flash memory to query.
+/// @param[out] size Pointer to a variable that will receive the size of the flash memory in bytes.
+/// @return KRAKEN_OK on success, or an error code on failure.
 KRAKEN_EXPORT kraken_error_t kraken_flash_get_size(kraken_flash_c_handle_t handle, size_t* size);
+
+/// @brief Reads data from the flash memory.
+///
+/// @param[in] handle The handle to the flash memory to read from.
+/// @param[out] buffer Pointer to the buffer that will receive the read data.
+/// @param[in] size The number of bytes to read.
+/// @param[in] offset The byte offset in the flash memory to start reading from.
+/// @return KRAKEN_OK on success, or an error code on failure.
 KRAKEN_EXPORT kraken_error_t kraken_flash_read(kraken_flash_handle_t handle, void* buffer, size_t size, size_t offset);
+
+/// @brief Writes data to the flash memory.
+///
+/// @param[in] handle The handle to the flash memory to write to.
+/// @param[in] buffer Pointer to the buffer containing the data to write.
+/// @param[in] size The number of bytes to write.
+/// @param[in] offset The byte offset in the flash memory to start writing to.
+/// @return KRAKEN_OK on success, or an error code on failure.
 KRAKEN_EXPORT kraken_error_t kraken_flash_write(kraken_flash_handle_t handle, const void* buffer, size_t size,
                                                 size_t offset);
 
