@@ -64,7 +64,7 @@ class IODispatcher(coreAffinity: Int) : AutoCloseable {
     private fun eventLoop() = memScoped {
         // Configure thread for FIFO scheduling
         pthread_setschedparam(pthread_self(), SCHED_FIFO, cValue {
-            __sched_priority = 80 // realtime
+            __sched_priority = 99 // realtime
         })
         // Start main event loop
         val nowCycles = alloc<uint64_tVar>()
