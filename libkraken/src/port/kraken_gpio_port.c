@@ -23,7 +23,7 @@
 #include <sys/stat.h>
 
 static kraken_error_t check_compatibility(const kraken_gpio_config_t* config) {
-    char* dte_path = kraken_format("%s/compatible", config->device_tree_entry);
+    char* dte_path = string_format("%s/compatible", config->device_tree_entry);
     kraken_log_debug("Reading GPIO device tree entry from %s", dte_path);
     const int dte_fd = open(dte_path, O_RDONLY);
     kraken_free(dte_path);
@@ -88,7 +88,7 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
     constexpr kraken_io_mode_t supported_modes[2] = {KRAKEN_IO_MODE_OUT, KRAKEN_IO_MODE_IN};
     for(size_t index = 0; index < port->config->pin_count; index++) {
         const kraken_pin_config_t* pin_config = &port->config->pins[index];
-        char* name = kraken_format("IO%u (Pin %u)", pin_config->device_pin, pin_config->port_pin);
+        char* name = string_format("IO%u (Pin %u)", pin_config->device_pin, pin_config->port_pin);
         KRAKEN_CHECK_PTR(name, KRAKEN_ERR_INVALID_OP, "Could not format IO name");
         kraken_log_debug("Creating %s", name);
         KRAKEN_CHECK_ERROR(

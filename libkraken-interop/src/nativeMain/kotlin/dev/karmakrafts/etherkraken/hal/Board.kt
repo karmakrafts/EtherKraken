@@ -27,6 +27,7 @@ import kotlinx.cinterop.value
 import libkraken.kraken_board_config_t
 import libkraken.kraken_board_create
 import libkraken.kraken_board_destroy
+import libkraken.kraken_board_get_port_for_io
 import libkraken.kraken_board_get_ports
 import libkraken.kraken_board_get_ports_for_type
 import libkraken.kraken_board_handle_t
@@ -38,6 +39,10 @@ import platform.posix.size_tVar
 @OptIn(ExperimentalForeignApi::class)
 value class Board private constructor(val handle: kraken_board_handle_t) : AutoCloseable {
     companion object {
+        init {
+            HAL.init()
+        }
+
         fun create(config: BoardConfig): Board = memScoped {
             val handle = alloc<kraken_board_handle_tVar>()
             kraken_board_create(alloc<kraken_board_config_t> {
@@ -49,8 +54,13 @@ value class Board private constructor(val handle: kraken_board_handle_t) : AutoC
         }
     }
 
-    fun enumeratePorts(): List<Port> = memScoped {
-        val ports = ArrayList<Port>()
+    fun findPortForIo(io: IO): Port? = memScoped {
+        val port = alloc<kraken_port_handle_tVar>()
+        kraken_board_get_port_for_io(handle, io.handle, port.ptr)
+        port.value?.let(::Port)
+    }
+
+    fun enumeratePorts(ports: MutableList<Port>) = memScoped {
         val count = alloc<size_tVar>()
         kraken_board_get_ports(handle, null, count.ptr).check()
         val portHandles = allocArray<kraken_port_handle_tVar>(count.value.toLong())
@@ -60,11 +70,9 @@ value class Board private constructor(val handle: kraken_board_handle_t) : AutoC
                 "Could not retrieve port address"
             })
         }
-        ports
     }
 
-    fun enumeratePorts(type: kraken_port_type_t): List<Port> = memScoped {
-        val ports = ArrayList<Port>()
+    fun enumeratePorts(type: kraken_port_type_t, ports: MutableList<Port>) = memScoped {
         val count = alloc<size_tVar>()
         kraken_board_get_ports_for_type(handle, type, null, count.ptr).check()
         val portHandles = allocArray<kraken_port_handle_tVar>(count.value.toLong())
@@ -74,7 +82,6 @@ value class Board private constructor(val handle: kraken_board_handle_t) : AutoC
                 "Could not retrieve port address"
             })
         }
-        ports
     }
 
     override fun close() {

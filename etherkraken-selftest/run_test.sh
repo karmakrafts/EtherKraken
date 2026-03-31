@@ -35,9 +35,18 @@ if [[ -z "$DEVICE_PASSWORD" ]]; then
 fi
 echo
 
-read -p "Enter device debugging state (default 'false'): " DEVICE_DEBUG_STATE
-if [[ -z "$DEVICE_DEBUG_STATE" ]]; then
-    DEVICE_DEBUG_STATE="false"
+read -p "Enter device profiling state (default 'false'): " DEVICE_PROFILING_STATE
+if [[ -z "$DEVICE_PROFILING_STATE" ]]; then
+	DEVICE_PROFILING_STATE="false"
+fi
+
+if [[ "$DEVICE_PROFILING_STATE" = "false" ]]; then
+	read -p "Enter device debugging state (default 'false'): " DEVICE_DEBUG_STATE
+	if [[ -z "$DEVICE_DEBUG_STATE" ]]; then
+    	DEVICE_DEBUG_STATE="false"
+	fi
+else
+	DEVICE_DEBUG_STATE="false"
 fi
 
 echo
@@ -45,12 +54,12 @@ echo
 echo "Building selftest binary.."
 ./../gradlew clean \
     :libkraken-interop:linuxArm64Cinterop-libkrakenKlib \
-    :libkraken-selftest:linkDebugExecutableLinuxArm64 \
+    :etherkraken-selftest:linkDebugExecutableLinuxArm64 \
     --no-daemon --rerun-tasks --quiet --console=plain
 
 echo "Copying binary to target device.."
 sshpass -p $DEVICE_PASSWORD rsync -avz \
-    build/bin/linuxArm64/debugExecutable/libkraken-selftest.kexe \
+    build/bin/linuxArm64/debugExecutable/etherkraken-selftest.kexe \
     $DEVICE_USER@$DEVICE_IP:/home/$DEVICE_USER/selftest
 
 echo "Making binary executable.."
@@ -59,6 +68,8 @@ sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP chmod +x /home/$DEVICE_U
 echo "Running selftest.."
 if [[ "$DEVICE_DEBUG_STATE" = "true" ]]; then
     sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && gdbserver :6767 ./selftest"
+elif [[ "$DEVICE_PROFILING_STATE" = "true" ]]; then
+	sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && valgrind --leak-check=full ./selftest"
 else
     sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && ./selftest"
 fi

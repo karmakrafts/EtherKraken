@@ -24,7 +24,7 @@ import kotlinx.cinterop.toKStringFromUtf8
 import libkraken.kraken_log_set_consumer
 import kotlin.concurrent.atomics.AtomicBoolean
 
-object HAL {
+internal object HAL {
     private val levelNames: Array<String> = arrayOf("DEBUG", "INFO-", "WARN-", "ERROR")
     private val isInitialized: AtomicBoolean = AtomicBoolean(false)
 

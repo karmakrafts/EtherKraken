@@ -40,8 +40,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.libkrakenInterop)
-                implementation(libs.filament.core)
+                implementation(projects.etherkrakenCore)
             }
         }
         commonTest {

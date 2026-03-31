@@ -27,6 +27,13 @@ typedef enum kraken_io_mode : uint8_t {
     KRAKEN_IO_MODE_OUT///< Output mode.
 } kraken_io_mode_t;
 
+/// @brief Pull-up/down mode for a kraken I/O pin.
+typedef enum kraken_io_pud_mode : uint8_t {
+    KRAKEN_IO_PUD_MODE_OFF, ///< No pull-up/down
+    KRAKEN_IO_PUD_MODE_DOWN,///< Internal pull-down
+    KRAKEN_IO_PUD_MODE_UP   ///< Internal pull-up
+} kraken_io_pud_mode_t;
+
 /// @brief Retrieves the supported I/O modes for a given I/O handle.
 ///
 /// @param[in] handle The I/O handle to query.
@@ -37,6 +44,17 @@ typedef enum kraken_io_mode : uint8_t {
 /// @return KRAKEN_SUCCESS if successful, or an error code otherwise.
 KRAKEN_EXPORT kraken_error_t kraken_io_get_supported_modes(kraken_io_c_handle_t handle, kraken_io_mode_t* modes,
                                                            size_t* count);
+
+/// @brief Retrieves the supported I/O pull-up/down modes for a given I/O handle.
+///
+/// @param[in] handle The I/O handle to query.
+/// @param[out] modes Pointer to an array to store the supported modes.
+/// @param[in,out] count Pointer to the number of elements in the modes array.
+///                      On input, should contain the size of the modes array.
+///                      On output, contains the number of supported modes.
+/// @return KRAKEN_SUCCESS if successful, or an error code otherwise.
+KRAKEN_EXPORT kraken_error_t kraken_io_get_supported_pud_modes(kraken_io_c_handle_t handle, kraken_io_pud_mode_t* modes,
+                                                               size_t* count);
 
 /// @brief Retrieves the current I/O mode of a given I/O handle.
 ///

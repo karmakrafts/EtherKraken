@@ -23,8 +23,7 @@ import kotlinx.cinterop.toKStringFromUtf8
 import libkraken.kraken_error_t
 import libkraken.kraken_last_error_get
 
-@PublishedApi
-internal fun kraken_error_t.check() {
+fun kraken_error_t.check() {
     if (this == kraken_error_t.KRAKEN_OK) return
     throw HALException("HAL operation failed: ${kraken_last_error_get()?.toKStringFromUtf8() ?: "unknown error"}")
 }

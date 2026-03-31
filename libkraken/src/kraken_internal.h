@@ -36,26 +36,4 @@
         }                                                                                                              \
     } while(0)
 
-static uint64_t get_system_counter_freq() {
-    volatile uint64_t freq = 0;
-    asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
-    return freq;
-}
-
-static void sleep_cycles(uint64_t cycles) {
-    asm volatile(// clang-format off
-        "isb\n" // Ensure all previous instructions completed
-        "mrs x0, cntvct_el0\n"
-        "add x1, x0, %0\n"
-        "1:\n"
-        "isb\n" // Prevent speculative execution inside the loop
-        "mrs x2, cntvct_el0\n"
-        "cmp x2, x1\n"
-        "b.lt 1b\n"
-        :
-        : "r"(cycles)
-        : "x0", "x1", "x2", "memory"
-    );// clang-format on
-}
-
 #endif//LIBKRAKEN_KRAKEN_INTERNAL_H

@@ -18,21 +18,27 @@
 
 package dev.karmakrafts.etherkraken.selftest
 
+import dev.karmakrafts.etherkraken.IOClock
+import dev.karmakrafts.etherkraken.IODispatcher
+import dev.karmakrafts.etherkraken.IODriver
 import dev.karmakrafts.etherkraken.hal.Board
-import dev.karmakrafts.etherkraken.hal.HAL
 import dev.karmakrafts.etherkraken.hal.IO
+import dev.karmakrafts.etherkraken.hal.Port
 import dev.karmakrafts.etherkraken.hal.config.BoardConfig
 import dev.karmakrafts.etherkraken.hal.config.DefaultGPIOType
+import dev.karmakrafts.filament.Thread
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.toLong
 import libkraken.bcm2835_pin_t
 import libkraken.kraken_io_mode_t
 import libkraken.kraken_port_type_t
 import platform.posix.usleep
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.incrementAndFetch
 
 fun main() {
     println("==================== RUNNING SELFTEST ====================")
-    HAL.init() // Register logging callbacks for debugging and initialize internal state
+    val dispatcher = IODispatcher(2) // use core 2
     Board.create(BoardConfig {
         gpio(DefaultGPIOType.BCM2835) {
             deviceTreeEntry("/proc/device-tree/soc/gpiomem")
@@ -43,11 +49,14 @@ fun main() {
         }
     }).use { board ->
         println("Created HAL board instance at 0x${board.handle.toLong().toHexString()}")
-        for (port in board.enumeratePorts()) {
+        val ports = ArrayList<Port>()
+        board.enumeratePorts(ports)
+        for (port in ports) {
             println("Enumerating port at 0x${port.handle.toLong().toHexString()}")
             if (port.type == kraken_port_type_t.KRAKEN_PORT_TYPE_GPIO) {
                 println("Found GPIO port, initializing..")
-                val ios = port.enumerateIOs()
+                val ios = ArrayList<IO>()
+                port.enumerateIOs(ios)
                 for (io in ios) {
                     println("Enumerating IO '${io.name}' at 0x${io.handle.toLong().toHexString()}")
                     io.mode = kraken_io_mode_t.KRAKEN_IO_MODE_OUT
@@ -57,6 +66,7 @@ fun main() {
                 println("Initialized GPIO port, updating initial state")
                 port.update()
 
+                println("Testing outputs..")
                 var lastIo: IO? = null
                 for (i in 0..<30) {
                     lastIo?.state = false
@@ -67,8 +77,22 @@ fun main() {
                     lastIo = io
                     usleep(250000U)
                 }
+
+                println("Starting IO driver test..")
+                val count = AtomicInt(0)
+                val maxCount = 500
+                val clock = IOClock(50.0) // 50Hz
+                dispatcher += clock
+                val driver = IODriver(port) { ios ->
+                    val tick = count.incrementAndFetch()
+                    if (tick == maxCount) return@IODriver
+                    for (io in ios) io.state = tick and 1 == 0
+                }
+                clock += driver
+                while (count.load() < maxCount) Thread.yield()
             }
         }
     }
+    dispatcher.close()
     println("==========================================================")
 }

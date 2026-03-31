@@ -24,8 +24,10 @@ typedef struct kraken_io {
     kraken_pin_config_t pin_config;
     kraken_io_mode_t* supported_modes;
     size_t num_supported_modes;
-    kraken_io_mode_t mode;
-    kraken_bool_t state;
+    kraken_io_pud_mode_t* supported_pud_modes;
+    size_t num_supported_pud_modes;
+    _Atomic kraken_io_mode_t mode;
+    _Atomic kraken_bool_t state;
 } kraken_io_t;
 
 kraken_error_t kraken_io_create(kraken_io_t** io_addr, const char* name, const kraken_pin_config_t* pin_config,

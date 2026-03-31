@@ -110,7 +110,7 @@ KRAKEN_EXPORT kraken_error_t kraken_board_get_ports(const kraken_board_c_handle_
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid board handle");
     const kraken_board_t* board = (kraken_board_t*) handle;
     if(ports) {
-        memcpy(ports, board->ports, sizeof(kraken_port_t) * board->num_ports);
+        memcpy(ports, board->ports, sizeof(kraken_port_handle_t) * board->num_ports);
     }
     if(count) {
         *count = board->num_ports;

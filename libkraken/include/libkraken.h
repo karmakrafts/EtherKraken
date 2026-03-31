@@ -20,6 +20,7 @@
 #include "device/mcp23017.h"
 #include "kraken_alloc.h"
 #include "kraken_board.h"
+#include "kraken_cpu.h"
 #include "kraken_flash.h"
 #include "kraken_handles.h"
 #include "kraken_io.h"

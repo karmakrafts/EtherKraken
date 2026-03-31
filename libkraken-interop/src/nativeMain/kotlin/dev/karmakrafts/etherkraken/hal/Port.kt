@@ -62,19 +62,19 @@ value class Port(val handle: kraken_port_handle_t) {
         kraken_port_reinit(handle).check()
     }
 
-    fun enumerateIOs(): List<IO> {
-        val ios = ArrayList<IO>()
-        memScoped {
-            val count = alloc<size_tVar>()
-            kraken_port_get_ios(handle, null, count.ptr).check()
-            val iosHandles = allocArray<kraken_io_handle_tVar>(count.value.toLong())
-            kraken_port_get_ios(handle, iosHandles, count.ptr).check()
-            for (index in 0UL..<count.value) {
-                ios += IO(checkNotNull(iosHandles[index.toLong()]) {
-                    "Could not retrieve IO address"
-                })
-            }
+    fun enumerateIOs(ios: MutableList<IO>) = memScoped {
+        val count = alloc<size_tVar>()
+        kraken_port_get_ios(handle, null, count.ptr).check()
+        val iosHandles = allocArray<kraken_io_handle_tVar>(count.value.toLong())
+        kraken_port_get_ios(handle, iosHandles, count.ptr).check()
+        for (index in 0UL..<count.value) {
+            ios += IO(checkNotNull(iosHandles[index.toLong()]) {
+                "Could not retrieve IO address"
+            })
         }
-        return ios
+    }
+
+    fun enumerateIOs(): List<IO> = ArrayList<IO>().apply {
+        enumerateIOs(this)
     }
 }

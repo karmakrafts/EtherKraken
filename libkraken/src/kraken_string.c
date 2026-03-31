@@ -17,7 +17,7 @@
 
 #include <stdio.h>
 
-char* kraken_format(const char* fmt, ...) {
+char* string_format(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
     const int length = vsnprintf(nullptr, 0, fmt, args);
@@ -35,7 +35,7 @@ char* kraken_format(const char* fmt, ...) {
     return memory;
 }
 
-char* kraken_format_v(const char* fmt, const va_list args) {
+char* string_format_v(const char* fmt, const va_list args) {
     const int length = vsnprintf(nullptr, 0, fmt, args);
     if(length < 0) {
         return nullptr;

@@ -17,7 +17,7 @@
 
 #include <stdarg.h>
 
-char* kraken_format(const char* fmt, ...);
-char* kraken_format_v(const char* fmt, va_list args);
+char* string_format(const char* fmt, ...);
+char* string_format_v(const char* fmt, va_list args);
 
 #endif//LIBKRAKEN_KRAKEN_STRING_H

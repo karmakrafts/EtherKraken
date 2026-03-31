@@ -28,7 +28,7 @@
     static void kraken_log_##l(const char* fmt, ...) {                                                                 \
         va_list args;                                                                                                  \
         va_start(args, fmt);                                                                                           \
-        char* formatted_message = kraken_format_v(fmt, args);                                                          \
+        char* formatted_message = string_format_v(fmt, args);                                                          \
         va_end(args);                                                                                                  \
         kraken_log(KRAKEN_LOG_LEVEL_##L, formatted_message);                                                           \
         kraken_free(formatted_message);                                                                                \

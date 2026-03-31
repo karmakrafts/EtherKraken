@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalForeignApi::class)
+package dev.karmakrafts.etherkraken
 
-package dev.karmakrafts.etherkraken.hal.config
+import dev.karmakrafts.etherkraken.hal.IO
+import dev.karmakrafts.etherkraken.hal.Port
 
-import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.MemScope
-import libkraken.kraken_mux_config_t
+class IODriver( // @formatter:off
+    val port: Port,
+    val callback: (List<IO>) -> Unit
+) { // @formatter:on
+    private val ios: List<IO> = port.enumerateIOs()
 
-sealed interface MuxConfig {
-    context(scope: MemScope)
-    fun init(config: kraken_mux_config_t)
+    internal fun tick() {
+        callback(ios)
+        port.update()
+    }
 }
