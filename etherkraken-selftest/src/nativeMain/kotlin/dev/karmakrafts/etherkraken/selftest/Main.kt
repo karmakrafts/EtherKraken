@@ -80,13 +80,15 @@ fun main() {
 
                 println("Starting IO driver test..")
                 val count = AtomicInt(0)
-                val maxCount = 500
-                val clock = IOClock(50.0) // 50Hz
+                val maxCount = 300000
+                val clock = IOClock(10000.0) // 10kHz
                 dispatcher += clock
                 val driver = IODriver(port) { ios ->
                     val tick = count.incrementAndFetch()
                     if (tick == maxCount) return@IODriver
-                    for (io in ios) io.state = tick and 1 == 0
+                    ios[0].state = tick and 1 == 0
+                    ios[1].state = tick and 1 != 0
+                    ios[2].state = tick and 1 == 0
                 }
                 clock += driver
                 while (count.load() < maxCount) Thread.yield()
