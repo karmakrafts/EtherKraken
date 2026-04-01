@@ -61,6 +61,11 @@ kotlin {
     }
     applyDefaultHierarchyTemplate()
     sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.stately.concurrent.collections)
+            }
+        }
         commonTest {
             dependencies {
                 implementation(libs.kotlin.test)

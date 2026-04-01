@@ -31,13 +31,29 @@ import libkraken.kraken_bool_tVar
 import libkraken.kraken_io_get
 import libkraken.kraken_io_get_mode
 import libkraken.kraken_io_get_name
+import libkraken.kraken_io_get_pin_config
 import libkraken.kraken_io_handle_t
 import libkraken.kraken_io_mode_t
 import libkraken.kraken_io_mode_tVar
 import libkraken.kraken_io_set
 import libkraken.kraken_io_set_mode
+import libkraken.kraken_pin_config_t
 
 value class IO(val handle: kraken_io_handle_t) {
+    inline val devicePin: UInt
+        get() = memScoped {
+            val config = alloc<kraken_pin_config_t>()
+            kraken_io_get_pin_config(handle, config.ptr).check()
+            config.device_pin
+        }
+
+    inline val portPin: UInt
+        get() = memScoped {
+            val config = alloc<kraken_pin_config_t>()
+            kraken_io_get_pin_config(handle, config.ptr).check()
+            config.port_pin
+        }
+
     inline var mode: kraken_io_mode_t
         get() = memScoped {
             val mode = alloc<kraken_io_mode_tVar>()

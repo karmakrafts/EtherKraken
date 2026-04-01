@@ -16,8 +16,10 @@
 
 @file:OptIn(ExperimentalForeignApi::class)
 
-package dev.karmakrafts.etherkraken.hal
+package dev.karmakrafts.etherkraken.hal.driver
 
+import dev.karmakrafts.etherkraken.hal.Port
+import dev.karmakrafts.etherkraken.hal.check
 import kotlinx.cinterop.COpaquePointer
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.StableRef
@@ -37,15 +39,13 @@ private fun driverTrampoline(port: kraken_port_handle_t?, userData: COpaquePoint
     val port = Port(port ?: return)
     val driverRef = userData?.asStableRef<Driver>() ?: return
     val driver = driverRef.get()
-    val mask = driver.callback(driver.ios)
+    val mask = driver.tick()
     port.update(mask)
 }
 
-data class Driver( // @formatter:off
-    val port: Port,
-    val callback: (List<IO>) -> ULong
+abstract class Driver( // @formatter:off
+    port: Port
 ) : AutoCloseable { // @formatter:on
-    internal val ios: List<IO> = port.enumerateIOs()
     private val selfRef: StableRef<Driver> = StableRef.create(this)
 
     val handle: kraken_driver_handle_t = memScoped {
@@ -53,6 +53,8 @@ data class Driver( // @formatter:off
         kraken_driver_create(port.handle, staticCFunction(::driverTrampoline), selfRef.asCPointer(), handle.ptr).check()
         checkNotNull(handle.value) { "Could not create driver" }
     }
+
+    abstract fun tick(): ULong
 
     override fun close() {
         kraken_driver_destroy(handle).check()

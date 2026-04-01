@@ -21,19 +21,16 @@ package dev.karmakrafts.etherkraken.selftest
 import dev.karmakrafts.etherkraken.hal.Board
 import dev.karmakrafts.etherkraken.hal.Clock
 import dev.karmakrafts.etherkraken.hal.Dispatcher
-import dev.karmakrafts.etherkraken.hal.Driver
 import dev.karmakrafts.etherkraken.hal.IO
 import dev.karmakrafts.etherkraken.hal.Port
 import dev.karmakrafts.etherkraken.hal.config.BoardConfig
 import dev.karmakrafts.etherkraken.hal.config.DefaultGPIOType
+import dev.karmakrafts.etherkraken.hal.driver.SerialDriver
 import kotlinx.cinterop.ExperimentalForeignApi
 import libkraken.bcm2835_pin_t
 import libkraken.kraken_io_mode_t
 import libkraken.kraken_port_type_t
-import platform.posix.sched_yield
 import platform.posix.usleep
-import kotlin.concurrent.atomics.AtomicInt
-import kotlin.concurrent.atomics.fetchAndIncrement
 
 fun main() {
     println("==================== RUNNING SELFTEST ====================")
@@ -74,20 +71,17 @@ fun main() {
                     usleep(250000U)
                 }
 
-                // Driver based realtime IO, create a 50Hz square-wave
                 println("Testing realtime driver..")
-                Clock(50.0).use { clock ->
+                Clock(25.0).use { clock ->
                     dispatcher += clock
-                    val maxCount = 500
-                    val count = AtomicInt(0)
-                    Driver(port) { ios ->
-                        val tick = count.fetchAndIncrement()
-                        if (tick >= maxCount) return@Driver 0UL // don't commit any port updates
-                        for (io in ios) io.state = tick and 1 == 0
-                        ULong.MAX_VALUE // commit port updates for all IOs
-                    }.use { driver ->
+                    SerialDriver(
+                        port,
+                        bcm2835_pin_t.BCM2835_PIN_BCM2.value,
+                        bcm2835_pin_t.BCM2835_PIN_BCM3.value
+                    ).use { driver ->
                         clock += driver
-                        while (count.load() < maxCount) sched_yield()
+                        driver.write("HELLO WORLD! THIS IS SERIAL OUTPUT!")
+                        driver.waitUntilEmpty()
                     }
                 }
             }

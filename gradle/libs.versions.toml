@@ -9,12 +9,14 @@ dokka = "2.2.0" # https://github.com/Kotlin/dokka/releases
 karmaConventions = "1.15.1" # https://github.com/karmakrafts/karma-conventions/tags
 gradleNexus = "2.0.0" # https://github.com/gradle-nexus/publish-plugin/releases
 filament = "2.1.0"
+stately = "2.1.0" # https://github.com/touchlab/Stately/releases
 
 [libraries]
 
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 filament-core = { module = "dev.karmakrafts.filament:filament-core", version.ref = "filament" }
+stately-concurrent-collections = { module = "co.touchlab:stately-concurrent-collections", version.ref = "stately" }
 
 [plugins]
 

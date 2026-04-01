@@ -18,6 +18,7 @@
 
 package dev.karmakrafts.etherkraken.hal
 
+import dev.karmakrafts.etherkraken.hal.driver.Driver
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
