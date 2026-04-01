@@ -13,6 +13,7 @@ add_library(kraken SHARED
         "${LK_PUB_HEADER_FILES}")
 target_include_directories(kraken PRIVATE "src/")
 target_include_directories(kraken PUBLIC "include/")
+target_compile_definitions(kraken PUBLIC _GNU_SOURCE=1) # Enable pthread GNU extensions
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 	target_compile_definitions(kraken PUBLIC KRAKEN_DEBUG=1)
 endif ()
@@ -23,6 +24,7 @@ add_library(kraken-static STATIC
         "${LK_PUB_HEADER_FILES}")
 target_include_directories(kraken-static PRIVATE "src/")
 target_include_directories(kraken-static PUBLIC "include/")
+target_compile_definitions(kraken-static PUBLIC _GNU_SOURCE=1) # Enable pthread GNU extensions
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 	target_compile_definitions(kraken-static PUBLIC KRAKEN_DEBUG=1)
 endif ()

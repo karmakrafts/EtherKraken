@@ -17,7 +17,11 @@
 
 #include <malloc.h>
 
-static kraken_allocator_t g_default_allocator = {.pfn_alloc = &malloc, .pfn_free = &free};
+static kraken_allocator_t g_default_allocator = {// clang-format off
+    .pfn_alloc = &malloc,
+    .pfn_realloc = &realloc,
+    .pfn_free = &free
+};// clang-format on
 
 static _Atomic(const kraken_allocator_t*) g_allocator = &g_default_allocator;
 
@@ -44,6 +48,13 @@ KRAKEN_EXPORT void* kraken_calloc(const size_t size) {
     }
     memset(memory, 0x00, size);
     return memory;
+}
+
+KRAKEN_EXPORT void* kraken_realloc(void* memory, const size_t new_size) {
+    if(memory == nullptr) {
+        return nullptr;
+    }
+    return g_allocator->pfn_realloc(memory, new_size);
 }
 
 KRAKEN_EXPORT char* kraken_strdup(const char* string) {

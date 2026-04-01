@@ -39,6 +39,21 @@ typedef struct kraken_flash_t* kraken_flash_handle_t;
 /// @brief Const handle to a kraken flash instance.
 typedef const struct kraken_flash_t* kraken_flash_c_handle_t;
 
+/// @brief Handle to a kraken dispatcher instance.
+typedef struct kraken_dispatcher_t* kraken_dispatcher_handle_t;
+/// @brief Const handle to a kraken dispatcher instance.
+typedef const struct kraken_dispatcher_t* kraken_dispatcher_c_handle_t;
+
+/// @brief Handle to a kraken clock instance.
+typedef struct kraken_clock_t* kraken_clock_handle_t;
+/// @brief Const handle to a kraken clock instance.
+typedef const struct kraken_clock_t* kraken_clock_c_handle_t;
+
+/// @brief Handle to a kraken driver instance.
+typedef struct kraken_driver_t* kraken_driver_handle_t;
+/// @brief Const handle to a kraken driver instance.
+typedef const struct kraken_driver_t* kraken_driver_c_handle_t;
+
 KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_HANDLES_H

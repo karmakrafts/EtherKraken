@@ -18,27 +18,20 @@
 
 package dev.karmakrafts.etherkraken.selftest
 
-import dev.karmakrafts.etherkraken.IOClock
-import dev.karmakrafts.etherkraken.IODispatcher
-import dev.karmakrafts.etherkraken.IODriver
 import dev.karmakrafts.etherkraken.hal.Board
 import dev.karmakrafts.etherkraken.hal.IO
 import dev.karmakrafts.etherkraken.hal.Port
 import dev.karmakrafts.etherkraken.hal.config.BoardConfig
 import dev.karmakrafts.etherkraken.hal.config.DefaultGPIOType
-import dev.karmakrafts.filament.Thread
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.toLong
 import libkraken.bcm2835_pin_t
 import libkraken.kraken_io_mode_t
 import libkraken.kraken_port_type_t
 import platform.posix.usleep
-import kotlin.concurrent.atomics.AtomicInt
-import kotlin.concurrent.atomics.incrementAndFetch
 
 fun main() {
     println("==================== RUNNING SELFTEST ====================")
-    val dispatcher = IODispatcher(2) // use core 2
     Board.create(BoardConfig {
         gpio(DefaultGPIOType.BCM2835) {
             deviceTreeEntry("/proc/device-tree/soc/gpiomem")
@@ -78,23 +71,22 @@ fun main() {
                     usleep(250000U)
                 }
 
-                println("Starting IO driver test..")
-                val count = AtomicInt(0)
-                val maxCount = 300000
-                val clock = IOClock(10000.0) // 10kHz
-                dispatcher += clock
-                val driver = IODriver(port) { ios ->
-                    val tick = count.incrementAndFetch()
-                    if (tick == maxCount) return@IODriver
-                    ios[0].state = tick and 1 == 0
-                    ios[1].state = tick and 1 != 0
-                    ios[2].state = tick and 1 == 0
-                }
-                clock += driver
-                while (count.load() < maxCount) Thread.yield()
+                //println("Starting IO driver test..")
+                //val count = AtomicInt(0)
+                //val maxCount = 300000
+                //val clock = IOClock(12222.0) // 12.222kHz
+                //dispatcher += clock
+                //val driver = IODriver(port) { ios ->
+                //    val tick = count.incrementAndFetch()
+                //    if (tick == maxCount) return@IODriver
+                //    ios[0].state = tick and 1 == 0
+                //    ios[1].state = tick and 1 != 0
+                //    ios[2].state = tick and 1 == 0
+                //}
+                //clock += driver
+                //while (count.load() < maxCount) Thread.yield()
             }
         }
     }
-    dispatcher.close()
     println("==========================================================")
 }

@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LIBKRAKEN_LIBKRAKEN_H
-#define LIBKRAKEN_LIBKRAKEN_H
+#ifndef LIBKRAKEN_KRAKEN_CLOCK_IMPL_H
+#define LIBKRAKEN_KRAKEN_CLOCK_IMPL_H
 
-#include "config/kraken_config.h"
-#include "device/bcm2835.h"
-#include "device/mcp23017.h"
-#include "driver/kraken_driver.h"
-#include "kraken_alloc.h"
-#include "kraken_board.h"
+#include "kraken_array_list.h"
 #include "kraken_clock.h"
-#include "kraken_cpu.h"
-#include "kraken_dispatcher.h"
-#include "kraken_flash.h"
-#include "kraken_handles.h"
-#include "kraken_io.h"
-#include "kraken_log.h"
-#include "kraken_port.h"
 
-#endif//LIBKRAKEN_LIBKRAKEN_H
+#include <pthread.h>
+
+typedef struct kraken_clock {
+    double frequency;
+    uint64_t period;
+    _Atomic(uint64_t) next_event;
+    kraken_array_list_t drivers;
+    pthread_mutex_t drivers_mutex;
+} kraken_clock_t;
+
+kraken_error_t kraken_clock_tick(kraken_clock_t* clock);
+
+#endif//LIBKRAKEN_KRAKEN_CLOCK_IMPL_H
