@@ -29,15 +29,17 @@ KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void*
     // Compose the output state masks for the current io state
     uint32_t set_mask[2] = {0x00000000, 0x00000000};
     uint32_t clr_mask[2] = {0x00000000, 0x00000000};
+    const uint32_t update_mask[2] = {mask >> 32 & 0xFFFFFFFF, mask & 0xFFFFFFFF};
     for(size_t io_index = 0; io_index < io_count; io_index++) {
         asm volatile("isb");
         kraken_io_t* io = (kraken_io_t*) ios[io_index];
         const uint32_t bcm_pin = io->pin_config.device_pin;
         const uint32_t bank = bcm_pin / GPIO_REGISTER_SIZE;
         const uint32_t bit = bcm_pin % GPIO_REGISTER_SIZE;
-        set_mask[bank] |= ((uint32_t) io->state & (uint32_t) io->mode & 0b1) << bit;
-        clr_mask[bank] |= (~(uint32_t) io->state & (uint32_t) io->mode & 0b1) << bit;
-        io->state = (kraken_bool_t) (input_state_mask[bank] & (~(uint32_t) io->mode & 0b1) << bit);
+        const uint32_t update = update_mask[bank] >> bit & 0b1;// Mask bit determines if we update this IO
+        set_mask[bank] |= ((uint32_t) io->state & (uint32_t) io->mode & update) << bit;
+        clr_mask[bank] |= (~(uint32_t) io->state & (uint32_t) io->mode & update) << bit;
+        io->state = (kraken_bool_t) (input_state_mask[bank] & (~(uint32_t) io->mode & update) << bit);
     }
 
     gpio->gpclr0.value = clr_mask[0];
@@ -64,6 +66,7 @@ KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void*, 
     };// clang-format on
 
     uint32_t clr_mask[2] = {0x00000000, 0x00000000};
+    const uint32_t update_mask[2] = {mask >> 32 & 0xFFFFFFFF, mask & 0xFFFFFFFF};
     for(size_t i = 0; i < io_count; i++) {
         asm volatile("isb");
         const kraken_io_t* io = (const kraken_io_t*) ios[i];
@@ -76,7 +79,8 @@ KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void*, 
         // Set output mask bit for current IO so we know which IOs to clear
         const uint32_t output_bank = bcm_pin / GPIO_REGISTER_SIZE;
         const uint32_t output_bit = bcm_pin % GPIO_REGISTER_SIZE;
-        clr_mask[output_bank] |= io->mode << output_bit;
+        const uint32_t update = update_mask[output_bank] >> output_bit & 0b1;
+        clr_mask[output_bank] |= (io->mode & update) << output_bit;
     }
 
     // Update IO functions

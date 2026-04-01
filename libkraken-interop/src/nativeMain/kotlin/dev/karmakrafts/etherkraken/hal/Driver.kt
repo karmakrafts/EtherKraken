@@ -53,7 +53,7 @@ data class Driver( // @formatter:off
     }
 
     override fun close() {
-        kraken_driver_destroy(handle)
+        kraken_driver_destroy(handle).check()
         selfRef.dispose()
     }
 }

@@ -33,19 +33,19 @@ import libkraken.kraken_dispatcher_unregister
 value class Dispatcher private constructor(val handle: kraken_dispatcher_handle_t) : AutoCloseable {
     constructor(coreAffinity: Int) : this(memScoped {
         val handle = alloc<kraken_dispatcher_handle_tVar>()
-        kraken_dispatcher_create(coreAffinity, handle.ptr)
+        kraken_dispatcher_create(coreAffinity, handle.ptr).check()
         checkNotNull(handle.value) { "Could not create dispatcher" }
     })
 
     operator fun plusAssign(clock: Clock) {
-        kraken_dispatcher_register(handle, clock.handle)
+        kraken_dispatcher_register(handle, clock.handle).check()
     }
 
     operator fun minusAssign(clock: Clock) {
-        kraken_dispatcher_unregister(handle, clock.handle)
+        kraken_dispatcher_unregister(handle, clock.handle).check()
     }
 
     override fun close() {
-        kraken_dispatcher_destroy(handle)
+        kraken_dispatcher_destroy(handle).check()
     }
 }
