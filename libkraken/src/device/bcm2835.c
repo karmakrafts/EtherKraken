@@ -21,7 +21,7 @@ constexpr uint32_t GPIO_REGISTER_SIZE = 32;
 constexpr uint32_t GPIO_FSEL_BANK_SIZE = 10;
 
 KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void*, kraken_io_handle_t* ios,
-                                                       const size_t io_count) {
+                                                       const size_t io_count, const uint64_t mask) {
     volatile bcm2835_gpio_t* gpio = base_address;
     // Capture input state at the start of the update
     const uint32_t input_state_mask[2] = {gpio->gplev0.value, gpio->gplev1.value};
@@ -50,7 +50,7 @@ KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void*
 }
 
 KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void*, kraken_io_handle_t* ios,
-                                                     const size_t io_count) {
+                                                     const size_t io_count, const uint64_t mask) {
     volatile bcm2835_gpio_t* gpio = base_address;
     // Build function selection mask for all IOs;
     // We cannot overwrite all existing pin functions, otherwise we interrupt the MMC

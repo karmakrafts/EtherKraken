@@ -34,7 +34,7 @@ typedef struct kraken_pin_config {
 /// @param[in] io_count The number of IO handles in the array.
 /// @return KRAKEN_OK on success, or an error code on failure.
 typedef kraken_error_t (*pfn_kraken_gpio_state_update)(void* base_address, void* shadow_memory, kraken_io_handle_t* ios,
-                                                       size_t io_count);
+                                                       size_t io_count, uint64_t mask);
 
 /// @brief Callback function type for initializing GPIO state.
 /// @param[in] base_address The base address of the GPIO device.
@@ -43,7 +43,7 @@ typedef kraken_error_t (*pfn_kraken_gpio_state_update)(void* base_address, void*
 /// @param[in] io_count The number of IO handles in the array.
 /// @return KRAKEN_OK on success, or an error code on failure.
 typedef kraken_error_t (*pfn_kraken_gpio_state_init)(void* base_address, void* shadow_memory, kraken_io_handle_t* ios,
-                                                     size_t io_count);
+                                                     size_t io_count, uint64_t mask);
 
 /// @brief Configuration for a GPIO device.
 typedef struct kraken_gpio_config {
@@ -71,7 +71,7 @@ typedef enum kraken_mux_type : uint8_t {
 /// @param[in] io_count The number of IO handles in the array.
 /// @return KRAKEN_OK on success, or an error code on failure.
 typedef kraken_error_t (*pfn_kraken_i2c_mux_state_update)(int fd, void* shadow_memory, kraken_io_handle_t* ios,
-                                                          size_t io_count);
+                                                          size_t io_count, uint64_t mask);
 
 /// @brief Callback function type for initializing I2C multiplexer state.
 /// @param[in] fd The file descriptor for the I2C bus.
@@ -80,7 +80,7 @@ typedef kraken_error_t (*pfn_kraken_i2c_mux_state_update)(int fd, void* shadow_m
 /// @param[in] io_count The number of IO handles in the array.
 /// @return KRAKEN_OK on success, or an error code on failure.
 typedef kraken_error_t (*pfn_kraken_i2c_mux_state_init)(int fd, void* shadow_memory, kraken_io_handle_t* ios,
-                                                        size_t io_count);
+                                                        size_t io_count, uint64_t mask);
 
 /// @brief Configuration for an I2C multiplexer.
 typedef struct kraken_i2c_mux_config {
@@ -102,7 +102,7 @@ typedef struct kraken_i2c_mux_config {
 /// @param[in] io_count The number of IO handles in the array.
 /// @return KRAKEN_OK on success, or an error code on failure.
 typedef kraken_error_t (*pfn_kraken_spi_mux_state_update)(void* base_address, void* shadow_memory,
-                                                          kraken_io_handle_t* ios, size_t io_count);
+                                                          kraken_io_handle_t* ios, size_t io_count, uint64_t mask);
 
 /// @brief Callback function type for initializing SPI multiplexer state.
 /// @param[in] base_address The base address of the SPI device.
@@ -111,7 +111,7 @@ typedef kraken_error_t (*pfn_kraken_spi_mux_state_update)(void* base_address, vo
 /// @param[in] io_count The number of IO handles in the array.
 /// @return KRAKEN_OK on success, or an error code on failure.
 typedef kraken_error_t (*pfn_kraken_spi_mux_state_init)(void* base_address, void* shadow_memory,
-                                                        kraken_io_handle_t* ios, size_t io_count);
+                                                        kraken_io_handle_t* ios, size_t io_count, uint64_t mask);
 
 /// @brief Configuration for an SPI multiplexer.
 typedef struct kraken_spi_mux_config {

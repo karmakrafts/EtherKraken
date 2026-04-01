@@ -15,6 +15,7 @@
 #ifndef LIBKRAKEN_LIBKRAKEN_H
 #define LIBKRAKEN_LIBKRAKEN_H
 
+#include "kraken_handles.h"
 #include "config/kraken_config.h"
 #include "device/bcm2835.h"
 #include "device/mcp23017.h"
@@ -25,7 +26,6 @@
 #include "kraken_cpu.h"
 #include "kraken_dispatcher.h"
 #include "kraken_flash.h"
-#include "kraken_handles.h"
 #include "kraken_io.h"
 #include "kraken_log.h"
 #include "kraken_port.h"

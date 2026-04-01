@@ -240,7 +240,7 @@ typedef struct __attribute__((packed)) _bcm2835_gpio_t {// NOLINT
 /// @return KRAKEN_SUCCESS on success, or an error code on failure.
 ///
 KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void* shadow_memory, kraken_io_handle_t* ios,
-                                                       size_t io_count);
+                                                       size_t io_count, uint64_t mask);
 
 ///
 /// Initializes the GPIO state.
@@ -252,7 +252,7 @@ KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void*
 /// @return KRAKEN_SUCCESS on success, or an error code on failure.
 ///
 KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void* shadow_memory, kraken_io_handle_t* ios,
-                                                     size_t io_count);
+                                                     size_t io_count, uint64_t mask);
 
 KRAKEN_API_END
 

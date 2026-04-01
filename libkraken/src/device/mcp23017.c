@@ -21,7 +21,7 @@
 constexpr size_t MCP23017_REGISTER_SIZE = 8;
 
 KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_update(const int fd, void*, kraken_io_handle_t* ios,
-                                                           const size_t io_count) {
+                                                           const size_t io_count, const uint64_t mask) {
     constexpr uint8_t input_register[] = {MCP23017_REGISTER_GPIOA};
     KRAKEN_CHECK(write(fd, input_register, sizeof(input_register)) > 0, KRAKEN_ERR_INVALID_ARG,
                  "Could not update MUX register pointer");// Set register pointer to GPIOA
@@ -48,7 +48,7 @@ KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_update(const int fd, void*, 
 }
 
 KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_init(const int fd, void*, kraken_io_handle_t* ios,
-                                                         const size_t io_count) {
+                                                         const size_t io_count, const uint64_t mask) {
     // Update IOCON register to ensure banking is disabled and SEQOP bit is set
     // clang-format off
     const mcp23017_iocon_t iocon = {
@@ -78,7 +78,7 @@ KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_init(const int fd, void*, kr
 }
 
 KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_update(void* base_address, void*, kraken_io_handle_t* ios,
-                                                           const size_t io_count) {
+                                                           const size_t io_count, const uint64_t mask) {
     volatile mcp23017_t* registers = base_address;
     const uint8_t input_state[] = {registers->gpioa.value, registers->gpiob.value};
 
@@ -101,7 +101,7 @@ KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_update(void* base_address, v
 }
 
 KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_init(void* base_address, void*, kraken_io_handle_t* ios,
-                                                         const size_t io_count) {
+                                                         const size_t io_count, const uint64_t mask) {
     volatile mcp23017_t* registers = base_address;
     // Update IOCON register to ensure banking is disabled and SEQOP bit is cleared
     // clang-format off

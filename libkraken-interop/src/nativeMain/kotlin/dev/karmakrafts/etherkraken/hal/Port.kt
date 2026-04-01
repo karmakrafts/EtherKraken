@@ -37,9 +37,10 @@ import libkraken.kraken_port_reinit
 import libkraken.kraken_port_type_t
 import libkraken.kraken_port_type_tVar
 import libkraken.kraken_port_update
+import libkraken.kraken_port_update_masked
 import platform.posix.size_tVar
 
-value class Port(val handle: kraken_port_handle_t) {
+value class Port internal constructor(val handle: kraken_port_handle_t) {
     inline val type: kraken_port_type_t
         get() = memScoped {
             val type = alloc<kraken_port_type_tVar>()
@@ -53,6 +54,10 @@ value class Port(val handle: kraken_port_handle_t) {
             kraken_port_get_name(handle, name.ptr).check()
             name.value?.toKStringFromUtf8() ?: "Unknown"
         }
+
+    fun update(mask: ULong) {
+        kraken_port_update_masked(handle, mask).check()
+    }
 
     fun update() {
         kraken_port_update(handle).check()

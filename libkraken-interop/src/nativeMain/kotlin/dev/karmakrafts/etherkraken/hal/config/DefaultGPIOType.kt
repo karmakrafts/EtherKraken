@@ -33,9 +33,9 @@ enum class DefaultGPIOType( // @formatter:off
     override val updateCallback: pfn_kraken_gpio_state_update,
     override val initCallback: pfn_kraken_gpio_state_init,
 ) : GPIOType { // @formatter:on
-    BCM2835("bcm2835", sizeOf<bcm2835_gpio_t>(), staticCFunction { baseAddress, shadowMemory, ios, ioCount ->
-        bcm2835_gpio_state_update(baseAddress, shadowMemory, ios, ioCount)
-    }, staticCFunction { baseAddress, shadowMemory, ios, ioCount ->
-        bcm2835_gpio_state_init(baseAddress, shadowMemory, ios, ioCount)
+    BCM2835("bcm2835", sizeOf<bcm2835_gpio_t>(), staticCFunction { baseAddress, shadowMemory, ios, ioCount, mask ->
+        bcm2835_gpio_state_update(baseAddress, shadowMemory, ios, ioCount, mask)
+    }, staticCFunction { baseAddress, shadowMemory, ios, ioCount, mask ->
+        bcm2835_gpio_state_init(baseAddress, shadowMemory, ios, ioCount, mask)
     })
 }

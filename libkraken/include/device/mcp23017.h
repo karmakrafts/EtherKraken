@@ -193,7 +193,7 @@ typedef struct mcp23017 {
 /// @param io_count The number of I/O handles
 /// @return KRAKEN_ERROR_OK on success, or an error code
 KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_update(int fd, void* shadow_memory, kraken_io_handle_t* ios,
-                                                           size_t io_count);
+                                                           size_t io_count, uint64_t mask);
 
 /// @brief Initializes the MCP23017 state via I2C
 /// @param fd The I2C file descriptor
@@ -202,7 +202,7 @@ KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_update(int fd, void* shadow_
 /// @param io_count The number of I/O handles
 /// @return KRAKEN_ERROR_OK on success, or an error code
 KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_init(int fd, void* shadow_memory, kraken_io_handle_t* ios,
-                                                         size_t io_count);
+                                                         size_t io_count, uint64_t mask);
 
 /// @brief Updates the MCP23017 state via SPI
 /// @param base_address The SPI base address
@@ -211,7 +211,7 @@ KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_init(int fd, void* shadow_me
 /// @param io_count The number of I/O handles
 /// @return KRAKEN_ERROR_OK on success, or an error code
 KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_update(void* base_address, void* shadow_memory,
-                                                           kraken_io_handle_t* ios, size_t io_count);
+                                                           kraken_io_handle_t* ios, size_t io_count, uint64_t mask);
 
 /// @brief Initializes the MCP23017 state via SPI
 /// @param base_address The SPI base address
@@ -220,7 +220,7 @@ KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_update(void* base_address, v
 /// @param io_count The number of I/O handles
 /// @return KRAKEN_ERROR_OK on success, or an error code
 KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_init(void* base_address, void* shadow_memory,
-                                                         kraken_io_handle_t* ios, size_t io_count);
+                                                         kraken_io_handle_t* ios, size_t io_count, uint64_t mask);
 
 KRAKEN_API_END
 

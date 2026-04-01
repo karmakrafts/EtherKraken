@@ -50,7 +50,8 @@ KRAKEN_EXPORT kraken_error_t kraken_port_update(const kraken_port_c_handle_t han
                 gpio_port->registers,
                 gpio_port->shadow_memory,
                 (kraken_io_handle_t*)gpio_port->ios,
-                gpio_port->num_ios);
+                gpio_port->num_ios,
+                -1);
             // clang-format on
             break;
         }
@@ -63,7 +64,8 @@ KRAKEN_EXPORT kraken_error_t kraken_port_update(const kraken_port_c_handle_t han
                 mux_port->fd,
                 mux_port->shadow_memory,
                 (kraken_io_handle_t*)mux_port->ios,
-                mux_port->num_ios);
+                mux_port->num_ios,
+                -1);
             // clang-format on
             break;
         }
@@ -76,7 +78,58 @@ KRAKEN_EXPORT kraken_error_t kraken_port_update(const kraken_port_c_handle_t han
                 mux_port->registers,
                 mux_port->shadow_memory,
                 (kraken_io_handle_t*)mux_port->ios,
-                mux_port->num_ios);
+                mux_port->num_ios,
+                -1);
+            // clang-format on
+            break;
+        }
+    }
+    return KRAKEN_OK;
+}
+
+KRAKEN_EXPORT kraken_error_t kraken_port_update_masked(kraken_port_c_handle_t handle, const uint64_t mask) {
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Port handle is null");
+    const kraken_port_t* port = (const kraken_port_t*) handle;
+    switch(port->type) {
+        case KRAKEN_PORT_TYPE_GPIO: {
+            const kraken_gpio_port_t* gpio_port = &port->gpio;
+            KRAKEN_CHECK_PTR(gpio_port->config->pfn_state_update, KRAKEN_ERR_INVALID_OP,
+                             "GPIO port is missing state update callback");
+            // clang-format off
+            gpio_port->config->pfn_state_update(
+                gpio_port->registers,
+                gpio_port->shadow_memory,
+                (kraken_io_handle_t*)gpio_port->ios,
+                gpio_port->num_ios,
+                mask);
+            // clang-format on
+            break;
+        }
+        case KRAKEN_PORT_TYPE_I2C_MUX: {
+            const kraken_i2c_mux_port_t* mux_port = &port->i2c_mux;
+            KRAKEN_CHECK_PTR(mux_port->config->pfn_state_update, KRAKEN_ERR_INVALID_OP,
+                             "I2C MUX port is missing state update callback");
+            // clang-format off
+            mux_port->config->pfn_state_update(
+                mux_port->fd,
+                mux_port->shadow_memory,
+                (kraken_io_handle_t*)mux_port->ios,
+                mux_port->num_ios,
+                mask);
+            // clang-format on
+            break;
+        }
+        case KRAKEN_PORT_TYPE_SPI_MUX: {
+            const kraken_spi_mux_port_t* mux_port = &port->spi_mux;
+            KRAKEN_CHECK_PTR(mux_port->config->pfn_state_update, KRAKEN_ERR_INVALID_OP,
+                             "SPI MUX port is missing state update callback");
+            // clang-format off
+            mux_port->config->pfn_state_update(
+                mux_port->registers,
+                mux_port->shadow_memory,
+                (kraken_io_handle_t*)mux_port->ios,
+                mux_port->num_ios,
+                mask);
             // clang-format on
             break;
         }
@@ -97,7 +150,8 @@ KRAKEN_EXPORT kraken_error_t kraken_port_reinit(const kraken_port_c_handle_t han
                 gpio_port->registers,
                 gpio_port->shadow_memory,
                 (kraken_io_handle_t*)gpio_port->ios,
-                gpio_port->num_ios);
+                gpio_port->num_ios,
+                -1);
             // clang-format on
             break;
         }
@@ -110,7 +164,8 @@ KRAKEN_EXPORT kraken_error_t kraken_port_reinit(const kraken_port_c_handle_t han
                 mux_port->fd,
                 mux_port->shadow_memory,
                 (kraken_io_handle_t*)mux_port->ios,
-                mux_port->num_ios);
+                mux_port->num_ios,
+                -1);
             // clang-format on
             break;
         }
@@ -123,7 +178,8 @@ KRAKEN_EXPORT kraken_error_t kraken_port_reinit(const kraken_port_c_handle_t han
                 mux_port->registers,
                 mux_port->shadow_memory,
                 (kraken_io_handle_t*)mux_port->ios,
-                mux_port->num_ios);
+                mux_port->num_ios,
+                -1);
             // clang-format on
             break;
         }
