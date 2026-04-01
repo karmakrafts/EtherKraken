@@ -28,9 +28,9 @@ KRAKEN_EXPORT KRAKEN_NOINLINE kraken_error_t bcm2835_gpio_state_update(void* bas
     const uint32_t input_state_mask[2] = {gpio->gplev0.value, gpio->gplev1.value};
 
     // Compose the output state masks for the current io state
-    uint32_t set_mask[2] = {0x00000000, 0x00000000};
-    uint32_t clr_mask[2] = {0x00000000, 0x00000000};
-    const uint32_t update_mask[2] = {mask >> 32 & 0xFFFFFFFF, mask & 0xFFFFFFFF};
+    uint32_t set_mask[2] = {0x00000000U, 0x00000000U};
+    uint32_t clr_mask[2] = {0x00000000U, 0x00000000U};
+    const uint32_t update_mask[2] = {(uint32_t) (mask & 0xFFFFFFFFUL), (uint32_t) (mask >> 32 & 0xFFFFFFFFUL)};
     for(size_t io_index = 0; io_index < io_count; io_index++) {
         kraken_io_t* io = (kraken_io_t*) ios[io_index];
         const uint32_t bcm_pin = io->pin_config.device_pin;
@@ -64,8 +64,8 @@ KRAKEN_EXPORT KRAKEN_NOINLINE kraken_error_t bcm2835_gpio_state_init(void* base_
         gpio->gpfsel5.value
     };// clang-format on
 
-    uint32_t clr_mask[2] = {0x00000000, 0x00000000};
-    const uint32_t update_mask[2] = {mask >> 32 & 0xFFFFFFFF, mask & 0xFFFFFFFF};
+    uint32_t clr_mask[2] = {0x00000000U, 0x00000000U};
+    const uint32_t update_mask[2] = {(uint32_t) (mask & 0xFFFFFFFFUL), (uint32_t) (mask >> 32 & 0xFFFFFFFFUL)};
     for(size_t i = 0; i < io_count; i++) {
         const kraken_io_t* io = (const kraken_io_t*) ios[i];
         const uint32_t bcm_pin = io->pin_config.device_pin;

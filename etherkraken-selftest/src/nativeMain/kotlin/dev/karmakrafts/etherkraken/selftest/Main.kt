@@ -70,6 +70,8 @@ fun main() {
                     lastIo = io
                     usleep(250000U)
                 }
+                lastIo?.state = false
+                port.update()
 
                 println("Testing realtime driver..")
                 Clock(25.0).use { clock ->
@@ -84,6 +86,10 @@ fun main() {
                         driver.waitUntilEmpty()
                     }
                 }
+
+                println("Clearing outputs..")
+                for(io in ios) io.state = false
+                port.update()
             }
         }
     }

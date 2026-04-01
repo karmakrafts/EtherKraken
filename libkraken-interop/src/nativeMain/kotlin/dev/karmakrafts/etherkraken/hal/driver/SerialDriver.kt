@@ -36,6 +36,7 @@ class SerialDriver( // @formatter:off
     private val dataIo: IO = ios.first { io -> io.devicePin == dataDevicePin }
     private val clockIo: IO = ios.first { io -> io.devicePin == clockDevicePin }
 
+    private val updateMask: ULong = (0b1UL shl dataDevicePin.toInt()) or (0b1UL shl clockDevicePin.toInt())
     private val queue: ConcurrentMutableList<UByte> = ConcurrentMutableList()
     private val currentByte: AtomicInt = AtomicInt(0)
     private val currentBit: AtomicInt = AtomicInt(LAST_BIT)
@@ -68,6 +69,6 @@ class SerialDriver( // @formatter:off
             dataIo.state = (currentByte shr currentBit) and 0b1U == 0b1U
             this.currentBit.fetchAndIncrement()
         }
-        return ULong.MAX_VALUE
+        return updateMask
     }
 }
