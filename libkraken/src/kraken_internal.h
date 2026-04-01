@@ -28,6 +28,8 @@
 #define KRAKEN_ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 #define KRAKEN_INTERNAL __attribute__((visibility("hidden")))
 #define KRAKEN_INLINE __attribute__((always_inline))
+#define KRAKEN_NOINLINE __attribute__((noinline))
+#define KRAKEN_NOOPT __attribute__((optnone))
 
 #define kraken_assert(x)                                                                                               \
     do {                                                                                                               \

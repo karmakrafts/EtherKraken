@@ -35,6 +35,16 @@ if [[ -z "$DEVICE_PASSWORD" ]]; then
 fi
 echo
 
+read -p "Should skip rebuild? (default 'false'): " SKIP_REBUILD
+if [[ -z "$SKIP_REBUILD" ]]; then
+	SKIP_REBUILD="false"
+fi
+
+read -p "Enter build debugging state (default 'false'): " BUILD_DEBUG_STATE
+if [[ -z "$BUILD_DEBUG_STATE" ]]; then
+    BUILD_DEBUG_STATE="false"
+fi
+
 read -p "Enter device profiling state (default 'false'): " DEVICE_PROFILING_STATE
 if [[ -z "$DEVICE_PROFILING_STATE" ]]; then
 	DEVICE_PROFILING_STATE="false"
@@ -51,25 +61,36 @@ fi
 
 echo
 
-echo "Building selftest binary.."
-./../gradlew clean \
-    :libkraken-interop:linuxArm64Cinterop-libkrakenKlib \
-    :etherkraken-selftest:linkDebugExecutableLinuxArm64 \
-    --no-daemon --rerun-tasks --quiet --console=plain
+if [[ "$SKIP_REBUILD" = "false" ]]; then
+	echo "Building selftest binary.."
+    if [[ "$BUILD_DEBUG_STATE" = "true" ]]; then
+        TASK_PREFIX="Debug"
+    else
+        TASK_PREFIX="Release"
+    fi
+    ./../gradlew -Dlibkraken.build.debug="$BUILD_DEBUG_STATE" clean \
+        :etherkraken-selftest:link${TASK_PREFIX}ExecutableLinuxArm64 \
+        --no-daemon --rerun-tasks --quiet --console=plain
+fi
 
 echo "Copying binary to target device.."
+if [[ "$BUILD_DEBUG_STATE" = "true" ]]; then
+    DIRECTORY_PREFIX="debug"
+else
+    DIRECTORY_PREFIX="release"
+fi
 sshpass -p $DEVICE_PASSWORD rsync -avz \
-    build/bin/linuxArm64/debugExecutable/etherkraken-selftest.kexe \
+    build/bin/linuxArm64/${DIRECTORY_PREFIX}Executable/etherkraken-selftest.kexe \
     $DEVICE_USER@$DEVICE_IP:/home/$DEVICE_USER/selftest
 
 echo "Making binary executable and setting process permissions.."
-sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "chmod +x /home/$DEVICE_USER/selftest && sudo setcap cap_sys_nice+ep /home/$DEVICE_USER/selftest"
+sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "sudo chmod a+x /home/$DEVICE_USER/selftest"
 
 echo "Running selftest.."
 if [[ "$DEVICE_DEBUG_STATE" = "true" ]]; then
-    sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && gdbserver :6767 ./selftest"
+    sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && sudo gdbserver :6767 ./selftest"
 elif [[ "$DEVICE_PROFILING_STATE" = "true" ]]; then
-	sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && valgrind --leak-check=full ./selftest"
+	sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && sudo valgrind --leak-check=full ./selftest"
 else
-    sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && ./selftest"
+    sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && sudo ./selftest"
 fi

@@ -30,11 +30,14 @@ plugins {
 
 configureJava(rootProject.libs.versions.java)
 
-val compileLibKraken = tasks.register("compileLibKraken", Exec::class) {
+val debugLibKraken: Boolean = System.getProperty("libkraken.build.debug") == "true"
+
+val compileLibKraken: TaskProvider<Exec> = tasks.register("compileLibKraken", Exec::class) {
     group = "interop"
     inputs.dir(rootDir.resolve("libkraken").resolve("include"))
     inputs.dir(rootDir.resolve("libkraken").resolve("src"))
-    outputs.dir(rootDir.resolve("libkraken").resolve("build-release"))
+    val suffix = if (debugLibKraken) "debug" else "release"
+    outputs.dir(rootDir.resolve("libkraken").resolve("build-$suffix"))
     workingDir = rootDir.resolve("libkraken")
     commandLine("/bin/bash", "build.sh")
 }
@@ -46,7 +49,8 @@ kotlin {
         compilations {
             named("main") {
                 cinterops {
-                    create("libkraken") {
+                    val suffix = if (debugLibKraken) "_debug" else ""
+                    create("libkraken$suffix") {
                         tasks.named(interopProcessingTaskName) {
                             dependsOn(compileLibKraken)
                         }

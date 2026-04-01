@@ -20,7 +20,7 @@ kraken_error_t kraken_array_list_create(const size_t initial_capacity, const siz
                                         kraken_array_list_t* list) {
     KRAKEN_CHECK_PTR(list, KRAKEN_ERR_INVALID_ARG, "Invalid array list pointer");
     KRAKEN_CHECK(element_size > 0, KRAKEN_ERR_INVALID_ARG, "Invalid array list element size");
-    list->memory = kraken_malloc(element_size * initial_capacity);// May allocate size 0
+    list->memory = kraken_calloc(element_size * initial_capacity);// May allocate size 0
     KRAKEN_CHECK_PTR(list->memory, KRAKEN_ERR_INVALID_OP, "Could not allocate array list memory");
     list->size = 0;
     list->capacity = initial_capacity;
@@ -31,7 +31,7 @@ kraken_error_t kraken_array_list_create(const size_t initial_capacity, const siz
 kraken_error_t kraken_array_list_alloc(const size_t initial_capacity, const size_t element_size,
                                        kraken_array_list_t** list) {
     KRAKEN_CHECK_PTR(list, KRAKEN_ERR_INVALID_ARG, "Invalid array list address pointer");
-    kraken_array_list_t* new_list = kraken_malloc(sizeof(kraken_array_list_t));
+    kraken_array_list_t* new_list = kraken_calloc(sizeof(kraken_array_list_t));
     KRAKEN_CHECK_ERROR(kraken_array_list_create(initial_capacity, element_size, new_list),
                        "Could not initialize array list");
     *list = new_list;

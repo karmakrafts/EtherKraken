@@ -24,18 +24,18 @@ KRAKEN_API_BEGIN
 ///
 /// @param[out] frequency Pointer to store the current system frequency.
 /// @return KRAKEN_SUCCESS if successful, or an error code otherwise.
-KRAKEN_EXPORT kraken_error_t kraken_cpu_get_system_frequency(uint64_t* frequency);
+KRAKEN_EXPORT kraken_error_t kraken_cpu_get_system_frequency(register uint64_t* frequency);
 
 /// @brief Retrieves the current system CPU counter.
 ///
 /// @param[out] counter Pointer to store the current system counter value.
 /// @return KRAKEN_SUCCESS if successful, or an error code otherwise.
-KRAKEN_EXPORT kraken_error_t kraken_cpu_get_counter(uint64_t* counter);
+KRAKEN_EXPORT kraken_error_t kraken_cpu_get_counter(register uint64_t* counter);
 
 /// @brief Busy-waits for a specified number of CPU cycles.
 ///
 /// @param[in] cycles The number of CPU cycles to sleep.
-KRAKEN_EXPORT void kraken_cpu_sleep_cycles(uint64_t cycles);
+KRAKEN_EXPORT void kraken_cpu_sleep_cycles(register uint64_t cycles);
 
 KRAKEN_API_END
 

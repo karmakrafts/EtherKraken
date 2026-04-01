@@ -36,7 +36,7 @@ void kraken_last_error_set(const char* error);
 
 #define KRAKEN_CHECK_RESULT(r, E, m)                                                                                   \
     do {                                                                                                               \
-        if(r != 0) {                                                                                                   \
+        if((r) != 0) {                                                                                                 \
             kraken_last_error_set(m);                                                                                  \
             return E;                                                                                                  \
         }                                                                                                              \
@@ -53,16 +53,16 @@ void kraken_last_error_set(const char* error);
 
 #define KRAKEN_CHECK_PTR(p, E, m)                                                                                      \
     do {                                                                                                               \
-        if(p == nullptr) {                                                                                             \
+        if((p) == nullptr) {                                                                                           \
             kraken_last_error_set(m);                                                                                  \
             return E;                                                                                                  \
         }                                                                                                              \
     } while(0)
 #else
 #define KRAKEN_CHECK(c, E, m)
-#define KRAKEN_CHECK_RESULT(r, E, m)
+#define KRAKEN_CHECK_RESULT(r, E, m) r
 #define KRAKEN_CHECK_PTR(p, E, m)
-#define KRAKEN_CHECK_ERROR(e, m)
+#define KRAKEN_CHECK_ERROR(e, m) e
 #endif
 
 #define kraken_panic(fmt, ...)                                                                                         \

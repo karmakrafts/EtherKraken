@@ -20,8 +20,9 @@
 constexpr uint32_t GPIO_REGISTER_SIZE = 32;
 constexpr uint32_t GPIO_FSEL_BANK_SIZE = 10;
 
-KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void*, kraken_io_handle_t* ios,
-                                                       const size_t io_count, const uint64_t mask) {
+KRAKEN_EXPORT KRAKEN_NOINLINE kraken_error_t bcm2835_gpio_state_update(void* base_address, void*,
+                                                                       kraken_io_handle_t* ios, const size_t io_count,
+                                                                       const uint64_t mask) {
     volatile bcm2835_gpio_t* gpio = base_address;
     // Capture input state at the start of the update
     const uint32_t input_state_mask[2] = {gpio->gplev0.value, gpio->gplev1.value};
@@ -31,7 +32,6 @@ KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void*
     uint32_t clr_mask[2] = {0x00000000, 0x00000000};
     const uint32_t update_mask[2] = {mask >> 32 & 0xFFFFFFFF, mask & 0xFFFFFFFF};
     for(size_t io_index = 0; io_index < io_count; io_index++) {
-        asm volatile("isb");
         kraken_io_t* io = (kraken_io_t*) ios[io_index];
         const uint32_t bcm_pin = io->pin_config.device_pin;
         const uint32_t bank = bcm_pin / GPIO_REGISTER_SIZE;
@@ -46,13 +46,12 @@ KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_update(void* base_address, void*
     gpio->gpset0.value = set_mask[0];
     gpio->gpclr1.value = clr_mask[1];
     gpio->gpset1.value = set_mask[1];
-    asm volatile("dmb ish" ::: "memory");
 
     return KRAKEN_OK;
 }
 
-KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void*, kraken_io_handle_t* ios,
-                                                     const size_t io_count, const uint64_t mask) {
+KRAKEN_EXPORT KRAKEN_NOINLINE kraken_error_t bcm2835_gpio_state_init(void* base_address, void*, kraken_io_handle_t* ios,
+                                                                     const size_t io_count, const uint64_t mask) {
     volatile bcm2835_gpio_t* gpio = base_address;
     // Build function selection mask for all IOs;
     // We cannot overwrite all existing pin functions, otherwise we interrupt the MMC
@@ -68,7 +67,6 @@ KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void*, 
     uint32_t clr_mask[2] = {0x00000000, 0x00000000};
     const uint32_t update_mask[2] = {mask >> 32 & 0xFFFFFFFF, mask & 0xFFFFFFFF};
     for(size_t i = 0; i < io_count; i++) {
-        asm volatile("isb");
         const kraken_io_t* io = (const kraken_io_t*) ios[i];
         const uint32_t bcm_pin = io->pin_config.device_pin;
         // Set function selection bit for current IO
@@ -93,7 +91,6 @@ KRAKEN_EXPORT kraken_error_t bcm2835_gpio_state_init(void* base_address, void*, 
     // Clear all outputs to their default state
     gpio->gpclr0.value = clr_mask[0];
     gpio->gpclr1.value = clr_mask[1];
-    asm volatile("dmb ish" ::: "memory");
 
     return KRAKEN_OK;
 }

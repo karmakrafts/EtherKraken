@@ -58,14 +58,23 @@ if [[ -z "$DEVICE_DEBUG_STATE" ]]; then
 fi
 
 echo "Building selftest binary.."
-./../gradlew clean \
-    :libkraken-interop:linuxArm64Cinterop-libkrakenKlib \
-    :libkraken-selftest:linkDebugExecutableLinuxArm64 \
+if [[ "$DEVICE_DEBUG_STATE" = "true" ]]; then
+    TASK_PREFIX="Debug"
+else
+    TASK_PREFIX="Release"
+fi
+./../gradlew -Dlibkraken.build.debug="$DEVICE_DEBUG_STATE" clean \
+    :etherkraken-selftest:link${TASK_PREFIX}ExecutableLinuxArm64 \
     --no-daemon --rerun-tasks --quiet --console=plain
 
 echo "Copying binary to target device.."
+if [[ "$DEVICE_DEBUG_STATE" = "true" ]]; then
+    DIRECTORY_PREFIX="debug"
+else
+    DIRECTORY_PREFIX="release"
+fi
 sshpass -p $DEVICE_PASSWORD rsync -avz \
-    build/bin/linuxArm64/debugExecutable/libkraken-selftest.kexe \
+    build/bin/linuxArm64/${DIRECTORY_PREFIX}Executable/etherkraken-selftest.kexe \
     $DEVICE_USER@$DEVICE_IP:/home/$DEVICE_USER/selftest
 
 echo "Making binary executable and setting process permissions.."
