@@ -67,7 +67,7 @@ void kraken_last_error_set(const char* error);
 
 #define kraken_panic(fmt, ...)                                                                                         \
     do {                                                                                                               \
-        char* formatted_message = kraken_format("!HAL PANIC! " fmt, ##__VA_ARGS__);                                    \
+        char* formatted_message = string_format("!HAL PANIC! " fmt, ##__VA_ARGS__);                                    \
         kraken_log_error(formatted_message);                                                                           \
         kraken_free(formatted_message);                                                                                \
         __builtin_trap();                                                                                              \

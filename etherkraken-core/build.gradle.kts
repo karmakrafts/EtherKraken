@@ -32,13 +32,12 @@ kotlin {
     linuxArm64()
     applyDefaultHierarchyTemplate()
     sourceSets {
-        commonMain {
+        nativeMain {
             dependencies {
                 api(projects.libkrakenInterop)
-                implementation(libs.filament.core)
             }
         }
-        commonTest {
+        nativeTest {
             dependencies {
                 implementation(libs.kotlin.test)
             }

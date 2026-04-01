@@ -68,8 +68,8 @@ sshpass -p $DEVICE_PASSWORD rsync -avz \
     build/bin/linuxArm64/debugExecutable/libkraken-selftest.kexe \
     $DEVICE_USER@$DEVICE_IP:/home/$DEVICE_USER/selftest
 
-echo "Making binary executable.."
-sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP chmod +x /home/$DEVICE_USER/selftest
+echo "Making binary executable and setting process permissions.."
+sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "chmod +x /home/$DEVICE_USER/selftest && sudo setcap cap_sys_nice+ep /home/$DEVICE_USER/selftest"
 
 echo "Running selftest.."
 if [[ "$DEVICE_DEBUG_STATE" = "true" ]]; then

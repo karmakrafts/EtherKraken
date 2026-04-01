@@ -31,6 +31,12 @@ import libkraken.kraken_dispatcher_register
 import libkraken.kraken_dispatcher_unregister
 
 value class Dispatcher private constructor(val handle: kraken_dispatcher_handle_t) : AutoCloseable {
+    companion object {
+        init {
+            HAL.init()
+        }
+    }
+
     constructor(coreAffinity: Int) : this(memScoped {
         val handle = alloc<kraken_dispatcher_handle_tVar>()
         kraken_dispatcher_create(coreAffinity, handle.ptr).check()

@@ -36,14 +36,16 @@ import libkraken.kraken_port_handle_t
 private fun driverTrampoline(port: kraken_port_handle_t?, userData: COpaquePointer?) {
     val port = Port(port ?: return)
     val driverRef = userData?.asStableRef<Driver>() ?: return
-    val mask = driverRef.get().callback(port)
+    val driver = driverRef.get()
+    val mask = driver.callback(driver.ios)
     port.update(mask)
 }
 
 data class Driver( // @formatter:off
     val port: Port,
-    val callback: (Port) -> ULong
+    val callback: (List<IO>) -> ULong
 ) : AutoCloseable { // @formatter:on
+    internal val ios: List<IO> = port.enumerateIOs()
     private val selfRef: StableRef<Driver> = StableRef.create(this)
 
     val handle: kraken_driver_handle_t = memScoped {

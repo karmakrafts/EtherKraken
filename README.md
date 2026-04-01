@@ -13,21 +13,24 @@ a computer or VM with a Debian/Ubuntu based Linux distribution is recommended.
 The following dependencies are required:
 
 ```
-build-essential gcc-14 g++-14 make cmake
+build-essential clang-20 llvm-20 make cmake
 ```
 
-When cross-compiling on a `x86_64` host, also install the following:
-
-```
-aarch64-linux-gnu-gcc-14 aarch64-linux-gnu-g++-14
-```
+You will also need the Clang RT libraries from an LLVM aarch64 sysroot,  
+which you can obtain by downloading a prebuilt LLVM package [from here](https://github.com/llvm/llvm-project/releases)
+and  
+copying the `aarch-64-unknown-linux-gnu` directory in `LLVM-XX.X.X-Linux-ARM64/lib/clang/XX/lib`  
+to `/usr/lib/llvm-XX/lib/clang/XX/lib`.
 
 When you have all dependencies installed, simply invoke `build.sh` in the `libkraken` directory.
 
-### Building kraken-core
+The toolchain configuration can be found in `libkraken/cmake/toolchain.cmake` and may be customized as desired.
 
-`kraken-core` is the high level Kotlin/Native wrapper around the `libkraken` HAL.  
-In order to build it, you only need [a JDK](https://www.azul.com/downloads/?package=jdk#zulu) on an Ubuntu/Debian based Linux distribution.
+### Building etherkraken-core
+
+`etherkraken-core` is the high level Kotlin/Native wrapper around the `libkraken` HAL.  
+In order to build it, you only need [a JDK](https://www.azul.com/downloads/?package=jdk#zulu) on an Ubuntu/Debian based
+Linux distribution.
 
 Simply run the following command in the root of the repository:
 

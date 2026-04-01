@@ -19,19 +19,25 @@
 package dev.karmakrafts.etherkraken.selftest
 
 import dev.karmakrafts.etherkraken.hal.Board
+import dev.karmakrafts.etherkraken.hal.Clock
+import dev.karmakrafts.etherkraken.hal.Dispatcher
+import dev.karmakrafts.etherkraken.hal.Driver
 import dev.karmakrafts.etherkraken.hal.IO
 import dev.karmakrafts.etherkraken.hal.Port
 import dev.karmakrafts.etherkraken.hal.config.BoardConfig
 import dev.karmakrafts.etherkraken.hal.config.DefaultGPIOType
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.toLong
 import libkraken.bcm2835_pin_t
 import libkraken.kraken_io_mode_t
 import libkraken.kraken_port_type_t
+import platform.posix.sched_yield
 import platform.posix.usleep
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.fetchAndIncrement
 
 fun main() {
     println("==================== RUNNING SELFTEST ====================")
+    val dispatcher = Dispatcher(2)
     Board.create(BoardConfig {
         gpio(DefaultGPIOType.BCM2835) {
             deviceTreeEntry("/proc/device-tree/soc/gpiomem")
@@ -41,17 +47,14 @@ fun main() {
             pin(bcm2835_pin_t.BCM2835_PIN_BCM4.value, 1002U)
         }
     }).use { board ->
-        println("Created HAL board instance at 0x${board.handle.toLong().toHexString()}")
         val ports = ArrayList<Port>()
         board.enumeratePorts(ports)
         for (port in ports) {
-            println("Enumerating port at 0x${port.handle.toLong().toHexString()}")
             if (port.type == kraken_port_type_t.KRAKEN_PORT_TYPE_GPIO) {
                 println("Found GPIO port, initializing..")
                 val ios = ArrayList<IO>()
                 port.enumerateIOs(ios)
                 for (io in ios) {
-                    println("Enumerating IO '${io.name}' at 0x${io.handle.toLong().toHexString()}")
                     io.mode = kraken_io_mode_t.KRAKEN_IO_MODE_OUT
                 }
                 port.reinit()
@@ -71,22 +74,25 @@ fun main() {
                     usleep(250000U)
                 }
 
-                //println("Starting IO driver test..")
-                //val count = AtomicInt(0)
-                //val maxCount = 300000
-                //val clock = IOClock(12222.0) // 12.222kHz
-                //dispatcher += clock
-                //val driver = IODriver(port) { ios ->
-                //    val tick = count.incrementAndFetch()
-                //    if (tick == maxCount) return@IODriver
-                //    ios[0].state = tick and 1 == 0
-                //    ios[1].state = tick and 1 != 0
-                //    ios[2].state = tick and 1 == 0
-                //}
-                //clock += driver
-                //while (count.load() < maxCount) Thread.yield()
+                // Driver based realtime IO, create a 50Hz square-wave
+                println("Testing realtime driver..")
+                Clock(50.0).use { clock ->
+                    dispatcher += clock
+                    val maxCount = 500
+                    val count = AtomicInt(0)
+                    Driver(port) { ios ->
+                        val tick = count.fetchAndIncrement()
+                        if (tick >= maxCount) return@Driver 0UL // don't commit any port updates
+                        for (io in ios) io.state = tick and 1 == 0
+                        ULong.MAX_VALUE // commit port updates for all IOs
+                    }.use { driver ->
+                        clock += driver
+                        while (count.load() < maxCount) sched_yield()
+                    }
+                }
             }
         }
     }
+    dispatcher.close()
     println("==========================================================")
 }

@@ -40,7 +40,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.etherkrakenCore)
+                implementation(projects.libkrakenInterop)
             }
         }
         commonTest {

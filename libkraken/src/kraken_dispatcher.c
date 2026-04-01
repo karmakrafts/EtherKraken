@@ -72,22 +72,30 @@ KRAKEN_EXPORT kraken_error_t kraken_dispatcher_create(const int32_t core_affinit
     KRAKEN_CHECK_ERROR(kraken_array_list_create(4, sizeof(kraken_clock_handle_t), &dispatcher->clocks),
                        "Could not allocate dispatcher clock list");
 
+    const struct sched_param sched_param = {.sched_priority = 80};
+    pthread_attr_t attr = {};
+    KRAKEN_CHECK_RESULT(pthread_attr_init(&attr), KRAKEN_ERR_INVALID_OP,
+                        "Could not initialize dispatcher thread attributes");
+    KRAKEN_CHECK_RESULT(pthread_attr_setschedpolicy(&attr, SCHED_FIFO), KRAKEN_ERR_INVALID_OP,
+                        "Could not set dispatcher scheduler policy");
+    KRAKEN_CHECK_RESULT(pthread_attr_setschedparam(&attr, &sched_param), KRAKEN_ERR_INVALID_OP,
+                        "Could not set dispatcher scheduler priority");
+    KRAKEN_CHECK_RESULT(pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED), KRAKEN_ERR_INVALID_OP,
+                        "Could not set explicit scheduling mode for dispatcher");
+
     pthread_t thread = -1;
-    KRAKEN_CHECK_RESULT(pthread_create(&thread, nullptr, &kraken_dispatcher_main, dispatcher), KRAKEN_ERR_INVALID_OP,
+    KRAKEN_CHECK_RESULT(pthread_create(&thread, &attr, &kraken_dispatcher_main, dispatcher), KRAKEN_ERR_INVALID_OP,
                         "Could not create dispatcher thread");
     KRAKEN_CHECK(thread != -1, KRAKEN_ERR_INVALID_OP, "Could not create dispatcher thread");
+    KRAKEN_CHECK_RESULT(pthread_attr_destroy(&attr), KRAKEN_ERR_INVALID_OP,
+                        "Could not destroy dispatcher thread attributes");
+    dispatcher->thread = thread;
     // Assign core affinity
     cpu_set_t cpu_set;
     CPU_ZERO(&cpu_set);
     CPU_SET(core_affinity, &cpu_set);
     KRAKEN_CHECK_RESULT(pthread_setaffinity_np(thread, sizeof(cpu_set_t), &cpu_set), KRAKEN_ERR_INVALID_OP,
                         "Could not assign dispatcher thread affinity");
-    // Assign priority
-    const struct sched_param sched_param = {
-            .sched_priority = 99// max priority
-    };
-    KRAKEN_CHECK_RESULT(pthread_setschedparam(thread, SCHED_FIFO, &sched_param), KRAKEN_ERR_INVALID_OP,
-                        "Could not set dispatcher thread priority");
 
     *handle = (kraken_dispatcher_handle_t) dispatcher;
     return KRAKEN_OK;
@@ -143,7 +151,8 @@ KRAKEN_EXPORT kraken_error_t kraken_dispatcher_destroy(kraken_dispatcher_handle_
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid dispatcher handle");
     kraken_dispatcher_t* dispatcher = (kraken_dispatcher_t*) handle;
     dispatcher->is_running = false;
-    KRAKEN_CHECK_RESULT(pthread_join(dispatcher->thread, nullptr), KRAKEN_ERR_INVALID_OP,
+    void* return_value = nullptr;
+    KRAKEN_CHECK_RESULT(pthread_join(dispatcher->thread, &return_value), KRAKEN_ERR_INVALID_OP,
                         "Could not join dispatcher thread");
     KRAKEN_CHECK_ERROR(kraken_array_list_destroy(&dispatcher->clocks), "Could not destroy dispatcher clock list");
     KRAKEN_CHECK_RESULT(pthread_mutex_destroy(&dispatcher->clocks_mutex), KRAKEN_ERR_INVALID_OP,
