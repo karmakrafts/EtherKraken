@@ -25,12 +25,16 @@ import dev.karmakrafts.etherkraken.hal.IO
 import dev.karmakrafts.etherkraken.hal.Port
 import dev.karmakrafts.etherkraken.hal.config.BoardConfig
 import dev.karmakrafts.etherkraken.hal.config.DefaultGPIOType
+import dev.karmakrafts.etherkraken.hal.driver.Driver
 import dev.karmakrafts.etherkraken.hal.driver.SerialDriver
 import kotlinx.cinterop.ExperimentalForeignApi
 import libkraken.bcm2835_pin_t
 import libkraken.kraken_io_mode_t
 import libkraken.kraken_port_type_t
+import platform.posix.sleep
 import platform.posix.usleep
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.fetchAndIncrement
 
 fun main() {
     println("==================== RUNNING SELFTEST ====================")
@@ -77,18 +81,56 @@ fun main() {
                 Clock(25.0).use { clock ->
                     dispatcher += clock
                     SerialDriver(
-                        port,
-                        bcm2835_pin_t.BCM2835_PIN_BCM2.value,
-                        bcm2835_pin_t.BCM2835_PIN_BCM3.value
+                        port, bcm2835_pin_t.BCM2835_PIN_BCM2.value, bcm2835_pin_t.BCM2835_PIN_BCM3.value
                     ).use { driver ->
                         clock += driver
                         driver.write("HELLO WORLD! THIS IS SERIAL OUTPUT!")
                         driver.waitUntilEmpty()
+                        clock -= driver
                     }
+                    dispatcher -= clock
                 }
 
                 println("Clearing outputs..")
-                for(io in ios) io.state = false
+                for (io in ios) io.state = false
+                port.update()
+
+                println("Testing parallel clocks..")
+
+                val clock1 = Clock(50.0)
+                dispatcher += clock1
+                val io1 = ios.first { io -> io.devicePin == bcm2835_pin_t.BCM2835_PIN_BCM2.value }
+                val tick1 = AtomicInt(0)
+                val driver1 = Driver(port) {
+                    io1.state = tick1.fetchAndIncrement() and 1 == 0
+                    0b1UL shl bcm2835_pin_t.BCM2835_PIN_BCM2.value.toInt()
+                }
+                clock1 += driver1
+
+                val clock2 = Clock(10.0)
+                dispatcher += clock2
+                val io2 = ios.first { io -> io.devicePin == bcm2835_pin_t.BCM2835_PIN_BCM3.value }
+                val tick2 = AtomicInt(0)
+                val driver2 = Driver(port) {
+                    io2.state = tick2.fetchAndIncrement() and 1 == 0
+                    0b1UL shl bcm2835_pin_t.BCM2835_PIN_BCM3.value.toInt()
+                }
+                clock2 += driver2
+
+                sleep(5U)
+
+                clock1 -= driver1
+                driver1.close()
+                dispatcher -= clock1
+                clock1.close()
+
+                clock2 -= driver2
+                driver2.close()
+                dispatcher -= clock2
+                clock2.close()
+
+                println("Clearing outputs..")
+                for (io in ios) io.state = false
                 port.update()
             }
         }

@@ -44,7 +44,7 @@ private fun driverTrampoline(port: kraken_port_handle_t?, userData: COpaquePoint
 }
 
 abstract class Driver( // @formatter:off
-    port: Port
+    protected val port: Port
 ) : AutoCloseable { // @formatter:on
     private val selfRef: StableRef<Driver> = StableRef.create(this)
 
@@ -60,4 +60,8 @@ abstract class Driver( // @formatter:off
         kraken_driver_destroy(handle).check()
         selfRef.dispose()
     }
+}
+
+inline fun Driver(port: Port, crossinline callback: Driver.() -> ULong): Driver = object : Driver(port) {
+    override fun tick(): ULong = callback()
 }
