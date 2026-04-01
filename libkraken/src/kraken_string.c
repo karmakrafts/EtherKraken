@@ -35,7 +35,7 @@ char* string_format(const char* fmt, ...) {
     return memory;
 }
 
-char* string_format_v(const char* fmt, const va_list args) {
+char* string_format_v(const char* fmt, va_list args) {
     const int length = vsnprintf(nullptr, 0, fmt, args);
     if(length < 0) {
         return nullptr;

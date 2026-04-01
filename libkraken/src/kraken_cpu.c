@@ -43,6 +43,6 @@ KRAKEN_EXPORT void kraken_cpu_sleep_cycles(const uint64_t cycles) {
         "b.lt 1b\n"
         :
         : "r"(cycles)
-        : "x0", "x1", "x2", "memory"
+        : "memory"
     );// clang-format on
 }

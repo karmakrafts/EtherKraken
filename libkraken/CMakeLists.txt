@@ -14,7 +14,7 @@ add_library(kraken SHARED
 target_include_directories(kraken PRIVATE "src/")
 target_include_directories(kraken PUBLIC "include/")
 target_compile_definitions(kraken PUBLIC _GNU_SOURCE=1) # Enable pthread GNU extensions
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     target_compile_definitions(kraken PUBLIC KRAKEN_DEBUG=1)
     target_compile_options(kraken PUBLIC -g -O0)
 else ()
@@ -28,7 +28,7 @@ add_library(kraken-static STATIC
 target_include_directories(kraken-static PRIVATE "src/")
 target_include_directories(kraken-static PUBLIC "include/")
 target_compile_definitions(kraken-static PUBLIC _GNU_SOURCE=1) # Enable pthread GNU extensions
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     target_compile_definitions(kraken-static PUBLIC KRAKEN_DEBUG=1)
     target_compile_options(kraken-static PUBLIC -g -O0)
 else ()
