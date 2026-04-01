@@ -29,14 +29,14 @@ kraken_error_t kraken_i2c_mux_port_create(kraken_i2c_mux_port_t** port_addr, con
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_OP, "Could not allocate MUX port");
     port->type = KRAKEN_PORT_TYPE_I2C_MUX;
 
-    KRAKEN_CHECK_ERROR(
+    KRAKEN_CHECK_CALL_ERR(
             kraken_mux_config_copy((const kraken_mux_config_t*) config, (kraken_mux_config_t**) &port->config),
             "Could not copy MUX config to port instance");
 
     const int fd = open(config->bus, O_RDWR);
     KRAKEN_CHECK(fd != -1, KRAKEN_ERR_INVALID_OP, "Could not open MUX bus");
-    KRAKEN_CHECK_RESULT(ioctl(fd, I2C_SLAVE, config->address), KRAKEN_ERR_INVALID_OP,
-                        "Could not set MUX slave address");
+    KRAKEN_CHECK_CALL_RES(ioctl(fd, I2C_SLAVE, config->address), KRAKEN_ERR_INVALID_OP,
+                          "Could not set MUX slave address");
     port->fd = fd;
 
     // Allocate shadow memory if requested
@@ -54,7 +54,7 @@ kraken_error_t kraken_i2c_mux_port_create(kraken_i2c_mux_port_t** port_addr, con
 kraken_error_t kraken_i2c_mux_port_destroy(kraken_i2c_mux_port_t* port) {
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Invalid port address");
     KRAKEN_CHECK(port->type > KRAKEN_PORT_TYPE_I2C_MUX, KRAKEN_ERR_INVALID_ARG, "Port is not a MUX port");
-    KRAKEN_CHECK_RESULT(close(port->fd), KRAKEN_ERR_INVALID_OP, "Could not close MUX device");
+    KRAKEN_CHECK_CALL_RES(close(port->fd), KRAKEN_ERR_INVALID_OP, "Could not close MUX device");
     void* shadow_memory = port->shadow_memory;
     if(shadow_memory) {
         kraken_free(shadow_memory);

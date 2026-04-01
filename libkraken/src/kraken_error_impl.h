@@ -25,31 +25,17 @@
 
 void kraken_last_error_set(const char* error);
 
+#define kraken_panic(fmt, ...)                                                                                         \
+    do {                                                                                                               \
+        char* formatted_message = string_format("!HAL PANIC! " fmt, ##__VA_ARGS__);                                    \
+        kraken_log_error(formatted_message);                                                                           \
+        kraken_free(formatted_message);                                                                                \
+        __builtin_trap();                                                                                              \
+    } while(0)
+
 #ifdef KRAKEN_DEBUG
-#define KRAKEN_CHECK(c, E, m)                                                                                          \
-    do {                                                                                                               \
-        if(!(c)) {                                                                                                     \
-            kraken_last_error_set(m);                                                                                  \
-            return E;                                                                                                  \
-        }                                                                                                              \
-    } while(0)
 
-#define KRAKEN_CHECK_RESULT(r, E, m)                                                                                   \
-    do {                                                                                                               \
-        if((r) != 0) {                                                                                                 \
-            kraken_last_error_set(m);                                                                                  \
-            return E;                                                                                                  \
-        }                                                                                                              \
-    } while(0)
-
-#define KRAKEN_CHECK_ERROR(e, m)                                                                                       \
-    do {                                                                                                               \
-        const kraken_error_t __result = e;                                                                             \
-        if(__result != KRAKEN_OK) {                                                                                    \
-            kraken_last_error_set(m);                                                                                  \
-            return __result;                                                                                           \
-        }                                                                                                              \
-    } while(0)
+// Pointer checks
 
 #define KRAKEN_CHECK_PTR(p, E, m)                                                                                      \
     do {                                                                                                               \
@@ -58,19 +44,72 @@ void kraken_last_error_set(const char* error);
             return E;                                                                                                  \
         }                                                                                                              \
     } while(0)
-#else
-#define KRAKEN_CHECK(c, E, m)
-#define KRAKEN_CHECK_RESULT(r, E, m) r
-#define KRAKEN_CHECK_PTR(p, E, m)
-#define KRAKEN_CHECK_ERROR(e, m) e
-#endif
 
-#define kraken_panic(fmt, ...)                                                                                         \
+// Variable checks
+
+#define KRAKEN_CHECK(c, E, m)                                                                                          \
     do {                                                                                                               \
-        char* formatted_message = string_format("!HAL PANIC! " fmt, ##__VA_ARGS__);                                    \
-        kraken_log_error(formatted_message);                                                                           \
-        kraken_free(formatted_message);                                                                                \
-        __builtin_trap();                                                                                              \
+        if(!(c)) {                                                                                                     \
+            kraken_last_error_set(m);                                                                                  \
+            return E;                                                                                                  \
+        }                                                                                                              \
     } while(0)
+
+#define KRAKEN_CHECK_RES(r, E, m)                                                                                      \
+    do {                                                                                                               \
+        if((r) != 0) {                                                                                                 \
+            kraken_last_error_set(m);                                                                                  \
+            return E;                                                                                                  \
+        }                                                                                                              \
+    } while(0)
+
+#define KRAKEN_CHECK_ERR(e, m)                                                                                         \
+    do {                                                                                                               \
+        const kraken_error_t __result = e;                                                                             \
+        if(__result != KRAKEN_OK) {                                                                                    \
+            kraken_last_error_set(m);                                                                                  \
+            return __result;                                                                                           \
+        }                                                                                                              \
+    } while(0)
+
+// Call checks
+
+#define KRAKEN_CHECK_CALL_ERR(e, m)                                                                                    \
+    do {                                                                                                               \
+        const kraken_error_t __result = e;                                                                             \
+        if(__result != KRAKEN_OK) {                                                                                    \
+            kraken_last_error_set(m);                                                                                  \
+            return __result;                                                                                           \
+        }                                                                                                              \
+    } while(0)
+
+#define KRAKEN_CHECK_CALL_RES(r, E, m)                                                                                 \
+    do {                                                                                                               \
+        if((r) != 0) {                                                                                                 \
+            kraken_last_error_set(m);                                                                                  \
+            return E;                                                                                                  \
+        }                                                                                                              \
+    } while(0)
+
+#define KRAKEN_CHECK_CALL(c, E, m)                                                                                     \
+    do {                                                                                                               \
+        if(!(c)) {                                                                                                     \
+            kraken_last_error_set(m);                                                                                  \
+            return E;                                                                                                  \
+        }                                                                                                              \
+    } while(0)
+
+#else
+// Pointer checks
+#define KRAKEN_CHECK_PTR(p, E, m)
+// Variable checks
+#define KRAKEN_CHECK(c, E, m)
+#define KRAKEN_CHECK_RES(r, E, m)
+#define KRAKEN_CHECK_ERR(e, m)
+// Call checks
+#define KRAKEN_CHECK_CALL(c, E, m) c
+#define KRAKEN_CHECK_CALL_RES(r, E, m) r
+#define KRAKEN_CHECK_CALL_ERR(e, m) e
+#endif
 
 #endif//LIBKRAKEN_KRAKEN_ERROR_IMPL_H

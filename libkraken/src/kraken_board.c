@@ -43,8 +43,8 @@ KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* co
     KRAKEN_CHECK_PTR(board, KRAKEN_ERR_INVALID_OP, "Could not allocate board instance");
 
     kraken_log_debug("Copying board config to board instance");
-    KRAKEN_CHECK_ERROR(kraken_board_config_copy(config, &board->config),
-                       "Could not copy board config to board instance");
+    KRAKEN_CHECK_CALL_ERR(kraken_board_config_copy(config, &board->config),
+                          "Could not copy board config to board instance");
 
     // Calculate and update port count
     const size_t num_ports = board->config->mux_count + 1;
@@ -79,7 +79,7 @@ KRAKEN_EXPORT kraken_error_t kraken_board_create(const kraken_board_config_t* co
     kraken_flash_t* flash = nullptr;
     if(config->flash_device) {
         kraken_log_debug("Creating flash device %s", config->flash_device);
-        KRAKEN_CHECK_ERROR(kraken_flash_create(&flash, config->flash_device), "Could not create flash instance");
+        KRAKEN_CHECK_CALL_ERR(kraken_flash_create(&flash, config->flash_device), "Could not create flash instance");
     }
     board->flash = flash;
 
@@ -126,18 +126,18 @@ KRAKEN_EXPORT kraken_error_t kraken_board_destroy(kraken_board_handle_t handle) 
         switch(port->type) {
             case KRAKEN_PORT_TYPE_GPIO: {
                 kraken_log_debug("Destroying GPIO port");
-                KRAKEN_CHECK_ERROR(kraken_gpio_port_destroy(&port->gpio), "Could not destroy GPIO port");
+                KRAKEN_CHECK_CALL_ERR(kraken_gpio_port_destroy(&port->gpio), "Could not destroy GPIO port");
                 break;
             }
             default: break;
             case KRAKEN_PORT_TYPE_I2C_MUX: {
                 kraken_log_debug("Destroying MUX port %zu", i);
-                KRAKEN_CHECK_ERROR(kraken_i2c_mux_port_destroy(&port->i2c_mux), "Could not destroy I2C MUX port");
+                KRAKEN_CHECK_CALL_ERR(kraken_i2c_mux_port_destroy(&port->i2c_mux), "Could not destroy I2C MUX port");
                 break;
             }
             case KRAKEN_PORT_TYPE_SPI_MUX: {
                 kraken_log_debug("Destroying MUX port %zu", i);
-                KRAKEN_CHECK_ERROR(kraken_spi_mux_port_destroy(&port->spi_mux), "Could not destroy SPI MUX port");
+                KRAKEN_CHECK_CALL_ERR(kraken_spi_mux_port_destroy(&port->spi_mux), "Could not destroy SPI MUX port");
                 break;
             }
         }

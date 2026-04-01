@@ -30,7 +30,8 @@ kraken_error_t kraken_board_config_copy(const kraken_board_config_t* config, kra
     }
 
     kraken_gpio_config_t* gpio_config_copy = nullptr;
-    KRAKEN_CHECK_ERROR(kraken_gpio_config_copy(config->gpio_config, &gpio_config_copy), "Could not copy GPIO config");
+    KRAKEN_CHECK_CALL_ERR(kraken_gpio_config_copy(config->gpio_config, &gpio_config_copy),
+                          "Could not copy GPIO config");
     copy->gpio_config = gpio_config_copy;
 
     const size_t mux_count = config->mux_count;
@@ -38,7 +39,7 @@ kraken_error_t kraken_board_config_copy(const kraken_board_config_t* config, kra
     for(size_t index = 0; index < mux_count; index++) {
         const kraken_mux_config_t* mux_config = config->mux_configs[index];
         kraken_mux_config_t* mux_config_copy = nullptr;
-        KRAKEN_CHECK_ERROR(kraken_mux_config_copy(mux_config, &mux_config_copy), "Could not copy MUX config");
+        KRAKEN_CHECK_CALL_ERR(kraken_mux_config_copy(mux_config, &mux_config_copy), "Could not copy MUX config");
         mux_configs_copy[index] = mux_config_copy;
     }
     copy->mux_configs = mux_configs_copy;

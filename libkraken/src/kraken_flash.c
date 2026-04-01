@@ -33,8 +33,8 @@ kraken_error_t kraken_flash_create(kraken_flash_t** flash_addr, const char* devi
     flash->fd = fd;
 
     struct mtd_info_user mtd_info = {};
-    KRAKEN_CHECK_RESULT(ioctl(flash->fd, MEMGETINFO, &mtd_info), KRAKEN_ERR_INVALID_OP,
-                        "Could not retrieve MTD device information");
+    KRAKEN_CHECK_CALL_RES(ioctl(flash->fd, MEMGETINFO, &mtd_info), KRAKEN_ERR_INVALID_OP,
+                          "Could not retrieve MTD device information");
     flash->size = (size_t) mtd_info.size;
 
     *flash_addr = flash;
@@ -42,7 +42,7 @@ kraken_error_t kraken_flash_create(kraken_flash_t** flash_addr, const char* devi
 }
 
 kraken_error_t kraken_flash_destroy(kraken_flash_t* flash) {
-    KRAKEN_CHECK_RESULT(close(flash->fd), KRAKEN_ERR_INVALID_OP, "Could not close flash device");
+    KRAKEN_CHECK_CALL_RES(close(flash->fd), KRAKEN_ERR_INVALID_OP, "Could not close flash device");
     kraken_free(flash);
     return KRAKEN_OK;
 }
@@ -54,7 +54,7 @@ KRAKEN_EXPORT kraken_error_t kraken_flash_clear(kraken_flash_handle_t handle) {
         .start = 0,
         .length = (uint32_t)flash->size
     };// clang-format on
-    KRAKEN_CHECK_RESULT(ioctl(flash->fd, MEMERASE, &erase_info), KRAKEN_ERR_INVALID_OP, "Could not clear flash");
+    KRAKEN_CHECK_CALL_RES(ioctl(flash->fd, MEMERASE, &erase_info), KRAKEN_ERR_INVALID_OP, "Could not clear flash");
     return KRAKEN_OK;
 }
 

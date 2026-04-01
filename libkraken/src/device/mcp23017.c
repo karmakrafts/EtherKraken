@@ -23,11 +23,11 @@ constexpr size_t MCP23017_REGISTER_SIZE = 8;
 KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_update(const int fd, void*, kraken_io_handle_t* ios,
                                                            const size_t io_count, const uint64_t mask) {
     constexpr uint8_t input_register[] = {MCP23017_REGISTER_GPIOA};
-    KRAKEN_CHECK(write(fd, input_register, sizeof(input_register)) > 0, KRAKEN_ERR_INVALID_ARG,
-                 "Could not update MUX register pointer");// Set register pointer to GPIOA
+    KRAKEN_CHECK_CALL(write(fd, input_register, sizeof(input_register)) > 0, KRAKEN_ERR_INVALID_ARG,
+                      "Could not update MUX register pointer");// Set register pointer to GPIOA
     uint8_t input_data[] = {0x00, 0x00};
-    KRAKEN_CHECK(read(fd, input_data, sizeof(input_data)) > 0, KRAKEN_ERR_INVALID_ARG,
-                 "Could not read MUX GPIO registers");// Read GPIOA and GPIOB in one go
+    KRAKEN_CHECK_CALL(read(fd, input_data, sizeof(input_data)) > 0, KRAKEN_ERR_INVALID_ARG,
+                      "Could not read MUX GPIO registers");// Read GPIOA and GPIOB in one go
 
     uint8_t output_data[] = {MCP23017_REGISTER_GPIOA, 0x00, 0x00};
     for(size_t i = 0; i < io_count; i++) {
@@ -41,8 +41,8 @@ KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_update(const int fd, void*, 
         }
         output_data[bank + 1] |= (io->mode & 0b1) << bit;
     }
-    KRAKEN_CHECK(write(fd, output_data, sizeof(output_data)) > 0, KRAKEN_ERR_INVALID_ARG,
-                 "Could not update MUX GPIO registers");// Update output state
+    KRAKEN_CHECK_CALL(write(fd, output_data, sizeof(output_data)) > 0, KRAKEN_ERR_INVALID_ARG,
+                      "Could not update MUX GPIO registers");// Update output state
 
     return KRAKEN_OK;
 }
@@ -57,8 +57,8 @@ KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_init(const int fd, void*, kr
     };
     // clang-format on
     const uint8_t iocon_data[] = {MCP23017_REGISTER_IOCON, iocon.value};
-    KRAKEN_CHECK(write(fd, iocon_data, sizeof(iocon_data)) > 0, KRAKEN_ERR_INVALID_OP,
-                 "Could not update MUX IOCON register");
+    KRAKEN_CHECK_CALL(write(fd, iocon_data, sizeof(iocon_data)) > 0, KRAKEN_ERR_INVALID_OP,
+                      "Could not update MUX IOCON register");
     // Update pin directions (using sequential write to reduce syscalls)
     uint8_t direction_data[] = {MCP23017_REGISTER_IODIRA, 0x00, 0x00};
     for(size_t i = 0; i < io_count; i++) {
@@ -68,12 +68,12 @@ KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_init(const int fd, void*, kr
         const size_t bit = bcm_pin % MCP23017_REGISTER_SIZE;
         direction_data[bank + 1] |= (~io->mode & 0b1) << bit;
     }
-    KRAKEN_CHECK(write(fd, direction_data, sizeof(direction_data)) > 0, KRAKEN_ERR_INVALID_OP,
-                 "Could not update MUX IODIR registers");
+    KRAKEN_CHECK_CALL(write(fd, direction_data, sizeof(direction_data)) > 0, KRAKEN_ERR_INVALID_OP,
+                      "Could not update MUX IODIR registers");
     // Clear pin state of all outputs
     constexpr uint8_t gpio_data[] = {MCP23017_REGISTER_GPIOA, 0x00, 0x00};
-    KRAKEN_CHECK(write(fd, gpio_data, sizeof(gpio_data)) > 0, KRAKEN_ERR_INVALID_OP,
-                 "Could not update MUX GPIO registers");
+    KRAKEN_CHECK_CALL(write(fd, gpio_data, sizeof(gpio_data)) > 0, KRAKEN_ERR_INVALID_OP,
+                      "Could not update MUX GPIO registers");
     return KRAKEN_OK;
 }
 

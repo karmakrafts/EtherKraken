@@ -32,8 +32,8 @@ kraken_error_t kraken_array_list_alloc(const size_t initial_capacity, const size
                                        kraken_array_list_t** list) {
     KRAKEN_CHECK_PTR(list, KRAKEN_ERR_INVALID_ARG, "Invalid array list address pointer");
     kraken_array_list_t* new_list = kraken_calloc(sizeof(kraken_array_list_t));
-    KRAKEN_CHECK_ERROR(kraken_array_list_create(initial_capacity, element_size, new_list),
-                       "Could not initialize array list");
+    KRAKEN_CHECK_CALL_ERR(kraken_array_list_create(initial_capacity, element_size, new_list),
+                          "Could not initialize array list");
     *list = new_list;
     return KRAKEN_OK;
 }

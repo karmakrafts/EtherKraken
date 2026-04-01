@@ -30,11 +30,11 @@ static kraken_error_t check_compatibility(const kraken_gpio_config_t* config) {
 
     kraken_log_debug("Reading GPIO DTE stats");
     struct stat stat = {};
-    KRAKEN_CHECK_RESULT(fstat(dte_fd, &stat), KRAKEN_ERR_INVALID_OP, "Could not determine size of DTE property");
+    KRAKEN_CHECK_CALL_RES(fstat(dte_fd, &stat), KRAKEN_ERR_INVALID_OP, "Could not determine size of DTE property");
 
     char* dte_buffer = kraken_calloc(stat.st_size + 1);
-    KRAKEN_CHECK(read(dte_fd, dte_buffer, stat.st_size) == stat.st_size, KRAKEN_ERR_INVALID_OP,
-                 "Could not read GPIO DTE property");
+    KRAKEN_CHECK_CALL(read(dte_fd, dte_buffer, stat.st_size) == stat.st_size, KRAKEN_ERR_INVALID_OP,
+                      "Could not read GPIO DTE property");
     close(dte_fd);
     kraken_log_debug("Detected GPIO compatibility: %s", dte_buffer);
     // Check if device type is a substring of the DTE data to determine if hardware is supported
@@ -46,19 +46,20 @@ static kraken_error_t check_compatibility(const kraken_gpio_config_t* config) {
 kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kraken_gpio_config_t* config) {
     KRAKEN_CHECK_PTR(port_addr, KRAKEN_ERR_INVALID_ARG, "Invalid port address");
     KRAKEN_CHECK_PTR(config, KRAKEN_ERR_INVALID_ARG, "Config pointer is null");
-    KRAKEN_CHECK_ERROR(check_compatibility(config), "GPIO hardware is incompatible");
+    KRAKEN_CHECK_CALL_ERR(check_compatibility(config), "GPIO hardware is incompatible");
 
     kraken_gpio_port_t* port = kraken_calloc(sizeof(kraken_gpio_port_t));
     port->type = KRAKEN_PORT_TYPE_GPIO;
 
     kraken_log_debug("Copying GPIO config to port instance");
-    KRAKEN_CHECK_ERROR(kraken_gpio_config_copy(config, &port->config), "Could not copy GPIO config to port instance");
+    KRAKEN_CHECK_CALL_ERR(kraken_gpio_config_copy(config, &port->config),
+                          "Could not copy GPIO config to port instance");
 
     // Acquire an exclusive FD on the GPIO device
     const int fd = open(port->config->device, O_RDWR | O_SYNC);
     KRAKEN_CHECK(fd != -1, KRAKEN_ERR_INVALID_OP, "Could not open GPIO device memory");
     kraken_log_debug("Opened GPIO device FD %d", fd);
-    KRAKEN_CHECK_RESULT(flock(fd, LOCK_EX), KRAKEN_ERR_INVALID_OP, "Could not acquire exclusive lock on IO device");
+    KRAKEN_CHECK_CALL_RES(flock(fd, LOCK_EX), KRAKEN_ERR_INVALID_OP, "Could not acquire exclusive lock on IO device");
     kraken_log_debug("Acquired exclusive lock on GPIO FD");
     port->fd = fd;
 
@@ -91,7 +92,7 @@ kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kra
         char* name = string_format("IO%u (Pin %u)", pin_config->device_pin, pin_config->port_pin);
         KRAKEN_CHECK_PTR(name, KRAKEN_ERR_INVALID_OP, "Could not format IO name");
         kraken_log_debug("Creating %s", name);
-        KRAKEN_CHECK_ERROR(
+        KRAKEN_CHECK_CALL_ERR(
                 kraken_io_create(&ios[index], name, pin_config, supported_modes, KRAKEN_ARRAY_SIZE(supported_modes)),
                 "Could not create IO for GPIO port");
         kraken_free(name);
@@ -107,13 +108,13 @@ kraken_error_t kraken_gpio_port_destroy(kraken_gpio_port_t* port) {
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Invalid port address");
     KRAKEN_CHECK(port->type == KRAKEN_PORT_TYPE_GPIO, KRAKEN_ERR_INVALID_ARG, "Port is not a GPIO port");
     kraken_log_debug("Unmapping GPIO device memory");
-    KRAKEN_CHECK_RESULT(munmap(port->registers, port->mapped_registers_size), KRAKEN_ERR_INVALID_OP,
-                        "Could not unmap GPIO memory");
+    KRAKEN_CHECK_CALL_RES(munmap(port->registers, port->mapped_registers_size), KRAKEN_ERR_INVALID_OP,
+                          "Could not unmap GPIO memory");
     kraken_log_debug("Releasing exclusive lock on GPIO FD");
-    KRAKEN_CHECK_RESULT(flock(port->fd, LOCK_UN), KRAKEN_ERR_INVALID_OP,
-                        "Could not release exclusive lock on IO device");
+    KRAKEN_CHECK_CALL_RES(flock(port->fd, LOCK_UN), KRAKEN_ERR_INVALID_OP,
+                          "Could not release exclusive lock on IO device");
     kraken_log_debug("Closing GPIO FD");
-    KRAKEN_CHECK_RESULT(close(port->fd), KRAKEN_ERR_INVALID_OP, "Could not close IO device");
+    KRAKEN_CHECK_CALL_RES(close(port->fd), KRAKEN_ERR_INVALID_OP, "Could not close IO device");
     for(size_t index = 0; index < port->num_ios; index++) {
         kraken_io_destroy(port->ios[index]);
     }
