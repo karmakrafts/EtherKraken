@@ -29,6 +29,10 @@ KRAKEN_API_BEGIN
 /// @return A pointer to the allocated memory, or nullptr on failure.
 typedef void* (*pfn_kraken_alloc)(size_t size);
 
+/// @brief Function pointer for memory re-allocation.
+/// @param[in] memory The memory to re-allocate.
+/// @param[in] size The new size of the memory.
+/// @return A pointer to the re-allocated memory, or nullptr on failure.
 typedef void* (*pfn_kraken_realloc)(void* memory, size_t size);
 
 /// @brief Function pointer for memory deallocation.
@@ -62,6 +66,10 @@ KRAKEN_EXPORT void* kraken_malloc(size_t size);
 /// @return A pointer to the allocated memory, or nullptr on failure.
 KRAKEN_EXPORT void* kraken_calloc(size_t size);
 
+/// @brief Re-allocates memory using the global allocator.
+/// @param[in] memory The memory to re-allocate.
+/// @param[in] new_size The new size of the memory.
+/// @return A pointer to the re-allocated memory, or nullptr on failure.
 KRAKEN_EXPORT void* kraken_realloc(void* memory, size_t new_size);
 
 /// @brief Duplicate a string using the global allocator.

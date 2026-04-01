@@ -53,6 +53,15 @@ KRAKEN_EXPORT kraken_error_t kraken_port_get_ios(kraken_port_c_handle_t handle, 
 ///     @code KRAKEN_ERR_INVALID_OP@endcode when the update operation fails.
 KRAKEN_EXPORT kraken_error_t kraken_port_update(kraken_port_c_handle_t handle);
 
+/// @brief Submits state changes of associated IOs to the given port using a mask.
+///
+/// @param[in] handle The port to update.
+/// @param[in] mask The mask of IOs to update.
+/// @return @code KRAKEN_OK@endcode when successful,
+///     @code KRAKEN_ERR_INVALID_ARG@endcode when the given port handle is invalid,
+///     @code KRAKEN_ERR_INVALID_OP@endcode when the update operation fails.
+KRAKEN_EXPORT kraken_error_t kraken_port_update_masked(kraken_port_c_handle_t handle, uint64_t mask);
+
 /// @brief Re-initializes the port to reflect any changes to the mode of the associated IOs.
 ///
 /// @param[in] handle The port to re-initialize.
