@@ -78,6 +78,7 @@ kraken_error_t kraken_clock_tick(kraken_clock_t* clock) {
         kraken_driver_t* driver = nullptr;
         KRAKEN_CHECK_CALL_ERR(kraken_array_list_get(&clock->drivers, index, &driver),
                               "Could not retrieve clock driver");
+        // TODO: implement update voting
         kraken_port_t* port = driver->port;
         const uint64_t io_mask = driver->pfn_tick(port, driver->user_data);
         kraken_port_update_masked(port, io_mask);
