@@ -1,0 +1,71 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "etherkraken-debug",
+      "displayName": "EtherKraken Debug",
+      "description": "Cross-compilation for EtherKraken RP3A0 aarch64 using Clang",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/cross-toolchain.cmake",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "etherkraken-release",
+      "displayName": "EtherKraken Release",
+      "description": "Cross-compilation for EtherKraken RP3A0 aarch64 using Clang",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/cross-toolchain.cmake",
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "etherkraken-test-debug",
+      "displayName": "EtherKraken Test Debug",
+      "description": "Compilation for EtherKraken RP3A0 host tests using Clang",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/debug-test",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/test-toolchain.cmake",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "KRAKEN_HOST_TESTS": true
+      }
+    },
+    {
+      "name": "etherkraken-test-release",
+      "displayName": "EtherKraken Test Release",
+      "description": "Compilation for EtherKraken RP3A0 host tests using Clang",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/release-test",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/test-toolchain.cmake",
+        "CMAKE_BUILD_TYPE": "Release",
+        "KRAKEN_HOST_TESTS": true
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "etherkraken-debug",
+      "displayName": "EtherKraken Debug",
+      "configurePreset": "etherkraken-debug",
+      "targets": [
+        "kraken",
+        "kraken-static"
+      ]
+    },
+    {
+      "name": "etherkraken-release",
+      "displayName": "EtherKraken Release",
+      "configurePreset": "etherkraken-release",
+      "targets": [
+        "kraken",
+        "kraken-static"
+      ]
+    }
+  ]
+}

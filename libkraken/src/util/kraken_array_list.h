@@ -17,6 +17,8 @@
 
 #include "kraken_error.h"
 
+KRAKEN_API_BEGIN
+
 typedef struct kraken_array_list {
     _Atomic(void*) memory;
     _Atomic(size_t) size;
@@ -45,5 +47,7 @@ kraken_error_t kraken_array_list_clear(kraken_array_list_t* list);
 kraken_error_t kraken_array_list_destroy(kraken_array_list_t* list);
 
 kraken_error_t kraken_array_list_free(kraken_array_list_t* list);
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_ARRAY_LIST_H

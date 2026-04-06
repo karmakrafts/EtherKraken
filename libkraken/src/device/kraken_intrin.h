@@ -12,26 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LIBKRAKEN_KRAKEN_CLOCK_IMPL_H
-#define LIBKRAKEN_KRAKEN_CLOCK_IMPL_H
+#ifndef LIBKRAKEN_KRAKEN_INTRIN_H
+#define LIBKRAKEN_KRAKEN_INTRIN_H
 
-#include "kraken_clock.h"
-#include "util/kraken_array_list.h"
-
-#include <pthread.h>
+#include "kraken_api.h"
+#include "util/kraken_internal.h"
 
 KRAKEN_API_BEGIN
 
-typedef struct kraken_clock {
-    double frequency;
-    uint64_t period;
-    _Atomic(uint64_t) next_event;
-    kraken_array_list_t drivers;
-    pthread_mutex_t drivers_mutex;
-} kraken_clock_t;
-
-kraken_error_t kraken_clock_tick(kraken_clock_t* clock);
+#ifdef KRAKEN_TEST_ENV
+static KRAKEN_INLINE void kraken_io_barrier() {
+}
+#else
+static KRAKEN_INLINE void kraken_io_barrier() {
+    asm volatile("dmb ish" ::: "memory");
+}
+#endif
 
 KRAKEN_API_END
 
-#endif//LIBKRAKEN_KRAKEN_CLOCK_IMPL_H
+#endif//LIBKRAKEN_KRAKEN_INTRIN_H

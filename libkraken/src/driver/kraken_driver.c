@@ -23,14 +23,22 @@ KRAKEN_EXPORT kraken_error_t kraken_driver_create(kraken_port_handle_t port, pfn
     kraken_driver_t* driver = kraken_malloc(sizeof(kraken_driver_t));
     driver->user_data = user_data;
     driver->pfn_tick = callback;
-    driver->port = (kraken_port_t*) port;
-    *handle = (kraken_driver_handle_t) driver;
+    driver->port = port;
+    *handle = driver;
+    return KRAKEN_OK;
+}
+
+KRAKEN_EXPORT kraken_error_t kraken_driver_get_user_data(const kraken_driver_c_handle_t handle, void** user_data) {
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid driver handle");
+    KRAKEN_CHECK_PTR(user_data, KRAKEN_ERR_INVALID_ARG, "Invalid user data address pointer");
+    const kraken_driver_t* driver = handle;
+    *user_data = driver->user_data;
     return KRAKEN_OK;
 }
 
 KRAKEN_EXPORT kraken_error_t kraken_driver_destroy(kraken_driver_handle_t handle) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid driver handle");
-    kraken_driver_t* driver = (kraken_driver_t*) handle;
+    kraken_driver_t* driver = handle;
     free(driver);
     return KRAKEN_OK;
 }

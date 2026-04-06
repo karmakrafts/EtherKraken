@@ -20,6 +20,8 @@
 #include "kraken_port.h"
 #include "kraken_spi_mux_port.h"
 
+KRAKEN_API_BEGIN
+
 typedef struct kraken_port {
     union {
         struct {
@@ -32,5 +34,7 @@ typedef struct kraken_port {
         kraken_spi_mux_port_t spi_mux;
     };
 } kraken_port_t;
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_PORT_IMPL_H

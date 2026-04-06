@@ -17,6 +17,8 @@
 
 #include "config/kraken_config.h"
 
+KRAKEN_API_BEGIN
+
 kraken_error_t kraken_board_config_copy(const kraken_board_config_t* config, kraken_board_config_t** new_config);
 kraken_error_t kraken_gpio_config_copy(const kraken_gpio_config_t* config, kraken_gpio_config_t** new_config);
 kraken_error_t kraken_mux_config_copy(const kraken_mux_config_t* config, kraken_mux_config_t** new_config);
@@ -24,5 +26,7 @@ kraken_error_t kraken_mux_config_copy(const kraken_mux_config_t* config, kraken_
 kraken_error_t kraken_board_config_destroy(kraken_board_config_t* config);
 kraken_error_t kraken_gpio_config_destroy(kraken_gpio_config_t* config);
 kraken_error_t kraken_mux_config_destroy(kraken_mux_config_t* config);
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_CONFIG_IMPL_H

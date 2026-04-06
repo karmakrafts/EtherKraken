@@ -19,6 +19,8 @@
 #include "kraken_io_impl.h"
 #include "kraken_port.h"
 
+KRAKEN_API_BEGIN
+
 typedef struct kraken_gpio_port {
     kraken_port_type_t type;
     kraken_io_t** ios;
@@ -33,5 +35,7 @@ typedef struct kraken_gpio_port {
 kraken_error_t kraken_gpio_port_create(kraken_gpio_port_t** port_addr, const kraken_gpio_config_t* config);
 
 kraken_error_t kraken_gpio_port_destroy(kraken_gpio_port_t* port);
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_GPIO_PORT_H

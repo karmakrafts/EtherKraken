@@ -29,18 +29,17 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.staticCFunction
 import kotlinx.cinterop.value
+import libkraken.KRAKEN_DRIVER_IO_MASK_NONE
 import libkraken.kraken_driver_create
 import libkraken.kraken_driver_destroy
 import libkraken.kraken_driver_handle_t
 import libkraken.kraken_driver_handle_tVar
 import libkraken.kraken_port_handle_t
 
-private fun driverTrampoline(port: kraken_port_handle_t?, userData: COpaquePointer?) {
-    val port = Port(port ?: return)
-    val driverRef = userData?.asStableRef<Driver>() ?: return
+private fun driverTrampoline(@Suppress("UNUSED") port: kraken_port_handle_t?, userData: COpaquePointer?): ULong {
+    val driverRef = userData?.asStableRef<Driver>() ?: return KRAKEN_DRIVER_IO_MASK_NONE
     val driver = driverRef.get()
-    val mask = driver.tick()
-    port.update(mask)
+    return driver.tick()
 }
 
 abstract class Driver( // @formatter:off

@@ -23,18 +23,12 @@ echo "Using $NUM_THREADS threads for building"
 
 # Build debug libraries
 echo "Building debug libraries.."
-cmake -B build-debug -G "Unix Makefiles" \
-	-DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-	-DCMAKE_BUILD_TYPE="Debug" \
-	-DCMAKE_TOOLCHAIN_FILE="cmake/toolchain.cmake"
-cmake --build build-debug/ -- -j $NUM_THREADS
+cmake --preset etherkraken-debug
+cmake --build --preset etherkraken-debug -- -j $NUM_THREADS
 echo "Built debug libraries"
 
 # Build release libraries
 echo "Building release libraries.."
-cmake -B build-release -G "Unix Makefiles" \
-	-DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-	-DCMAKE_BUILD_TYPE="Release" \
-	-DCMAKE_TOOLCHAIN_FILE="cmake/toolchain.cmake"
-cmake --build build-release/ -- -j $NUM_THREADS
+cmake --preset etherkraken-release
+cmake --build --preset etherkraken-release -- -j $NUM_THREADS
 echo "Built release libraries"

@@ -18,13 +18,16 @@
 #include "kraken_api.h"
 #include "kraken_error.h"
 
+#define KRAKEN_DRIVER_IO_MASK_NONE 0UL
+#define KRAKEN_DRIVER_IO_MASK(I) (0b1UL << (I))
+
 KRAKEN_API_BEGIN
 
 /// @brief Callback function that is called by the driver on every tick.
 ///
 /// @param[in] port The port associated with the driver.
 /// @param[in] user_data User-defined data passed to the driver during creation.
-typedef void (*pfn_kraken_driver_tick)(kraken_port_handle_t port, void* user_data);
+typedef uint64_t (*pfn_kraken_driver_tick)(kraken_port_handle_t port, void* user_data);
 
 /// @brief Creates a new driver instance.
 ///
@@ -36,6 +39,8 @@ typedef void (*pfn_kraken_driver_tick)(kraken_port_handle_t port, void* user_dat
 ///     @code KRAKEN_ERR_INVALID_ARG @endcode when any of the required parameters are invalid.
 KRAKEN_EXPORT kraken_error_t kraken_driver_create(kraken_port_handle_t port, pfn_kraken_driver_tick callback,
                                                   void* user_data, kraken_driver_handle_t* handle);
+
+KRAKEN_EXPORT kraken_error_t kraken_driver_get_user_data(kraken_driver_c_handle_t handle, void** user_data);
 
 /// @brief Destroys the given driver instance.
 ///

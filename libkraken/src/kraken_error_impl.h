@@ -23,8 +23,6 @@
 #include "kraken_error.h"
 #include "kraken_log_impl.h"
 
-void kraken_last_error_set(const char* error);
-
 #define kraken_panic(fmt, ...)                                                                                         \
     do {                                                                                                               \
         char* formatted_message = string_format("!HAL PANIC! " fmt, ##__VA_ARGS__);                                    \
@@ -111,5 +109,11 @@ void kraken_last_error_set(const char* error);
 #define KRAKEN_CHECK_CALL_RES(r, E, m) r
 #define KRAKEN_CHECK_CALL_ERR(e, m) e
 #endif
+
+KRAKEN_API_BEGIN
+
+void kraken_last_error_set(const char* error);
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_ERROR_IMPL_H

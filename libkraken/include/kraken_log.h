@@ -24,7 +24,6 @@ KRAKEN_API_BEGIN
 typedef enum kraken_log_level : uint8_t {
     KRAKEN_LOG_LEVEL_DEBUG,///< Debug log level.
     KRAKEN_LOG_LEVEL_INFO, ///< Informational log level.
-    KRAKEN_LOG_LEVEL_WARN, ///< Warning log level.
     KRAKEN_LOG_LEVEL_ERROR,///< Error log level.
 } kraken_log_level_t;
 

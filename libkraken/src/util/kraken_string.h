@@ -15,9 +15,14 @@
 #ifndef LIBKRAKEN_KRAKEN_STRING_H
 #define LIBKRAKEN_KRAKEN_STRING_H
 
+#include "kraken_api.h"
 #include <stdarg.h>
+
+KRAKEN_API_BEGIN
 
 char* string_format(const char* fmt, ...);
 char* string_format_v(const char* fmt, va_list args);
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_STRING_H

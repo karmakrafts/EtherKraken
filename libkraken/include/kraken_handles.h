@@ -20,39 +20,39 @@
 KRAKEN_API_BEGIN
 
 /// @brief Handle to a kraken board instance.
-typedef struct kraken_board_t* kraken_board_handle_t;
+typedef struct kraken_board* kraken_board_handle_t;
 /// @brief Const handle to a kraken board instance.
-typedef const struct kraken_board_t* kraken_board_c_handle_t;
+typedef const struct kraken_board* kraken_board_c_handle_t;
 
 /// @brief Handle to a kraken port instance.
-typedef struct kraken_port_t* kraken_port_handle_t;
+typedef struct kraken_port* kraken_port_handle_t;
 /// @brief Const handle to a kraken port instance.
-typedef const struct kraken_port_t* kraken_port_c_handle_t;
+typedef const struct kraken_port* kraken_port_c_handle_t;
 
 /// @brief Handle to a kraken I/O instance.
-typedef struct kraken_io_t* kraken_io_handle_t;
+typedef struct kraken_io* kraken_io_handle_t;
 /// @brief Const handle to a kraken I/O instance.
-typedef const struct kraken_io_t* kraken_io_c_handle_t;
+typedef const struct kraken_io* kraken_io_c_handle_t;
 
 /// @brief Handle to a kraken flash instance.
-typedef struct kraken_flash_t* kraken_flash_handle_t;
+typedef struct kraken_flash* kraken_flash_handle_t;
 /// @brief Const handle to a kraken flash instance.
-typedef const struct kraken_flash_t* kraken_flash_c_handle_t;
+typedef const struct kraken_flash* kraken_flash_c_handle_t;
 
 /// @brief Handle to a kraken dispatcher instance.
-typedef struct kraken_dispatcher_t* kraken_dispatcher_handle_t;
+typedef struct kraken_dispatcher* kraken_dispatcher_handle_t;
 /// @brief Const handle to a kraken dispatcher instance.
-typedef const struct kraken_dispatcher_t* kraken_dispatcher_c_handle_t;
+typedef const struct kraken_dispatcher* kraken_dispatcher_c_handle_t;
 
 /// @brief Handle to a kraken clock instance.
-typedef struct kraken_clock_t* kraken_clock_handle_t;
+typedef struct kraken_clock* kraken_clock_handle_t;
 /// @brief Const handle to a kraken clock instance.
-typedef const struct kraken_clock_t* kraken_clock_c_handle_t;
+typedef const struct kraken_clock* kraken_clock_c_handle_t;
 
 /// @brief Handle to a kraken driver instance.
-typedef struct kraken_driver_t* kraken_driver_handle_t;
+typedef struct kraken_driver* kraken_driver_handle_t;
 /// @brief Const handle to a kraken driver instance.
-typedef const struct kraken_driver_t* kraken_driver_c_handle_t;
+typedef const struct kraken_driver* kraken_driver_c_handle_t;
 
 KRAKEN_API_END
 

@@ -14,8 +14,9 @@
 
 #include "../../include/device/bcm2835.h"
 
-#include "kraken_internal.h"
 #include "kraken_io_impl.h"
+#include "kraken_intrin.h"
+#include "util/kraken_internal.h"
 
 constexpr uint32_t GPIO_REGISTER_SIZE = 32;
 constexpr uint32_t GPIO_FSEL_BANK_SIZE = 10;
@@ -32,20 +33,30 @@ KRAKEN_EXPORT KRAKEN_NOINLINE kraken_error_t bcm2835_gpio_state_update(void* bas
     uint32_t clr_mask[2] = {0x00000000U, 0x00000000U};
     const uint32_t update_mask[2] = {(uint32_t) (mask & 0xFFFFFFFFUL), (uint32_t) (mask >> 32 & 0xFFFFFFFFUL)};
     for(size_t io_index = 0; io_index < io_count; io_index++) {
-        kraken_io_t* io = (kraken_io_t*) ios[io_index];
+        kraken_io_t* io = ios[io_index];
         const uint32_t bcm_pin = io->pin_config.device_pin;
         const uint32_t bank = bcm_pin / GPIO_REGISTER_SIZE;
         const uint32_t bit = bcm_pin % GPIO_REGISTER_SIZE;
+
         const uint32_t update = update_mask[bank] >> bit & 0b1;// Mask bit determines if we update this IO
-        set_mask[bank] |= ((uint32_t) io->state & (uint32_t) io->mode & update) << bit;
-        clr_mask[bank] |= (~(uint32_t) io->state & (uint32_t) io->mode & update) << bit;
-        io->state = (kraken_bool_t) (input_state_mask[bank] & (~(uint32_t) io->mode & update) << bit);
+        const uint32_t update_mode = (uint32_t) io->mode & update;
+
+        const uint32_t set_bit = ((uint32_t) io->state & update_mode) << bit;
+        set_mask[bank] |= set_bit;
+
+        const uint32_t clr_bit = (~(uint32_t) io->state & update_mode) << bit;
+        clr_mask[bank] |= clr_bit;
+
+        // Update each IO state branchless through input/output states
+        io->state = (kraken_bool_t) (set_mask[bank] & 0b1 << bit) |
+                    (input_state_mask[bank] & (~(uint32_t) io->mode & update) << bit);
     }
 
     gpio->gpclr0.value = clr_mask[0];
     gpio->gpset0.value = set_mask[0];
     gpio->gpclr1.value = clr_mask[1];
     gpio->gpset1.value = set_mask[1];
+    kraken_io_barrier();
 
     return KRAKEN_OK;
 }
@@ -67,7 +78,7 @@ KRAKEN_EXPORT KRAKEN_NOINLINE kraken_error_t bcm2835_gpio_state_init(void* base_
     uint32_t clr_mask[2] = {0x00000000U, 0x00000000U};
     const uint32_t update_mask[2] = {(uint32_t) (mask & 0xFFFFFFFFUL), (uint32_t) (mask >> 32 & 0xFFFFFFFFUL)};
     for(size_t i = 0; i < io_count; i++) {
-        const kraken_io_t* io = (const kraken_io_t*) ios[i];
+        const kraken_io_t* io = ios[i];
         const uint32_t bcm_pin = io->pin_config.device_pin;
         // Set function selection bit for current IO
         const uint32_t fsel_bank = bcm_pin / GPIO_FSEL_BANK_SIZE;
@@ -91,6 +102,7 @@ KRAKEN_EXPORT KRAKEN_NOINLINE kraken_error_t bcm2835_gpio_state_init(void* base_
     // Clear all outputs to their default state
     gpio->gpclr0.value = clr_mask[0];
     gpio->gpclr1.value = clr_mask[1];
+    kraken_io_barrier();
 
     return KRAKEN_OK;
 }

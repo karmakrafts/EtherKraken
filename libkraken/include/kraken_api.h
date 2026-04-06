@@ -33,6 +33,8 @@
 /// @brief Marks a function as exported from the library.
 #define KRAKEN_EXPORT __attribute__((visibility("default")))
 
+KRAKEN_API_BEGIN
+
 /// @brief I2C device address type.
 typedef uint8_t kraken_i2c_address_t;
 
@@ -41,5 +43,13 @@ typedef enum kraken_bool : uint8_t {
     KRAKEN_FALSE,///< Logical false.
     KRAKEN_TRUE  ///< Logical true.
 } kraken_bool_t;
+
+/// @brief Indicates data latching clock edges in the Kraken API.
+typedef enum kraken_edge : uint8_t {
+    KRAKEN_EDGE_FALLING,///< Data is latched on the falling edge of the clock.
+    KRAKEN_EDGE_RISING  ///< Data is latched on the rising edge of the clock.
+} kraken_edge_t;
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_API_H

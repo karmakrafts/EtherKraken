@@ -18,11 +18,6 @@
 #include "kraken_dispatcher_impl.h"
 #include "kraken_error_impl.h"
 
-#include <pthread.h>
-#include <sched.h>
-
-#undef sched_priority
-
 static void* kraken_dispatcher_main(void* user_data) {
     kraken_dispatcher_t* dispatcher = user_data;
     uint64_t now = 0;
@@ -97,7 +92,7 @@ KRAKEN_EXPORT kraken_error_t kraken_dispatcher_create(const int32_t core_affinit
     KRAKEN_CHECK_CALL_RES(pthread_setaffinity_np(thread, sizeof(cpu_set_t), &cpu_set), KRAKEN_ERR_INVALID_OP,
                           "Could not assign dispatcher thread affinity");
 
-    *handle = (kraken_dispatcher_handle_t) dispatcher;
+    *handle = dispatcher;
     return KRAKEN_OK;
 }
 
@@ -105,10 +100,9 @@ KRAKEN_EXPORT kraken_error_t kraken_dispatcher_register(kraken_dispatcher_handle
                                                         kraken_clock_handle_t clock) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid dispatcher handle");
     KRAKEN_CHECK_PTR(clock, KRAKEN_ERR_INVALID_ARG, "Invalid clock handle");
-    kraken_dispatcher_t* dispatcher = (kraken_dispatcher_t*) handle;
-    pthread_mutex_lock(&dispatcher->clocks_mutex);
-    KRAKEN_CHECK_CALL_ERR(kraken_array_list_add(&dispatcher->clocks, &clock), "Could not add clock to dispatcher list");
-    pthread_mutex_unlock(&dispatcher->clocks_mutex);
+    pthread_mutex_lock(&handle->clocks_mutex);
+    KRAKEN_CHECK_CALL_ERR(kraken_array_list_add(&handle->clocks, &clock), "Could not add clock to dispatcher list");
+    pthread_mutex_unlock(&handle->clocks_mutex);
     return KRAKEN_OK;
 }
 
@@ -116,11 +110,10 @@ KRAKEN_EXPORT kraken_error_t kraken_dispatcher_unregister(kraken_dispatcher_hand
                                                           kraken_clock_handle_t clock) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid dispatcher handle");
     KRAKEN_CHECK_PTR(clock, KRAKEN_ERR_INVALID_ARG, "Invalid clock handle");
-    kraken_dispatcher_t* dispatcher = (kraken_dispatcher_t*) handle;
-    pthread_mutex_lock(&dispatcher->clocks_mutex);
-    KRAKEN_CHECK_CALL_ERR(kraken_array_list_remove(&dispatcher->clocks, &clock),
+    pthread_mutex_lock(&handle->clocks_mutex);
+    KRAKEN_CHECK_CALL_ERR(kraken_array_list_remove(&handle->clocks, &clock),
                           "Could not remove clock from dispatcher list");
-    pthread_mutex_unlock(&dispatcher->clocks_mutex);
+    pthread_mutex_unlock(&handle->clocks_mutex);
     return KRAKEN_OK;
 }
 
@@ -129,34 +122,32 @@ KRAKEN_EXPORT kraken_error_t kraken_dispatcher_get_clocks(kraken_dispatcher_hand
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid dispatcher handle");
     KRAKEN_CHECK_PTR(clocks, KRAKEN_ERR_INVALID_ARG, "Invalid clock handles pointer");
     KRAKEN_CHECK_PTR(count, KRAKEN_ERR_INVALID_ARG, "Invalid count pointer");
-    kraken_dispatcher_t* dispatcher = (kraken_dispatcher_t*) handle;
     if(clocks) {
-        pthread_mutex_lock(&dispatcher->clocks_mutex);
+        pthread_mutex_lock(&handle->clocks_mutex);
         if(count) {
-            memcpy(clocks, dispatcher->clocks.memory, sizeof(kraken_clock_handle_t) * *count);
-            pthread_mutex_unlock(&dispatcher->clocks_mutex);
+            memcpy(clocks, handle->clocks.memory, sizeof(kraken_clock_handle_t) * *count);
+            pthread_mutex_unlock(&handle->clocks_mutex);
             return KRAKEN_OK;
         }
-        memcpy(clocks, dispatcher->clocks.memory, sizeof(kraken_clock_handle_t) * dispatcher->clocks.size);
-        pthread_mutex_unlock(&dispatcher->clocks_mutex);
+        memcpy(clocks, handle->clocks.memory, sizeof(kraken_clock_handle_t) * handle->clocks.size);
+        pthread_mutex_unlock(&handle->clocks_mutex);
         return KRAKEN_OK;
     }
     if(count) {
-        *count = dispatcher->clocks.size;
+        *count = handle->clocks.size;
     }
     return KRAKEN_OK;
 }
 
 KRAKEN_EXPORT kraken_error_t kraken_dispatcher_destroy(kraken_dispatcher_handle_t handle) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid dispatcher handle");
-    kraken_dispatcher_t* dispatcher = (kraken_dispatcher_t*) handle;
-    dispatcher->is_running = false;
+    atomic_store(&handle->is_running, false);
     void* return_value = nullptr;
-    KRAKEN_CHECK_CALL_RES(pthread_join(dispatcher->thread, &return_value), KRAKEN_ERR_INVALID_OP,
+    KRAKEN_CHECK_CALL_RES(pthread_join(handle->thread, &return_value), KRAKEN_ERR_INVALID_OP,
                           "Could not join dispatcher thread");
-    KRAKEN_CHECK_CALL_ERR(kraken_array_list_destroy(&dispatcher->clocks), "Could not destroy dispatcher clock list");
-    KRAKEN_CHECK_CALL_RES(pthread_mutex_destroy(&dispatcher->clocks_mutex), KRAKEN_ERR_INVALID_OP,
+    KRAKEN_CHECK_CALL_ERR(kraken_array_list_destroy(&handle->clocks), "Could not destroy dispatcher clock list");
+    KRAKEN_CHECK_CALL_RES(pthread_mutex_destroy(&handle->clocks_mutex), KRAKEN_ERR_INVALID_OP,
                           "Could not destroy dispatcher clocks mutex");
-    free(dispatcher);
+    free(handle);
     return KRAKEN_OK;
 }

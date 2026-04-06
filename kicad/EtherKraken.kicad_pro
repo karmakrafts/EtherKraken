@@ -60,6 +60,7 @@
       },
       "rule_severities": {
         "annular_width": "error",
+        "assertion_failure": "error",
         "clearance": "error",
         "connection_width": "warning",
         "copper_edge_clearance": "error",
@@ -120,6 +121,7 @@
         "unconnected_items": "error",
         "unresolved_variable": "error",
         "via_dangling": "warning",
+        "via_diameter": "error",
         "zones_intersect": "error"
       },
       "rules": {

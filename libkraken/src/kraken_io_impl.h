@@ -19,6 +19,8 @@
 #include "kraken_api.h"
 #include "kraken_io.h"
 
+KRAKEN_API_BEGIN
+
 typedef struct kraken_io {
     char* name;
     kraken_pin_config_t pin_config;
@@ -34,5 +36,7 @@ kraken_error_t kraken_io_create(kraken_io_t** io_addr, const char* name, const k
                                 const kraken_io_mode_t* supported_modes, size_t num_supported_modes);
 
 kraken_error_t kraken_io_destroy(kraken_io_t* io);
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_IO_IMPL_H

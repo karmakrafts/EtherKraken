@@ -15,6 +15,10 @@
 #ifndef LIBKRAKEN_KRAKEN_FLASH_IMPL_H
 #define LIBKRAKEN_KRAKEN_FLASH_IMPL_H
 
+#include "kraken_api.h"
+
+KRAKEN_API_BEGIN
+
 typedef struct kraken_flash {
     const char* path;
     int fd;
@@ -24,5 +28,7 @@ typedef struct kraken_flash {
 kraken_error_t kraken_flash_create(kraken_flash_t** flash_addr, const char* device);
 
 kraken_error_t kraken_flash_destroy(kraken_flash_t* flash);
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_FLASH_IMPL_H

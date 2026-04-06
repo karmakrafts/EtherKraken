@@ -39,39 +39,36 @@ KRAKEN_EXPORT kraken_error_t kraken_clock_create(const double frequency, kraken_
     KRAKEN_CHECK_CALL_ERR(kraken_cpu_get_counter(&now), "Could not retrieve system counter");
     clock->next_event = now - period;
 
-    *handle = (kraken_clock_handle_t) clock;
+    *handle = clock;
     return KRAKEN_OK;
 }
 
 KRAKEN_EXPORT kraken_error_t kraken_clock_register(kraken_clock_handle_t handle, kraken_driver_handle_t driver) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid clock handle");
     KRAKEN_CHECK_PTR(driver, KRAKEN_ERR_INVALID_ARG, "Invalid driver handle");
-    kraken_clock_t* clock = (kraken_clock_t*) handle;
-    pthread_mutex_lock(&clock->drivers_mutex);
-    KRAKEN_CHECK_CALL_ERR(kraken_array_list_add(&clock->drivers, &driver),
+    pthread_mutex_lock(&handle->drivers_mutex);
+    KRAKEN_CHECK_CALL_ERR(kraken_array_list_add(&handle->drivers, &driver),
                           "Could not add driver to clock drivers list");
-    pthread_mutex_unlock(&clock->drivers_mutex);
+    pthread_mutex_unlock(&handle->drivers_mutex);
     return KRAKEN_OK;
 }
 
 KRAKEN_EXPORT kraken_error_t kraken_clock_unregister(kraken_clock_handle_t handle, kraken_driver_handle_t driver) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid clock handle");
     KRAKEN_CHECK_PTR(driver, KRAKEN_ERR_INVALID_ARG, "Invalid driver handle");
-    kraken_clock_t* clock = (kraken_clock_t*) handle;
-    pthread_mutex_lock(&clock->drivers_mutex);
-    KRAKEN_CHECK_CALL_ERR(kraken_array_list_remove(&clock->drivers, &driver),
+    pthread_mutex_lock(&handle->drivers_mutex);
+    KRAKEN_CHECK_CALL_ERR(kraken_array_list_remove(&handle->drivers, &driver),
                           "Could not remove driver from clock drivers");
-    pthread_mutex_unlock(&clock->drivers_mutex);
+    pthread_mutex_unlock(&handle->drivers_mutex);
     return KRAKEN_OK;
 }
 
 KRAKEN_EXPORT kraken_error_t kraken_clock_destroy(kraken_clock_handle_t handle) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid clock handle");
-    kraken_clock_t* clock = (kraken_clock_t*) handle;
-    KRAKEN_CHECK_CALL_ERR(kraken_array_list_destroy(&clock->drivers), "Could not destroy clock drivers list");
-    KRAKEN_CHECK_CALL_RES(pthread_mutex_destroy(&clock->drivers_mutex), KRAKEN_ERR_INVALID_OP,
+    KRAKEN_CHECK_CALL_ERR(kraken_array_list_destroy(&handle->drivers), "Could not destroy clock drivers list");
+    KRAKEN_CHECK_CALL_RES(pthread_mutex_destroy(&handle->drivers_mutex), KRAKEN_ERR_INVALID_OP,
                           "Could not destroy clock drivers list mutex");
-    free(clock);
+    free(handle);
     return KRAKEN_OK;
 }
 
@@ -81,7 +78,9 @@ kraken_error_t kraken_clock_tick(kraken_clock_t* clock) {
         kraken_driver_t* driver = nullptr;
         KRAKEN_CHECK_CALL_ERR(kraken_array_list_get(&clock->drivers, index, &driver),
                               "Could not retrieve clock driver");
-        driver->pfn_tick((kraken_port_handle_t) driver->port, driver->user_data);
+        kraken_port_t* port = driver->port;
+        const uint64_t io_mask = driver->pfn_tick(port, driver->user_data);
+        kraken_port_update_masked(port, io_mask);
     }
     pthread_mutex_unlock(&clock->drivers_mutex);
     return KRAKEN_OK;

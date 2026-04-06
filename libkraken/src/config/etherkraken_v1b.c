@@ -15,8 +15,8 @@
 #include "etherkraken_v1b.h"
 #include "device/bcm2835.h"
 #include "device/mcp23017.h"
-#include "kraken_internal.h"
 #include "kraken_io.h"
+#include "util/kraken_internal.h"
 
 // clang-format off
 

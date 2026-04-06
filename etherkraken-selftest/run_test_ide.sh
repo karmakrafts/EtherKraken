@@ -78,14 +78,14 @@ sshpass -p $DEVICE_PASSWORD rsync -avz \
     $DEVICE_USER@$DEVICE_IP:/home/$DEVICE_USER/selftest
 
 echo "Making binary executable and setting process permissions.."
-sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "chmod +x /home/$DEVICE_USER/selftest && sudo setcap cap_sys_nice+ep /home/$DEVICE_USER/selftest"
+sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "sudo chmod a+x /home/$DEVICE_USER/selftest"
 
 echo "Running selftest.."
 if [[ "$DEVICE_DEBUG_STATE" = "true" ]]; then
     # Launch gdbserver on remote device in the background and disconnect stdin so SSH can disconnect
     echo "Launching remote GDB server.."
     sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP \
-        "nohup gdbserver :6767 /home/$DEVICE_USER/selftest > /tmp/gdbserver.log 2>&1 < /dev/null & disown"
+        "sudo nohup gdbserver :6767 /home/$DEVICE_USER/selftest > /tmp/gdbserver.log 2>&1 < /dev/null & disown"
 else
     sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && ./selftest"
 fi

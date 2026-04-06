@@ -16,9 +16,9 @@
 #include "config/kraken_config_impl.h"
 #include "kraken_alloc.h"
 #include "kraken_error_impl.h"
-#include "kraken_internal.h"
 #include "kraken_log_impl.h"
-#include "kraken_string.h"
+#include "util/kraken_internal.h"
+#include "util/kraken_string.h"
 
 #include <sys/stat.h>
 

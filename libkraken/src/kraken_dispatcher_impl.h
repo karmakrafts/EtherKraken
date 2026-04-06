@@ -15,9 +15,10 @@
 #ifndef LIBKRAKEN_KRAKEN_DISPATCHER_IMPL_H
 #define LIBKRAKEN_KRAKEN_DISPATCHER_IMPL_H
 
-#include "kraken_array_list.h"
+#include "util/kraken_array_list.h"
+#include "util/kraken_internal.h"
 
-#include <pthread.h>
+KRAKEN_API_BEGIN
 
 typedef struct kraken_dispatcher {
     pthread_t thread;
@@ -25,5 +26,7 @@ typedef struct kraken_dispatcher {
     kraken_array_list_t clocks;
     pthread_mutex_t clocks_mutex;
 } kraken_dispatcher_t;
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_DISPATCHER_IMPL_H

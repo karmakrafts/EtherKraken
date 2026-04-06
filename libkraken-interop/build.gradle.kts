@@ -36,8 +36,8 @@ val compileLibKraken: TaskProvider<Exec> = tasks.register("compileLibKraken", Ex
     group = "interop"
     inputs.dir(rootDir.resolve("libkraken").resolve("include"))
     inputs.dir(rootDir.resolve("libkraken").resolve("src"))
-    val suffix = if (debugLibKraken) "debug" else "release"
-    outputs.dir(rootDir.resolve("libkraken").resolve("build-$suffix"))
+    val buildType = if (debugLibKraken) "debug" else "release"
+    outputs.dir(rootDir.resolve("libkraken").resolve("build").resolve(buildType))
     workingDir = rootDir.resolve("libkraken")
     commandLine("/bin/bash", "build.sh")
 }

@@ -19,11 +19,11 @@
 #include "kraken_board_impl.h"
 #include "kraken_error_impl.h"
 #include "kraken_flash_impl.h"
-#include "kraken_internal.h"
 #include "kraken_log_impl.h"
 #include "port/kraken_gpio_port.h"
 #include "port/kraken_i2c_mux_port.h"
 #include "port/kraken_spi_mux_port.h"
+#include "util/kraken_internal.h"
 
 #include <sys/ioctl.h>
 
@@ -159,13 +159,12 @@ KRAKEN_EXPORT kraken_error_t kraken_board_get_port_for_io(const kraken_board_c_h
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid board handle");
     KRAKEN_CHECK_PTR(io, KRAKEN_ERR_INVALID_ARG, "Invalid IO handle");
     KRAKEN_CHECK_PTR(port, KRAKEN_ERR_INVALID_ARG, "Port pointer is null");
-    const kraken_io_t* io_impl = (const kraken_io_t*) io;
     const kraken_board_t* board = (const kraken_board_t*) handle;
     for(size_t port_index = 0; port_index < board->num_ports; port_index++) {
         const kraken_port_t* current_port = board->ports[port_index];
         for(size_t io_index = 0; io_index < current_port->num_ios; io_index++) {
             const kraken_io_t* current_io = current_port->ios[io_index];
-            if(current_io != io_impl) {
+            if(current_io != io) {
                 continue;
             }
             *port = (kraken_port_handle_t) current_port;

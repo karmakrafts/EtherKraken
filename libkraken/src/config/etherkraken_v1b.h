@@ -19,6 +19,10 @@
 
 #include "config/kraken_config.h"
 
+KRAKEN_API_BEGIN
+
 extern const kraken_board_config_t g_config_v1b;
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_ETHERKRAKEN_V1B_H

@@ -70,6 +70,15 @@ KRAKEN_EXPORT char* kraken_strdup(const char* string) {
     return memory;
 }
 
+KRAKEN_EXPORT void* kraken_heapcopy(const void* memory, const size_t size) {
+    if(memory == nullptr) {
+        return nullptr;
+    }
+    void* new_memory = kraken_malloc(size);
+    memcpy(new_memory, memory, size);
+    return new_memory;
+}
+
 KRAKEN_EXPORT void kraken_free(void* memory) {
     g_allocator->pfn_free(memory);
 }

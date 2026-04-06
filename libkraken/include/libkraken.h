@@ -31,6 +31,7 @@
 #include "kraken_port.h"
 
 #include "driver/kraken_driver.h"
+#include "driver/kraken_serial_tx_driver.h"
 #include "kraken_clock.h"
 #include "kraken_dispatcher.h"
 

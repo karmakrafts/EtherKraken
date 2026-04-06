@@ -19,6 +19,8 @@
 #include "kraken_io_impl.h"
 #include "kraken_port.h"
 
+KRAKEN_API_BEGIN
+
 typedef struct kraken_i2c_mux_port {
     kraken_port_type_t type;
     kraken_io_t** ios;
@@ -31,5 +33,7 @@ typedef struct kraken_i2c_mux_port {
 kraken_error_t kraken_i2c_mux_port_create(kraken_i2c_mux_port_t** port_addr, const kraken_i2c_mux_config_t* config);
 
 kraken_error_t kraken_i2c_mux_port_destroy(kraken_i2c_mux_port_t* port);
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_I2C_MUX_PORT_H

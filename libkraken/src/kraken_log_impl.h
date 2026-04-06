@@ -16,13 +16,16 @@
 #define LIBKRAKEN_KRAKEN_LOG_IMPL_H
 
 #include "kraken_alloc.h"
-#include "kraken_internal.h"
 #include "kraken_log.h"
-#include "kraken_string.h"
+#include "util/kraken_internal.h"
+#include "util/kraken_string.h"
 
 #include <malloc.h>
 #include <stdarg.h>
 #include <stdio.h>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
 
 #define KRAKEN_DEFINE_LOG_FN(L, l)                                                                                     \
     static void kraken_log_##l(const char* fmt, ...) {                                                                 \
@@ -34,6 +37,8 @@
         kraken_free(formatted_message);                                                                                \
     }
 
+KRAKEN_API_BEGIN
+
 void kraken_log(kraken_log_level_t level, const char* message);
 
 #ifdef KRAKEN_DEBUG
@@ -43,8 +48,10 @@ static void kraken_log_debug(const char* fmt, ...) {
 }
 #endif
 
-KRAKEN_DEFINE_LOG_FN(INFO, info)
-KRAKEN_DEFINE_LOG_FN(WARN, warn)
-KRAKEN_DEFINE_LOG_FN(ERROR, error)
+KRAKEN_DEFINE_LOG_FN(ERROR, error) // Used mainly for panics
+
+KRAKEN_API_END
+
+#pragma clang diagnostic pop
 
 #endif//LIBKRAKEN_KRAKEN_LOG_IMPL_H

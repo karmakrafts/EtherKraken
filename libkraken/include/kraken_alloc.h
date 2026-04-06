@@ -22,6 +22,8 @@
 #include "kraken_api.h"
 #include "kraken_error.h"
 
+#define kraken_heapcopy_of(p) (typeof_unqual(*p)*) kraken_heapcopy((const void*) (p), sizeof(*(p)))
+
 KRAKEN_API_BEGIN
 
 /// @brief Function pointer for memory allocation.
@@ -76,6 +78,12 @@ KRAKEN_EXPORT void* kraken_realloc(void* memory, size_t new_size);
 /// @param[in] string The string to duplicate.
 /// @return A pointer to the duplicated string, or nullptr on failure.
 KRAKEN_EXPORT char* kraken_strdup(const char* string);
+
+/// @brief Copy memory to a new heap allocation.
+/// @param[in] memory The memory to copy.
+/// @param[in] size The size of the memory to copy.
+/// @return A pointer to the copied memory, or nullptr on failure.
+KRAKEN_EXPORT void* kraken_heapcopy(const void* memory, size_t size);
 
 /// @brief Free memory using the global allocator.
 /// @param[in] memory The memory to free.

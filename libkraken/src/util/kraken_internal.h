@@ -22,6 +22,10 @@
 #include <sys/file.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <sched.h>
+#include <stdatomic.h>
+#include <threads.h>
 
 #include "kraken_error_impl.h"
 
@@ -37,5 +41,8 @@
             kraken_panic("Assertion failed for expression %s", #x);                                                    \
         }                                                                                                              \
     } while(0)
+
+#undef thread_local// threads.h defines macro alias, but C23 has proper keyword
+#undef sched_priority
 
 #endif//LIBKRAKEN_KRAKEN_INTERNAL_H

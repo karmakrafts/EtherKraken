@@ -13,8 +13,8 @@
 // limitations under the License.
 
 #include "../../include/device/mcp23017.h"
-#include "kraken_internal.h"
 #include "kraken_io_impl.h"
+#include "util/kraken_internal.h"
 
 #include <unistd.h>
 

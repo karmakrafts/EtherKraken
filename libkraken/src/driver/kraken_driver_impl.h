@@ -18,10 +18,14 @@
 #include "driver/kraken_driver.h"
 #include "port/kraken_port_impl.h"
 
+KRAKEN_API_BEGIN
+
 typedef struct kraken_driver {
     kraken_port_t* port;
     pfn_kraken_driver_tick pfn_tick;
     void* user_data;
 } kraken_driver_t;
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_DRIVER_IMPL_H

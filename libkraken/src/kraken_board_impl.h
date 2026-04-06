@@ -18,11 +18,15 @@
 #include "kraken_flash_impl.h"
 #include "port/kraken_port_impl.h"
 
+KRAKEN_API_BEGIN
+
 typedef struct _kraken_board_t {//NOLINT
     kraken_board_config_t* config;
     kraken_port_t** ports;
     size_t num_ports;
     kraken_flash_t* flash;
 } kraken_board_t;
+
+KRAKEN_API_END
 
 #endif//LIBKRAKEN_KRAKEN_BOARD_IMPL_H

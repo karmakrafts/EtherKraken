@@ -15,8 +15,8 @@
 #include "kraken_i2c_mux_port.h"
 #include "config/kraken_config_impl.h"
 #include "kraken_error_impl.h"
-#include "kraken_internal.h"
 #include "kraken_port.h"
+#include "util/kraken_internal.h"
 
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
