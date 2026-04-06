@@ -28,7 +28,7 @@ static uint64_t kraken_serial_tx_driver_tick(kraken_port_handle_t, void* user_da
         state->bit = 0;// Reset to bit 0
     }
     // Update clock state
-    const kraken_bool_t clock_state = state->clock_io->state;
+    const kraken_bool_t clock_state = atomic_load(&state->clock_io->state);
     atomic_store(&state->clock_io->state, ~clock_state & 0b1U);
     // Update data state and increment bit counter
     atomic_store(&state->data_io->state, current_byte >> state->bit++ & 0b1U);
