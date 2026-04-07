@@ -1,11 +1,20 @@
 cmake_minimum_required(VERSION 3.18)
-project(libkraken LANGUAGES C)
+project(libkraken LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD 23)
 
-file(GLOB_RECURSE LK_SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/*.c")
-file(GLOB_RECURSE LK_PRV_HEADER_FILES "${CMAKE_SOURCE_DIR}/src/*.h")
+include(FetchContent)
+
+FetchContent_Declare(
+        atomic_queue
+        GIT_REPOSITORY https://github.com/max0x7ba/atomic_queue.git
+        GIT_TAG "v1.7.3")
+FetchContent_MakeAvailable(atomic_queue)
+
+file(GLOB_RECURSE LK_SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/*.c*")
+file(GLOB_RECURSE LK_PRV_HEADER_FILES "${CMAKE_SOURCE_DIR}/src/*.h*")
 file(GLOB_RECURSE LK_PUB_HEADER_FILES "${CMAKE_SOURCE_DIR}/include/*.h")
 
 add_library(kraken SHARED
@@ -15,6 +24,7 @@ add_library(kraken SHARED
 target_include_directories(kraken PRIVATE "${CMAKE_SOURCE_DIR}/src/")
 target_include_directories(kraken PUBLIC "${CMAKE_SOURCE_DIR}/include/")
 target_compile_definitions(kraken PUBLIC _GNU_SOURCE=1) # Enable pthread GNU extensions
+target_link_libraries(kraken PUBLIC atomic_queue::atomic_queue)
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     target_compile_definitions(kraken PUBLIC KRAKEN_DEBUG=1)
     target_compile_options(kraken PUBLIC -g -O0)
@@ -29,6 +39,7 @@ add_library(kraken-static STATIC
 target_include_directories(kraken-static PRIVATE "${CMAKE_SOURCE_DIR}/src/")
 target_include_directories(kraken-static PUBLIC "${CMAKE_SOURCE_DIR}/include/")
 target_compile_definitions(kraken-static PUBLIC _GNU_SOURCE=1) # Enable pthread GNU extensions
+target_link_libraries(kraken-static PUBLIC atomic_queue::atomic_queue)
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     target_compile_definitions(kraken-static PUBLIC KRAKEN_DEBUG=1)
     target_compile_options(kraken-static PUBLIC -g -O0)
@@ -42,11 +53,8 @@ if (KRAKEN_HOST_TESTS)
     target_compile_definitions(kraken PUBLIC KRAKEN_TEST_ENV=1)
     target_compile_definitions(kraken-static PUBLIC KRAKEN_TEST_ENV=1)
 
-    enable_language(CXX)
-    set(CMAKE_CXX_STANDARD 23)
     set(gtest_force_shared_crt OFF CACHE BOOL "" FORCE)
 
-    include(FetchContent)
     FetchContent_Declare(
             google-test
             GIT_REPOSITORY https://github.com/google/googletest.git

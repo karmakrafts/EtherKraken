@@ -21,10 +21,10 @@
 static void* kraken_dispatcher_main(void* user_data) {
     kraken_dispatcher_t* dispatcher = user_data;
     uint64_t now = 0;
-    while(dispatcher->is_running) {
+    while(atomic_load(&dispatcher->is_running)) {
         const size_t size = dispatcher->clocks.size;
         if(size == 0) {
-            kraken_cpu_sleep_cycles(1);// Spin for one additional cycle to wait for clocks
+            kraken_cpu_sleep_cycles(1);
             continue;
         }
         kraken_cpu_get_counter(&now);

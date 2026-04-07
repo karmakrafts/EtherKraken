@@ -85,7 +85,7 @@ fun main() {
                     ).use { driver ->
                         clock += driver
                         driver.write("HELLO WORLD! THIS IS SERIAL OUTPUT!")
-                        driver.waitUntilEmpty()
+                        driver.wait()
                         clock -= driver
                     }
                     dispatcher -= clock
@@ -102,7 +102,7 @@ fun main() {
                 val io1 = ios.first { io -> io.devicePin == bcm2835_pin_t.BCM2835_PIN_BCM2.value }
                 val tick1 = AtomicInt(0)
                 val driver1 = Driver(port) {
-                    io1.state = tick1.fetchAndIncrement() and 1 == 0
+                    io1.state = (tick1.fetchAndIncrement() and 1 == 0)
                     0b1UL shl bcm2835_pin_t.BCM2835_PIN_BCM2.value.toInt()
                 }
                 clock1 += driver1
@@ -112,7 +112,7 @@ fun main() {
                 val io2 = ios.first { io -> io.devicePin == bcm2835_pin_t.BCM2835_PIN_BCM3.value }
                 val tick2 = AtomicInt(0)
                 val driver2 = Driver(port) {
-                    io2.state = tick2.fetchAndIncrement() and 1 == 0
+                    io2.state = (tick2.fetchAndIncrement() and 1 == 0)
                     0b1UL shl bcm2835_pin_t.BCM2835_PIN_BCM3.value.toInt()
                 }
                 clock2 += driver2

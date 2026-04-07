@@ -14,61 +14,107 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalForeignApi::class)
+
 package dev.karmakrafts.etherkraken.hal.driver
 
-import co.touchlab.stately.collections.ConcurrentMutableList
-import dev.karmakrafts.etherkraken.hal.IO
 import dev.karmakrafts.etherkraken.hal.Port
-import platform.posix.usleep
-import kotlin.concurrent.atomics.AtomicInt
-import kotlin.concurrent.atomics.fetchAndIncrement
+import dev.karmakrafts.etherkraken.hal.check
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.allocPointerTo
+import kotlinx.cinterop.cValue
+import kotlinx.cinterop.cValuesOf
+import kotlinx.cinterop.convert
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.pointed
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.value
+import libkraken.kraken_driver_handle_t
+import libkraken.kraken_driver_handle_tVar
+import libkraken.kraken_serial_tx_config_t
+import libkraken.kraken_serial_tx_driver_create
+import libkraken.kraken_serial_tx_driver_destroy
+import libkraken.kraken_serial_tx_driver_get_config
+import libkraken.kraken_serial_tx_driver_wait
+import libkraken.kraken_serial_tx_driver_write
 
-class SerialDriver( // @formatter:off
-    port: Port,
-    val dataDevicePin: UInt,
-    val clockDevicePin: UInt
-) : Driver(port) { // @formatter:on
-    companion object {
-        private const val LAST_BIT: Int = UByte.SIZE_BITS - 1
+class SerialDriver(override val handle: kraken_driver_handle_t) : Driver, AutoCloseable {
+    constructor( // @formatter:off
+        port: Port,
+        dataDevicePin: UInt,
+        clockDevicePin: UInt,
+        wordSize: Int = Byte.SIZE_BITS,
+        bufferSize: Int = 4096
+    ) : this(memScoped { // @formatter:on
+        val handle = alloc<kraken_driver_handle_tVar>()
+        kraken_serial_tx_driver_create(cValue {
+            data_pin = dataDevicePin
+            clock_pin = clockDevicePin
+            word_size = wordSize.toByte()
+            buffer_size = bufferSize.toUInt()
+        }, port.handle, handle.ptr).check()
+        checkNotNull(handle.value) {
+            "Could not create serial TX driver"
+        }
+    })
+
+    inline val wordSize: Int
+        get() = memScoped {
+            val config = allocPointerTo<kraken_serial_tx_config_t>()
+            kraken_serial_tx_driver_get_config(handle, config.ptr).check()
+            config.pointed?.word_size?.toInt() ?: 0
+        }
+
+    fun wait() {
+        kraken_serial_tx_driver_wait(handle).check()
     }
 
-    private val ios: List<IO> = port.enumerateIOs()
-    private val dataIo: IO = ios.first { io -> io.devicePin == dataDevicePin }
-    private val clockIo: IO = ios.first { io -> io.devicePin == clockDevicePin }
+    fun write(value: Byte) {
+        val words = Byte.SIZE_BITS / wordSize
+        kraken_serial_tx_driver_write(handle, cValuesOf(value), words.convert()).check()
+    }
 
-    private val updateMask: ULong = (0b1UL shl dataDevicePin.toInt()) or (0b1UL shl clockDevicePin.toInt())
-    private val queue: ConcurrentMutableList<UByte> = ConcurrentMutableList()
-    private val currentByte: AtomicInt = AtomicInt(0)
-    private val currentBit: AtomicInt = AtomicInt(LAST_BIT)
-    private val tick: AtomicInt = AtomicInt(0)
+    fun write(value: Short) {
+        val words = Short.SIZE_BITS / wordSize
+        kraken_serial_tx_driver_write(handle, cValuesOf(value), words.convert()).check()
+    }
+
+    fun write(value: Int) {
+        val words = Int.SIZE_BITS / wordSize
+        kraken_serial_tx_driver_write(handle, cValuesOf(value), words.convert()).check()
+    }
+
+    fun write(value: Long) {
+        val words = Long.SIZE_BITS / wordSize
+        kraken_serial_tx_driver_write(handle, cValuesOf(value), words.convert()).check()
+    }
 
     fun write(value: UByte) {
-        queue += value
+        val words = UByte.SIZE_BITS / wordSize
+        kraken_serial_tx_driver_write(handle, cValuesOf(value), words.convert()).check()
+    }
+
+    fun write(value: UShort) {
+        val words = UShort.SIZE_BITS / wordSize
+        kraken_serial_tx_driver_write(handle, cValuesOf(value), words.convert()).check()
+    }
+
+    fun write(value: UInt) {
+        val words = UInt.SIZE_BITS / wordSize
+        kraken_serial_tx_driver_write(handle, cValuesOf(value), words.convert()).check()
+    }
+
+    fun write(value: ULong) {
+        val words = ULong.SIZE_BITS / wordSize
+        kraken_serial_tx_driver_write(handle, cValuesOf(value), words.convert()).check()
     }
 
     fun write(value: String) {
-        value.encodeToByteArray().toUByteArray().forEach(::write)
+        value.encodeToByteArray().forEach(::write)
     }
 
-    fun waitUntilEmpty() {
-        while (queue.isNotEmpty()) usleep(100000U)
-        while (currentBit.load() < LAST_BIT) usleep(100000U)
-    }
-
-    override fun tick(): ULong {
-        val currentBit = currentBit.load()
-        var currentByte = currentByte.load().toUInt()
-        if (currentBit == LAST_BIT) {
-            currentByte = queue.removeFirstOrNull()?.toUInt() ?: return 0UL
-            this.currentByte.store(currentByte.toInt())
-            this.currentBit.store(0)
-        }
-        val clockRE = tick.fetchAndIncrement() and 0b1 == 0b1
-        clockIo.state = clockRE
-        if (clockRE) {
-            dataIo.state = (currentByte shr currentBit) and 0b1U == 0b1U
-            this.currentBit.fetchAndIncrement()
-        }
-        return updateMask
+    override fun close() {
+        kraken_serial_tx_driver_destroy(handle).check()
     }
 }

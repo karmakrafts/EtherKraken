@@ -38,7 +38,6 @@ KRAKEN_EXPORT kraken_error_t kraken_driver_get_user_data(const kraken_driver_c_h
 
 KRAKEN_EXPORT kraken_error_t kraken_driver_destroy(kraken_driver_handle_t handle) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid driver handle");
-    kraken_driver_t* driver = handle;
-    free(driver);
+    kraken_free(handle);
     return KRAKEN_OK;
 }

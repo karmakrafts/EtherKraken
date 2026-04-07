@@ -22,14 +22,20 @@ KRAKEN_API_BEGIN
 typedef struct kraken_serial_tx_config {
     uint32_t clock_pin;
     uint32_t data_pin;
+    uint32_t buffer_size;// The size of the TX buffer in serial words
     int8_t word_size;// The size of each serial word in bits
 } kraken_serial_tx_config_t;
 
 KRAKEN_EXPORT kraken_error_t kraken_serial_tx_driver_create(const kraken_serial_tx_config_t* config,
                                                             kraken_port_handle_t port, kraken_driver_handle_t* handle);
 
+KRAKEN_EXPORT kraken_error_t kraken_serial_tx_driver_get_config(kraken_driver_c_handle_t handle,
+                                                                kraken_serial_tx_config_t** config);
+
 KRAKEN_EXPORT kraken_error_t kraken_serial_tx_driver_write(kraken_driver_handle_t handle, const void* words,
                                                            size_t word_count);
+
+KRAKEN_EXPORT kraken_error_t kraken_serial_tx_driver_wait(kraken_driver_c_handle_t handle);
 
 KRAKEN_EXPORT kraken_error_t kraken_serial_tx_driver_destroy(kraken_driver_handle_t handle);
 

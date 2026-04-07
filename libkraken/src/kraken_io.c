@@ -82,6 +82,7 @@ KRAKEN_EXPORT kraken_error_t kraken_io_set_mode(kraken_io_handle_t handle, krake
 
 KRAKEN_EXPORT kraken_error_t kraken_io_get(const kraken_io_c_handle_t handle, kraken_bool_t* state) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid IO handle");
+    KRAKEN_CHECK_PTR(state, KRAKEN_ERR_INVALID_ARG, "Invalid IO state pointer");
     *state = atomic_load(&handle->state);
     return KRAKEN_OK;
 }

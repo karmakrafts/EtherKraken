@@ -90,7 +90,7 @@ echo "Running selftest.."
 if [[ "$DEVICE_DEBUG_STATE" = "true" ]]; then
     sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && sudo gdbserver :6767 ./selftest"
 elif [[ "$DEVICE_PROFILING_STATE" = "true" ]]; then
-	sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && sudo valgrind --leak-check=full ./selftest"
+	sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && sudo valgrind --fair-sched=yes --leak-check=full ./selftest"
 else
     sshpass -p $DEVICE_PASSWORD ssh $DEVICE_USER@$DEVICE_IP "cd /home/$DEVICE_USER && sudo ./selftest"
 fi

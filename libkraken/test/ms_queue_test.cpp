@@ -18,7 +18,7 @@
 #include <thread>
 #include <vector>
 
-#include "util/kraken_ms_queue.h"
+#include "util/kraken_atomic_queue.h"
 
 struct TestStruct {
     uint64_t value;
@@ -52,11 +52,28 @@ GTEST_TEST(ms_queue, is_empty) {
     ASSERT_EQ(KRAKEN_OK, kraken_ms_queue_is_empty(&queue, &empty));
     ASSERT_FALSE(empty);
 
+    TestStruct peek_value {};
+    ASSERT_EQ(KRAKEN_OK, kraken_ms_queue_peek(&queue, &peek_value));
+    ASSERT_EQ(1337, peek_value.value);
+
+    ASSERT_EQ(KRAKEN_OK, kraken_ms_queue_is_empty(&queue, &empty));
+    ASSERT_FALSE(empty);
+
     TestStruct read_value {};
     ASSERT_EQ(KRAKEN_OK, kraken_ms_queue_dequeue(&queue, &read_value));
 
     ASSERT_EQ(KRAKEN_OK, kraken_ms_queue_is_empty(&queue, &empty));
     ASSERT_TRUE(empty);
+
+    ASSERT_EQ(KRAKEN_OK, kraken_ms_queue_destroy(&queue));
+}
+
+GTEST_TEST(ms_queue, peek_empty) {
+    kraken_ms_queue_t queue {};
+    ASSERT_EQ(KRAKEN_OK, kraken_ms_queue_create(sizeof(TestStruct), &queue));
+
+    TestStruct read_value {};
+    ASSERT_EQ(KRAKEN_ERR_INVALID_OP, kraken_ms_queue_peek(&queue, &read_value));
 
     ASSERT_EQ(KRAKEN_OK, kraken_ms_queue_destroy(&queue));
 }

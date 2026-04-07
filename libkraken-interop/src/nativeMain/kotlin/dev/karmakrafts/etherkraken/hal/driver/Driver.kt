@@ -18,49 +18,11 @@
 
 package dev.karmakrafts.etherkraken.hal.driver
 
-import dev.karmakrafts.etherkraken.hal.Port
 import dev.karmakrafts.etherkraken.hal.check
-import kotlinx.cinterop.COpaquePointer
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.StableRef
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.asStableRef
-import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.ptr
-import kotlinx.cinterop.staticCFunction
-import kotlinx.cinterop.value
-import libkraken.KRAKEN_DRIVER_IO_MASK_NONE
-import libkraken.kraken_driver_create
-import libkraken.kraken_driver_destroy
 import libkraken.kraken_driver_handle_t
-import libkraken.kraken_driver_handle_tVar
-import libkraken.kraken_port_handle_t
+import libkraken.kraken_serial_tx_driver_destroy
 
-private fun driverTrampoline(@Suppress("UNUSED") port: kraken_port_handle_t?, userData: COpaquePointer?): ULong {
-    val driverRef = userData?.asStableRef<Driver>() ?: return KRAKEN_DRIVER_IO_MASK_NONE
-    val driver = driverRef.get()
-    return driver.tick()
-}
-
-abstract class Driver( // @formatter:off
-    protected val port: Port
-) : AutoCloseable { // @formatter:on
-    private val selfRef: StableRef<Driver> = StableRef.create(this)
-
-    val handle: kraken_driver_handle_t = memScoped {
-        val handle = alloc<kraken_driver_handle_tVar>()
-        kraken_driver_create(port.handle, staticCFunction(::driverTrampoline), selfRef.asCPointer(), handle.ptr).check()
-        checkNotNull(handle.value) { "Could not create driver" }
-    }
-
-    abstract fun tick(): ULong
-
-    override fun close() {
-        kraken_driver_destroy(handle).check()
-        selfRef.dispose()
-    }
-}
-
-inline fun Driver(port: Port, crossinline callback: Driver.() -> ULong): Driver = object : Driver(port) {
-    override fun tick(): ULong = callback()
+sealed interface Driver : AutoCloseable {
+    val handle: kraken_driver_handle_t
 }

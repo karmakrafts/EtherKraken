@@ -25,7 +25,6 @@
 #include <pthread.h>
 #include <sched.h>
 #include <stdatomic.h>
-#include <threads.h>
 
 #include "kraken_error_impl.h"
 

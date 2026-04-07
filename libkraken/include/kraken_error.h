@@ -29,7 +29,7 @@ typedef enum kraken_error : int32_t {
 
 /// @brief Retrieves the last error message that occurred on the current thread.
 /// @return The last error message, or @code nullptr@endcode if no error occurred.
-KRAKEN_EXPORT const char* kraken_last_error_get();
+KRAKEN_EXPORT KRAKEN_NODISCARD const char* kraken_last_error_get();
 
 /// @brief Clears the last error message on the current thread.
 KRAKEN_EXPORT void kraken_last_error_clear();

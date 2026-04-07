@@ -61,29 +61,29 @@ KRAKEN_EXPORT kraken_error_t kraken_get_allocator(const kraken_allocator_t** all
 /// @brief Allocate memory using the global allocator.
 /// @param[in] size The size of the memory to allocate.
 /// @return A pointer to the allocated memory, or nullptr on failure.
-KRAKEN_EXPORT void* kraken_malloc(size_t size);
+KRAKEN_EXPORT KRAKEN_NODISCARD void* kraken_malloc(size_t size);
 
 /// @brief Allocate and zero-initialize memory using the global allocator.
 /// @param[in] size The size of the memory to allocate.
 /// @return A pointer to the allocated memory, or nullptr on failure.
-KRAKEN_EXPORT void* kraken_calloc(size_t size);
+KRAKEN_EXPORT KRAKEN_NODISCARD void* kraken_calloc(size_t size);
 
 /// @brief Re-allocates memory using the global allocator.
 /// @param[in] memory The memory to re-allocate.
 /// @param[in] new_size The new size of the memory.
 /// @return A pointer to the re-allocated memory, or nullptr on failure.
-KRAKEN_EXPORT void* kraken_realloc(void* memory, size_t new_size);
+KRAKEN_EXPORT KRAKEN_NODISCARD void* kraken_realloc(void* memory, size_t new_size);
 
 /// @brief Duplicate a string using the global allocator.
 /// @param[in] string The string to duplicate.
 /// @return A pointer to the duplicated string, or nullptr on failure.
-KRAKEN_EXPORT char* kraken_strdup(const char* string);
+KRAKEN_EXPORT KRAKEN_NODISCARD char* kraken_strdup(const char* string);
 
 /// @brief Copy memory to a new heap allocation.
 /// @param[in] memory The memory to copy.
 /// @param[in] size The size of the memory to copy.
 /// @return A pointer to the copied memory, or nullptr on failure.
-KRAKEN_EXPORT void* kraken_heapcopy(const void* memory, size_t size);
+KRAKEN_EXPORT KRAKEN_NODISCARD void* kraken_heapcopy(const void* memory, size_t size);
 
 /// @brief Free memory using the global allocator.
 /// @param[in] memory The memory to free.

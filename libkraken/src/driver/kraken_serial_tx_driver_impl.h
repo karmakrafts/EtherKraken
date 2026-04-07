@@ -16,7 +16,7 @@
 #define LIBKRAKEN_KRAKEN_SERIAL_TX_DRIVER_IMPL_H
 
 #include "driver/kraken_serial_tx_driver.h"
-#include "util/kraken_ms_queue.h"
+#include "util/kraken_byte_queue.h"
 
 KRAKEN_API_BEGIN
 
@@ -27,9 +27,9 @@ typedef struct kraken_serial_tx_state {
     kraken_io_t* clock_io;
     kraken_io_t* data_io;
     uint64_t io_mask;
-    kraken_ms_queue_t buffer;
-    uint8_t byte;   ///< Current byte in transmission
-    int8_t bit;     ///< Current bit in transmission
+    kraken_byte_queue_handle_t buffer;
+    _Atomic(uint8_t) byte;   ///< Current byte in transmission
+    _Atomic(int8_t) bit;     ///< Current bit in transmission
     int8_t last_bit;///< Last bit of each word, determined by config word_size
 } kraken_serial_tx_state_t;
 

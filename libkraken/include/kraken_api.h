@@ -33,6 +33,9 @@
 /// @brief Marks a function as exported from the library.
 #define KRAKEN_EXPORT __attribute__((visibility("default")))
 
+/// @brief Marks a function result as nodiscard, emitting a warning when discarding the value
+#define KRAKEN_NODISCARD __attribute__((warn_unused_result))
+
 KRAKEN_API_BEGIN
 
 /// @brief I2C device address type.

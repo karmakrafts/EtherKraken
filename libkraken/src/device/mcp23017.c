@@ -31,7 +31,7 @@ KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_update(const int fd, void*, 
 
     uint8_t output_data[] = {MCP23017_REGISTER_GPIOA, 0x00, 0x00};
     for(size_t i = 0; i < io_count; i++) {
-        kraken_io_t* io = (kraken_io_t*) ios[i];
+        kraken_io_t* io = ios[i];
         const uint32_t bcm_pin = io->pin_config.device_pin;
         const size_t bank = bcm_pin / MCP23017_REGISTER_SIZE;
         const size_t bit = bcm_pin % MCP23017_REGISTER_SIZE;
@@ -62,7 +62,7 @@ KRAKEN_EXPORT kraken_error_t mcp23017_i2c_mux_state_init(const int fd, void*, kr
     // Update pin directions (using sequential write to reduce syscalls)
     uint8_t direction_data[] = {MCP23017_REGISTER_IODIRA, 0x00, 0x00};
     for(size_t i = 0; i < io_count; i++) {
-        const kraken_io_t* io = (const kraken_io_t*) ios[i];
+        const kraken_io_t* io = ios[i];
         const uint32_t bcm_pin = io->pin_config.device_pin;
         const size_t bank = bcm_pin / MCP23017_REGISTER_SIZE;
         const size_t bit = bcm_pin % MCP23017_REGISTER_SIZE;
@@ -84,7 +84,7 @@ KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_update(void* base_address, v
 
     uint8_t output_state[] = {0x00, 0x00};
     for(size_t i = 0; i < io_count; i++) {
-        kraken_io_t* io = (kraken_io_t*) ios[i];
+        kraken_io_t* io = ios[i];
         const uint32_t bcm_pin = io->pin_config.device_pin;
         const size_t bank = bcm_pin / MCP23017_REGISTER_SIZE;
         const size_t bit = bcm_pin % MCP23017_REGISTER_SIZE;
@@ -115,7 +115,7 @@ KRAKEN_EXPORT kraken_error_t mcp23017_spi_mux_state_init(void* base_address, voi
     // Set pin directions
     uint8_t direction_data[] = {0x00, 0x00};
     for(size_t i = 0; i < io_count; i++) {
-        const kraken_io_t* io = (const kraken_io_t*) ios[i];
+        const kraken_io_t* io = ios[i];
         const uint32_t bcm_pin = io->pin_config.device_pin;
         const size_t bank = bcm_pin / MCP23017_REGISTER_SIZE;
         const size_t bit = bcm_pin % MCP23017_REGISTER_SIZE;

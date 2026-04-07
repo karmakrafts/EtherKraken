@@ -68,7 +68,7 @@ value class IO(val handle: kraken_io_handle_t) {
         get() = memScoped {
             val state = alloc<kraken_bool_tVar>()
             kraken_io_get(handle, state.ptr).check()
-            state.value == kraken_bool_t.KRAKEN_TRUE
+            state.value.value == 1.toUByte()
         }
         set(value) = memScoped {
             kraken_io_set(handle, if (value) kraken_bool_t.KRAKEN_TRUE else kraken_bool_t.KRAKEN_FALSE).check()
