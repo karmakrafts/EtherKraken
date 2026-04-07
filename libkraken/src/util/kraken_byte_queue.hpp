@@ -31,7 +31,7 @@ namespace kraken {
         }
 
         [[nodiscard]] auto allocate(size_t size) noexcept -> T* {// NOLINT
-            return static_cast<T*>(kraken_calloc(sizeof(T) * size));
+            return static_cast<T*>(kraken_malloc(sizeof(T) * size));
         }
 
         auto deallocate(T* address, size_t) noexcept -> void {// NOLINT
