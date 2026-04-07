@@ -14,8 +14,8 @@
 
 #include "../../include/device/bcm2835.h"
 
-#include "kraken_io_impl.h"
 #include "kraken_intrin.h"
+#include "kraken_io_impl.h"
 #include "util/kraken_internal.h"
 
 constexpr uint32_t GPIO_REGISTER_SIZE = 32;

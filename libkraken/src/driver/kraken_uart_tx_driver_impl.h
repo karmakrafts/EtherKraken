@@ -12,27 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LIBKRAKEN_KRAKEN_SERIAL_TX_DRIVER_IMPL_H
-#define LIBKRAKEN_KRAKEN_SERIAL_TX_DRIVER_IMPL_H
+#ifndef LIBKRAKEN_KRAKEN_UART_TX_DRIVER_IMPL_H
+#define LIBKRAKEN_KRAKEN_UART_TX_DRIVER_IMPL_H
 
-#include "driver/kraken_serial_tx_driver.h"
+#include "driver/kraken_uart_tx_driver.h"
+#include "kraken_io_impl.h"
 #include "util/kraken_byte_queue.h"
 
 KRAKEN_API_BEGIN
 
-constexpr int8_t KRAKEN_SERIAL_TX_STOP_BIT = -1;
+constexpr int8_t KRAKEN_UART_TX_STOP_BIT = -1;
 
-typedef struct kraken_serial_tx_state {
-    kraken_serial_tx_config_t* config;
-    kraken_io_t* clock_io;
-    kraken_io_t* data_io;
+typedef struct kraken_uart_tx_state {
+    kraken_uart_config_t* config;
     uint64_t io_mask;
+    kraken_io_t* io;
     kraken_byte_queue_handle_t buffer;
-    _Atomic(uint8_t) byte;///< Current byte in transmission
-    _Atomic(int8_t) bit;  ///< Current bit in transmission
-    int8_t last_bit;      ///< Last bit of each word, determined by config word_size
-} kraken_serial_tx_state_t;
+    int8_t frame_size;
+    int8_t last_bit;
+    _Atomic(int8_t) bit;
+    _Atomic(uint8_t) byte;
+} kraken_uart_tx_state_t;
 
 KRAKEN_API_END
 
-#endif//LIBKRAKEN_KRAKEN_SERIAL_TX_DRIVER_IMPL_H
+#endif//LIBKRAKEN_KRAKEN_UART_TX_DRIVER_IMPL_H

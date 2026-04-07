@@ -48,7 +48,7 @@ static void kraken_log_debug(const char* fmt, ...) {
 }
 #endif
 
-KRAKEN_DEFINE_LOG_FN(ERROR, error) // Used mainly for panics
+KRAKEN_DEFINE_LOG_FN(ERROR, error)// Used mainly for panics
 
 KRAKEN_API_END
 

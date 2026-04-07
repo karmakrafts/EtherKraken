@@ -12,28 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef LIBKRAKEN_LIBKRAKEN_H
-#define LIBKRAKEN_LIBKRAKEN_H
+#ifndef LIBKRAKEN_KRAKEN_UART_H
+#define LIBKRAKEN_KRAKEN_UART_H
 
-#include "kraken_alloc.h"
-#include "kraken_handles.h"
-#include "kraken_log.h"
+#include "kraken_api.h"
 
-#include "config/kraken_config.h"
+KRAKEN_API_BEGIN
 
-#include "device/bcm2835.h"
-#include "device/mcp23017.h"
+typedef enum kraken_uart_parity : uint8_t {
+    KRAKEN_UART_PARITY_ODD,
+    KRAKEN_UART_PARITY_EVEN
+} kraken_uart_parity_t;
 
-#include "kraken_board.h"
-#include "kraken_cpu.h"
-#include "kraken_flash.h"
-#include "kraken_io.h"
-#include "kraken_port.h"
+typedef struct kraken_uart_config {
+    uint32_t pin;               ///< Pin-number on the device
+    int8_t data_bits;           ///< Number of data bits
+    int8_t stop_bits;           ///< Number of stop bits
+    kraken_uart_parity_t parity;///< Type of parity
+} kraken_uart_config_t;
 
-#include "driver/kraken_driver.h"
-#include "driver/kraken_serial_tx_driver.h"
-#include "driver/kraken_uart_tx_driver.h"
-#include "kraken_clock.h"
-#include "kraken_dispatcher.h"
+KRAKEN_API_END
 
-#endif//LIBKRAKEN_LIBKRAKEN_H
+#endif//LIBKRAKEN_KRAKEN_UART_H

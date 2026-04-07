@@ -16,15 +16,15 @@
 #define LIBKRAKEN_KRAKEN_INTERNAL_H
 
 #include <malloc.h>
+#include <pthread.h>
+#include <sched.h>
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/file.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include <pthread.h>
-#include <sched.h>
-#include <stdatomic.h>
 
 #include "kraken_error_impl.h"
 

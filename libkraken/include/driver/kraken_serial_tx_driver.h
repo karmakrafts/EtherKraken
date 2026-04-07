@@ -23,7 +23,7 @@ typedef struct kraken_serial_tx_config {
     uint32_t clock_pin;
     uint32_t data_pin;
     uint32_t buffer_size;// The size of the TX buffer in serial words
-    int8_t word_size;// The size of each serial word in bits
+    int8_t word_size;    // The size of each serial word in bits
 } kraken_serial_tx_config_t;
 
 KRAKEN_EXPORT kraken_error_t kraken_serial_tx_driver_create(const kraken_serial_tx_config_t* config,

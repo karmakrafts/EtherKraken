@@ -65,6 +65,8 @@ KRAKEN_EXPORT kraken_error_t kraken_serial_tx_driver_create(const kraken_serial_
             state->data_io = io;
         }
     }
+    KRAKEN_CHECK_PTR(state->clock_io, KRAKEN_ERR_INVALID_OP, "Could not find matching IO for serial TX driver clock");
+    KRAKEN_CHECK_PTR(state->data_io, KRAKEN_ERR_INVALID_OP, "Could not find matching IO for serial TX driver data");
 
     KRAKEN_CHECK_CALL_ERR(kraken_byte_queue_create(config->buffer_size, &state->buffer),
                           "Could not initialize serial TX queue");
@@ -72,8 +74,8 @@ KRAKEN_EXPORT kraken_error_t kraken_serial_tx_driver_create(const kraken_serial_
     kraken_driver_handle_t driver = nullptr;
     KRAKEN_CHECK_CALL_ERR(kraken_driver_create(port, &kraken_serial_tx_driver_tick, state, &driver),
                           "Could not create serial TX driver instance");
-
     *handle = driver;
+
     return KRAKEN_OK;
 }
 
