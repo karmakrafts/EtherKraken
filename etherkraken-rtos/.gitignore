@@ -1,0 +1,7 @@
+build/
+mount/
+*.img
+*.img.xz
+*.conf
+network-config
+!example/network-config

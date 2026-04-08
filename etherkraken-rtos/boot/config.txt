@@ -1,0 +1,8 @@
+enable_uart=1
+enable_rp1_uart=1
+uart_2ndstage=1
+auto_initramfs=1
+disable_fw_kms_setup=1
+arm_64bit=1
+disable_overscan=1
+arm_boost=1
