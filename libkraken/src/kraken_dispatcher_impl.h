@@ -17,6 +17,7 @@
 
 #include "util/kraken_array_list.h"
 #include "util/kraken_internal.h"
+#include "util/kraken_mutex.h"
 
 KRAKEN_API_BEGIN
 
@@ -24,7 +25,7 @@ typedef struct kraken_dispatcher {
     pthread_t thread;
     _Atomic(bool) is_running;
     kraken_array_list_t clocks;
-    pthread_mutex_t clocks_mutex;
+    kraken_mutex_t clocks_mutex;
 } kraken_dispatcher_t;
 
 KRAKEN_API_END

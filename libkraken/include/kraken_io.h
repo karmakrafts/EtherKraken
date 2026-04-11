@@ -70,6 +70,20 @@ KRAKEN_EXPORT kraken_error_t kraken_io_get_mode(kraken_io_c_handle_t handle, kra
 /// @return KRAKEN_SUCCESS if successful, or an error code otherwise.
 KRAKEN_EXPORT kraken_error_t kraken_io_set_mode(kraken_io_handle_t handle, kraken_io_mode_t mode);
 
+/// @brief Retrieves the current I/O PUD mode of a given I/O handle.
+///
+/// @param[in] handle The I/O handle to query.
+/// @param[out] mode Pointer to store the current I/O mode.
+/// @return KRAKEN_SUCCESS if successful, or an error code otherwise.
+KRAKEN_EXPORT kraken_error_t kraken_io_get_pud_mode(kraken_io_c_handle_t handle, kraken_io_pud_mode_t* mode);
+
+/// @brief Sets the I/O PUD mode for a given I/O handle.
+///
+/// @param[in] handle The I/O handle to modify.
+/// @param[in] mode The new I/O PUD mode to set.
+/// @return KRAKEN_SUCCESS if successful, or an error code otherwise.
+KRAKEN_EXPORT kraken_error_t kraken_io_set_pud_mode(kraken_io_handle_t handle, kraken_io_pud_mode_t mode);
+
 /// @brief Retrieves the current state of a given I/O handle.
 ///
 /// @param[in] handle The I/O handle to query.

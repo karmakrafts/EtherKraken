@@ -34,6 +34,9 @@
 #define KRAKEN_NOINLINE __attribute__((noinline))
 #define KRAKEN_NOOPT __attribute__((optnone))
 
+#define KRAKEN_LIKELY(x) __builtin_expect((x), 1)
+#define KRAKEN_UNLIKELY(x) __builtin_expect((x), 0)
+
 #define kraken_assert(x)                                                                                               \
     do {                                                                                                               \
         if(!(x)) {                                                                                                     \

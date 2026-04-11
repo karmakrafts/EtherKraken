@@ -12,14 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "../../include/device/bcm2835.h"
+#include "device/bcm2835.h"
 
-#include "kraken_intrin.h"
+#include "kraken_cpu.h"
 #include "kraken_io_impl.h"
 #include "util/kraken_internal.h"
+#include "util/kraken_intrin.h"
 
 constexpr uint32_t GPIO_REGISTER_SIZE = 32;
+constexpr uint32_t GPPUDCLK_REGISTER_SIZE = 32;
 constexpr uint32_t GPIO_FSEL_BANK_SIZE = 10;
+constexpr uint32_t GPPUD_DELAY_CYCLES = 150;
 
 KRAKEN_EXPORT KRAKEN_NOINLINE kraken_error_t bcm2835_gpio_state_update(void* base_address, void*,
                                                                        kraken_io_handle_t* ios, const size_t io_count,
@@ -41,11 +44,8 @@ KRAKEN_EXPORT KRAKEN_NOINLINE kraken_error_t bcm2835_gpio_state_update(void* bas
         const uint32_t update = update_mask[bank] >> bit & 0b1;// Mask bit determines if we update this IO
         const uint32_t update_mode = (uint32_t) io->mode & update;
 
-        const uint32_t set_bit = ((uint32_t) io->state & update_mode) << bit;
-        set_mask[bank] |= set_bit;
-
-        const uint32_t clr_bit = (~(uint32_t) io->state & update_mode) << bit;
-        clr_mask[bank] |= clr_bit;
+        set_mask[bank] |= ((uint32_t) io->state & update_mode) << bit;
+        clr_mask[bank] |= (~(uint32_t) io->state & update_mode) << bit;
 
         // Update each IO state branchless through input/output states
         io->state = (kraken_bool_t) (set_mask[bank] & 0b1 << bit) |
@@ -76,20 +76,27 @@ KRAKEN_EXPORT KRAKEN_NOINLINE kraken_error_t bcm2835_gpio_state_init(void* base_
     };// clang-format on
 
     uint32_t clr_mask[2] = {0x00000000U, 0x00000000U};
-    const uint32_t update_mask[2] = {(uint32_t) (mask & 0xFFFFFFFFUL), (uint32_t) (mask >> 32 & 0xFFFFFFFFUL)};
+
+    const uint32_t update_mask[2] = {// clang-format off
+        (uint32_t) (mask & 0xFFFFFFFFUL),
+        (uint32_t) (mask >> 32 & 0xFFFFFFFFUL)
+    };// clang-format on
+
     for(size_t i = 0; i < io_count; i++) {
         const kraken_io_t* io = ios[i];
         const uint32_t bcm_pin = io->pin_config.device_pin;
+
         // Set function selection bit for current IO
         const uint32_t fsel_bank = bcm_pin / GPIO_FSEL_BANK_SIZE;
         const uint32_t fsel_bit = bcm_pin % GPIO_FSEL_BANK_SIZE * 3;
-        fsel_mask[fsel_bank] &= ~(0b111 << fsel_bit);// Clear old bits
-        fsel_mask[fsel_bank] |= io->mode << fsel_bit;// 0b000 input, 0b001 output
+        fsel_mask[fsel_bank] &= ~(0b111 << fsel_bit);              // Clear old bits
+        fsel_mask[fsel_bank] |= atomic_load(&io->mode) << fsel_bit;// 0b000 input, 0b001 output
+
         // Set output mask bit for current IO so we know which IOs to clear
         const uint32_t output_bank = bcm_pin / GPIO_REGISTER_SIZE;
         const uint32_t output_bit = bcm_pin % GPIO_REGISTER_SIZE;
         const uint32_t update = update_mask[output_bank] >> output_bit & 0b1;
-        clr_mask[output_bank] |= (io->mode & update) << output_bit;
+        clr_mask[output_bank] |= (atomic_load(&io->mode) & update) << output_bit;
     }
 
     // Update IO functions
@@ -102,6 +109,27 @@ KRAKEN_EXPORT KRAKEN_NOINLINE kraken_error_t bcm2835_gpio_state_init(void* base_
     // Clear all outputs to their default state
     gpio->gpclr0.value = clr_mask[0];
     gpio->gpclr1.value = clr_mask[1];
+    kraken_io_barrier();
+
+    for(size_t i = 0; i < io_count; i++) {
+        const kraken_io_t* io = ios[i];
+        const uint32_t bcm_pin = io->pin_config.device_pin;
+        const uint32_t clk_bank = bcm_pin / GPPUDCLK_REGISTER_SIZE;
+        const uint32_t clk_bit = bcm_pin % GPPUDCLK_REGISTER_SIZE;
+
+        // Latch in IO PUD mode since we can't do that atomically anyway -.-
+        const kraken_io_pud_mode_t pud_mode = atomic_load(&io->pud_mode);
+
+        gpio->gppud.pud = (bcm2835_pud_t) pud_mode;
+        kraken_cpu_sleep_cycles(GPPUD_DELAY_CYCLES);// Wait 150 cycles for state to settle
+
+        volatile bcm2835_gppinreg_t* pin_reg = &gpio->gppudclk0 + clk_bank;
+        pin_reg->value |= 0b1 << clk_bit;
+        kraken_cpu_sleep_cycles(GPPUD_DELAY_CYCLES);// Wait 150 cycles for state to settle
+
+        gpio->gppud.pud = BCM2835_PUD_OFF;
+        pin_reg->value = 0;
+    }
     kraken_io_barrier();
 
     return KRAKEN_OK;

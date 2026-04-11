@@ -1,5 +1,5 @@
 (kicad_pcb
-	(version 20260329)
+	(version 20260410)
 	(generator "pcbnew")
 	(generator_version "10.99")
 	(general
@@ -12312,18 +12312,18 @@
 			(effects
 				(font
 					(size 0.8 0.8)
-					(thickness 0.15)
+					(thickness 0.2)
 				)
 			)
 		)
 		(property "Value" "33R"
-			(at 5.4254 2.3548 0)
+			(at -2.535 -2.475 0)
 			(layer "F.Fab")
 			(uuid "f2e66660-d7de-4d8a-a47e-05c647902210")
 			(effects
 				(font
-					(size 0.48 0.48)
-					(thickness 0.15)
+					(size 0.8 0.8)
+					(thickness 0.2)
 				)
 			)
 		)
@@ -12572,6 +12572,17 @@
 			(uuid "e580dac6-0462-4daf-a231-a17f0377fd92")
 		)
 		(embedded_fonts no)
+		(model "/media/data/hw_projects/parts/YC164-JR-0733RL.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz -90 -0 -0)
+			)
+		)
 	)
 	(footprint "LED_SMD:LED_1206_3216Metric"
 		(layer "F.Cu")

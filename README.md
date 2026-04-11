@@ -1,6 +1,6 @@
 # EtherKraken
 
-A RP3A0 SiP based controller board with 38 programmable IOs, 2MB of flash, SPI, I²C, UART and 100Base-T connectivity
+An RP3A0 SiP based controller board with 38 programmable IOs, 2MB of flash, SPI, I²C, UART and 100Base-T connectivity
 for embedded- and automation-applications.
 
 <img src="docs/board_render.png" alt="3D render of the circuit board" width="75%">

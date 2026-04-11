@@ -2,16 +2,19 @@ cmake_minimum_required(VERSION 3.18)
 project(libkraken LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 23)
-set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 23)
 
 include(FetchContent)
+
+# AtomicQueue
 
 FetchContent_Declare(
         atomic_queue
         GIT_REPOSITORY https://github.com/max0x7ba/atomic_queue.git
         GIT_TAG "v1.7.3")
 FetchContent_MakeAvailable(atomic_queue)
+
+# kraken/kraken-static targets
 
 file(GLOB_RECURSE LK_SOURCE_FILES "${CMAKE_SOURCE_DIR}/src/*.c*")
 file(GLOB_RECURSE LK_PRV_HEADER_FILES "${CMAKE_SOURCE_DIR}/src/*.h*")
@@ -46,6 +49,8 @@ if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 else ()
     target_compile_options(kraken-static PUBLIC -O3)
 endif ()
+
+# kraken-tests target
 
 if (KRAKEN_HOST_TESTS)
     message(STATUS "Enabled host tests")

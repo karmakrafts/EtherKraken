@@ -22,6 +22,7 @@
 KRAKEN_API_BEGIN
 
 constexpr int8_t KRAKEN_UART_TX_STOP_BIT = -1;
+constexpr int8_t KRAKEN_UART_TX_NO_PARITY = -1;
 
 typedef struct kraken_uart_tx_state {
     kraken_uart_config_t* config;
@@ -29,8 +30,15 @@ typedef struct kraken_uart_tx_state {
     kraken_io_t* io;
     kraken_byte_queue_handle_t buffer;
     int8_t frame_size;
-    int8_t last_bit;
+
+    int8_t start_bit;
+    int8_t first_data_bit;
+    int8_t last_data_bit;
+    int8_t parity_bit; ///< Parity bit index, -1 if parity is KRAKEN_UART_PARITY_NONE
+    int8_t first_stop_bit;
+    int8_t last_stop_bit;
     _Atomic(int8_t) bit;
+
     _Atomic(uint8_t) byte;
 } kraken_uart_tx_state_t;
 

@@ -20,12 +20,16 @@
 KRAKEN_API_BEGIN
 
 typedef enum kraken_uart_parity : uint8_t {
-    KRAKEN_UART_PARITY_ODD,
-    KRAKEN_UART_PARITY_EVEN
+    KRAKEN_UART_PARITY_NONE,///< No parity bit is sent over the wire
+    KRAKEN_UART_PARITY_ODD,///< The parity bit is set so that the total number of 1s in the data bits plus the parity bit is odd
+    KRAKEN_UART_PARITY_EVEN,///< The parity bit is set so that the total number of 1s in the data bits plus the parity bit is even
+    KRAKEN_UART_PARITY_MARK,///< The parity bit is always set to 1
+    KRAKEN_UART_PARITY_SPACE///< The parity bit is always set to 0
 } kraken_uart_parity_t;
 
 typedef struct kraken_uart_config {
     uint32_t pin;               ///< Pin-number on the device
+    uint32_t buffer_size;       ///< Data buffer size in bytes
     int8_t data_bits;           ///< Number of data bits
     int8_t stop_bits;           ///< Number of stop bits
     kraken_uart_parity_t parity;///< Type of parity

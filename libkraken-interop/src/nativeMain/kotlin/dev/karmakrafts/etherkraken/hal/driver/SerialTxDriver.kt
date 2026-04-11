@@ -39,7 +39,7 @@ import libkraken.kraken_serial_tx_driver_get_config
 import libkraken.kraken_serial_tx_driver_wait
 import libkraken.kraken_serial_tx_driver_write
 
-class SerialDriver(override val handle: kraken_driver_handle_t) : Driver, AutoCloseable {
+class SerialTxDriver(override val handle: kraken_driver_handle_t) : Driver, AutoCloseable {
     constructor( // @formatter:off
         port: Port,
         dataDevicePin: UInt,

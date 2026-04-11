@@ -80,6 +80,19 @@ KRAKEN_EXPORT kraken_error_t kraken_io_set_mode(kraken_io_handle_t handle, krake
     return KRAKEN_OK;
 }
 
+KRAKEN_EXPORT kraken_error_t kraken_io_get_pud_mode(const kraken_io_c_handle_t handle, kraken_io_pud_mode_t* mode) {
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid IO handle");
+    KRAKEN_CHECK_PTR(mode, KRAKEN_ERR_INVALID_ARG, "Mode pointer is null");
+    *mode = atomic_load(&handle->pud_mode);
+    return KRAKEN_OK;
+}
+
+KRAKEN_EXPORT kraken_error_t kraken_io_set_pud_mode(kraken_io_handle_t handle, kraken_io_pud_mode_t mode) {
+    KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid IO handle");
+    atomic_store(&handle->pud_mode, mode);
+    return KRAKEN_OK;
+}
+
 KRAKEN_EXPORT kraken_error_t kraken_io_get(const kraken_io_c_handle_t handle, kraken_bool_t* state) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid IO handle");
     KRAKEN_CHECK_PTR(state, KRAKEN_ERR_INVALID_ARG, "Invalid IO state pointer");

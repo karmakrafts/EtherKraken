@@ -1,1 +1,1 @@
-isolcpus=2,3 rcu_nocbs=2,3 nohz_full=2,3
+cfg80211.ieee80211_regdom=DE isolcpus=2,3 rcu_nocbs=2,3 nohz_full=2,3

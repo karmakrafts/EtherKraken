@@ -17,8 +17,7 @@
 
 #include "kraken_clock.h"
 #include "util/kraken_array_list.h"
-
-#include <pthread.h>
+#include "util/kraken_mutex.h"
 
 KRAKEN_API_BEGIN
 
@@ -27,7 +26,7 @@ typedef struct kraken_clock {
     uint64_t period;
     _Atomic(uint64_t) next_event;
     kraken_array_list_t drivers;
-    pthread_mutex_t drivers_mutex;
+    kraken_mutex_t drivers_mutex;
 } kraken_clock_t;
 
 kraken_error_t kraken_clock_tick(kraken_clock_t* clock);

@@ -48,14 +48,16 @@ kraken_error_t kraken_byte_queue_is_empty(const kraken_byte_queue_c_handle_t han
 kraken_error_t kraken_byte_queue_enqueue(kraken_byte_queue_handle_t handle, uint8_t value) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid byte queue handle");
     auto* queue = reinterpret_cast<ByteQueue*>(handle);
-    return queue->try_push(value) ? KRAKEN_OK : KRAKEN_ERR_INVALID_OP;
+    queue->push(value);
+    return KRAKEN_OK;
 }
 
 kraken_error_t kraken_byte_queue_dequeue(kraken_byte_queue_handle_t handle, uint8_t* value) {
     KRAKEN_CHECK_PTR(handle, KRAKEN_ERR_INVALID_ARG, "Invalid byte queue handle");
     KRAKEN_CHECK_PTR(value, KRAKEN_ERR_INVALID_ARG, "Invalid value pointer");
     auto* queue = reinterpret_cast<ByteQueue*>(handle);
-    return queue->try_pop(*value) ? KRAKEN_OK : KRAKEN_ERR_INVALID_OP;
+    *value = queue->pop();
+    return KRAKEN_OK;
 }
 
 kraken_error_t kraken_byte_queue_destroy(kraken_byte_queue_handle_t handle) {

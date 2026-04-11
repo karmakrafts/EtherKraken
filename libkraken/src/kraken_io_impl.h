@@ -29,6 +29,7 @@ typedef struct kraken_io {
     kraken_io_pud_mode_t* supported_pud_modes;
     size_t num_supported_pud_modes;
     _Atomic(kraken_io_mode_t) mode;
+    _Atomic(kraken_io_pud_mode_t) pud_mode;
     _Atomic(kraken_bool_t) state;
 } kraken_io_t;
 

@@ -26,7 +26,8 @@ import dev.karmakrafts.etherkraken.hal.Port
 import dev.karmakrafts.etherkraken.hal.config.BoardConfig
 import dev.karmakrafts.etherkraken.hal.config.DefaultGPIOType
 import dev.karmakrafts.etherkraken.hal.driver.Driver
-import dev.karmakrafts.etherkraken.hal.driver.SerialDriver
+import dev.karmakrafts.etherkraken.hal.driver.SerialTxDriver
+import dev.karmakrafts.etherkraken.hal.driver.UartTxDriver
 import kotlinx.cinterop.ExperimentalForeignApi
 import libkraken.bcm2835_pin_t
 import libkraken.kraken_io_mode_t
@@ -63,29 +64,51 @@ fun main() {
                 println("Initialized GPIO port, updating initial state")
                 port.update()
 
-                println("Testing outputs..")
-                var lastIo: IO? = null
-                for (i in 0..<30) {
-                    lastIo?.state = false
-                    port.update()
-                    val io = ios[i % 3]
-                    io.state = true
-                    port.update()
-                    lastIo = io
-                    usleep(250000U)
-                }
-                lastIo?.state = false
+                //println("Testing outputs..")
+                //var lastIo: IO? = null
+                //for (i in 0..<30) {
+                //    lastIo?.state = false
+                //    port.update()
+                //    val io = ios[i % 3]
+                //    io.state = true
+                //    port.update()
+                //    lastIo = io
+                //    usleep(250000U)
+                //}
+                //lastIo?.state = false
+                //port.update()
+
+                //println("Testing SerialTxDriver..")
+                //Clock(25.0).use { clock ->
+                //    dispatcher += clock
+                //    SerialTxDriver(
+                //        port, bcm2835_pin_t.BCM2835_PIN_BCM2.value, bcm2835_pin_t.BCM2835_PIN_BCM3.value
+                //    ).use { driver ->
+                //        clock += driver
+                //        driver.write("HELLO WORLD! THIS IS SERIAL OUTPUT!")
+                //        driver.wait()
+                //        clock -= driver
+                //    }
+                //    dispatcher -= clock
+                //}
+
+                println("Clearing outputs..")
+                for (io in ios) io.state = false
                 port.update()
 
-                println("Testing realtime driver..")
-                Clock(25.0).use { clock ->
+                println("Testing UartTxDriver..")
+                Clock(9600.0).use { clock ->
                     dispatcher += clock
-                    SerialDriver(
-                        port, bcm2835_pin_t.BCM2835_PIN_BCM2.value, bcm2835_pin_t.BCM2835_PIN_BCM3.value
+                    UartTxDriver(
+                        port, bcm2835_pin_t.BCM2835_PIN_BCM4.value
                     ).use { driver ->
+                        // First transfer to TX buffer
+                        driver.write("HELLO WORLD! THIS IS UART OUTPUT!\n".repeat(20))
+                        // Start bit banging on the wire
                         clock += driver
-                        driver.write("HELLO WORLD! THIS IS SERIAL OUTPUT!")
+                        // Wait until internal TX buffer is empty and last bit was sent
                         driver.wait()
+                        // Stop bit banging on the wire
                         clock -= driver
                     }
                     dispatcher -= clock
@@ -95,43 +118,43 @@ fun main() {
                 for (io in ios) io.state = false
                 port.update()
 
-                println("Testing parallel clocks..")
+                //println("Testing parallel clocks..")
 
-                val clock1 = Clock(50.0)
-                dispatcher += clock1
-                val io1 = ios.first { io -> io.devicePin == bcm2835_pin_t.BCM2835_PIN_BCM2.value }
-                val tick1 = AtomicInt(0)
-                val driver1 = Driver(port) {
-                    io1.state = (tick1.fetchAndIncrement() and 1 == 0)
-                    0b1UL shl bcm2835_pin_t.BCM2835_PIN_BCM2.value.toInt()
-                }
-                clock1 += driver1
+                //val clock1 = Clock(50.0)
+                //dispatcher += clock1
+                //val io1 = ios.first { io -> io.devicePin == bcm2835_pin_t.BCM2835_PIN_BCM2.value }
+                //val tick1 = AtomicInt(0)
+                //val driver1 = Driver(port) {
+                //    io1.state = (tick1.fetchAndIncrement() and 1 == 0)
+                //    0b1UL shl bcm2835_pin_t.BCM2835_PIN_BCM2.value.toInt()
+                //}
+                //clock1 += driver1
 
-                val clock2 = Clock(10.0)
-                dispatcher += clock2
-                val io2 = ios.first { io -> io.devicePin == bcm2835_pin_t.BCM2835_PIN_BCM3.value }
-                val tick2 = AtomicInt(0)
-                val driver2 = Driver(port) {
-                    io2.state = (tick2.fetchAndIncrement() and 1 == 0)
-                    0b1UL shl bcm2835_pin_t.BCM2835_PIN_BCM3.value.toInt()
-                }
-                clock2 += driver2
+                //val clock2 = Clock(10.0)
+                //dispatcher += clock2
+                //val io2 = ios.first { io -> io.devicePin == bcm2835_pin_t.BCM2835_PIN_BCM3.value }
+                //val tick2 = AtomicInt(0)
+                //val driver2 = Driver(port) {
+                //    io2.state = (tick2.fetchAndIncrement() and 1 == 0)
+                //    0b1UL shl bcm2835_pin_t.BCM2835_PIN_BCM3.value.toInt()
+                //}
+                //clock2 += driver2
 
-                sleep(5U)
+                //sleep(5U)
 
-                clock1 -= driver1
-                driver1.close()
-                dispatcher -= clock1
-                clock1.close()
+                //clock1 -= driver1
+                //driver1.close()
+                //dispatcher -= clock1
+                //clock1.close()
 
-                clock2 -= driver2
-                driver2.close()
-                dispatcher -= clock2
-                clock2.close()
+                //clock2 -= driver2
+                //driver2.close()
+                //dispatcher -= clock2
+                //clock2.close()
 
-                println("Clearing outputs..")
-                for (io in ios) io.state = false
-                port.update()
+                //println("Clearing outputs..")
+                //for (io in ios) io.state = false
+                //port.update()
             }
         }
     }

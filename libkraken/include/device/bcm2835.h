@@ -90,23 +90,23 @@ typedef enum bcm2835_pin : uint32_t {
 /// BCM2835 GPIO pull-up/down control.
 ///
 typedef enum bcm2835_pud : uint8_t {
-    BCM2825_PUD_OFF = 0b00,      ///< Off – disable pull-up/down
-    BCM2825_PUD_PULL_DOWN = 0b01,///< Pull Down – enable pull-down control
-    BCM2825_PUD_PULL_UP = 0b10   ///< Pull Up – enable pull-up control
+    BCM2835_PUD_OFF = 0b00,      ///< Off – disable pull-up/down
+    BCM2835_PUD_PULL_DOWN = 0b01,///< Pull Down – enable pull-down control
+    BCM2835_PUD_PULL_UP = 0b10   ///< Pull Up – enable pull-up control
 } bcm2835_pud_t;
 
 ///
 /// BCM2835 GPIO function selection.
 ///
 typedef enum bcm2835_fsel : uint8_t {
-    BCM2825_FSEL_IN = 0b000,  ///< Input
-    BCM2825_FSEL_OUT = 0b001, ///< Output
-    BCM2825_FSEL_ALT0 = 0b100,///< Alternative function 0
-    BCM2825_FSEL_ALT1 = 0b101,///< Alternative function 1
-    BCM2825_FSEL_ALT2 = 0b110,///< Alternative function 2
-    BCM2825_FSEL_ALT3 = 0b111,///< Alternative function 3
-    BCM2825_FSEL_ALT4 = 0b011,///< Alternative function 4
-    BCM2825_FSEL_ALT5 = 0b010 ///< Alternative function 5
+    BCM2835_FSEL_IN = 0b000,  ///< Input
+    BCM2835_FSEL_OUT = 0b001, ///< Output
+    BCM2835_FSEL_ALT0 = 0b100,///< Alternative function 0
+    BCM2835_FSEL_ALT1 = 0b101,///< Alternative function 1
+    BCM2835_FSEL_ALT2 = 0b110,///< Alternative function 2
+    BCM2835_FSEL_ALT3 = 0b111,///< Alternative function 3
+    BCM2835_FSEL_ALT4 = 0b011,///< Alternative function 4
+    BCM2835_FSEL_ALT5 = 0b010 ///< Alternative function 5
 } bcm2835_fsel_t;
 
 ///
