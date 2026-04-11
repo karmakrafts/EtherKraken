@@ -54,7 +54,40 @@
         }
       },
       "diff_pair_dimensions": [],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        [
+          "solder_mask_bridge|48354591|50255334|e1783d1f-5171-4bda-a6a9-0ed5af749285|26791ebb-a68c-4ed5-8fb9-5e14a2ddc4b5",
+          ""
+        ],
+        [
+          "solder_mask_bridge|48354591|50255334|e1783d1f-5171-4bda-a6a9-0ed5af749285|70b65e57-ca1b-451c-a53d-c8657da6d4b9",
+          ""
+        ],
+        [
+          "solder_mask_bridge|48354591|50255334|e1783d1f-5171-4bda-a6a9-0ed5af749285|809ba6c8-f0b2-43bc-80f6-a6c317e0dd76",
+          ""
+        ],
+        [
+          "solder_mask_bridge|48354591|50255334|e1783d1f-5171-4bda-a6a9-0ed5af749285|db623056-76aa-49d8-b879-c38ee1a9ca12",
+          ""
+        ],
+        [
+          "solder_mask_bridge|51344221|66544127|e1783d1f-5171-4bda-a6a9-0ed5af749285|26791ebb-a68c-4ed5-8fb9-5e14a2ddc4b5",
+          ""
+        ],
+        [
+          "solder_mask_bridge|51344221|66544127|e1783d1f-5171-4bda-a6a9-0ed5af749285|db623056-76aa-49d8-b879-c38ee1a9ca12",
+          ""
+        ],
+        [
+          "solder_mask_bridge|52824410|65372510|e1783d1f-5171-4bda-a6a9-0ed5af749285|26791ebb-a68c-4ed5-8fb9-5e14a2ddc4b5",
+          ""
+        ],
+        [
+          "solder_mask_bridge|52824410|65372510|e1783d1f-5171-4bda-a6a9-0ed5af749285|db623056-76aa-49d8-b879-c38ee1a9ca12",
+          ""
+        ]
+      ],
       "meta": {
         "version": 2
       },
@@ -700,6 +733,12 @@
           "label": "Mouser Part Number",
           "name": "Mouser Part Number",
           "show": false
+        },
+        {
+          "group_by": false,
+          "label": "Sim.Device",
+          "name": "Sim.Device",
+          "show": false
         }
       ],
       "filter_string": "",
@@ -764,7 +803,7 @@
         "uuid": "24d792cb-f1c0-4cb4-8e9c-44b3cdeb14bb"
       }
     ],
-    "used_designators": "U6",
+    "used_designators": "",
     "variants": []
   },
   "sheets": [
