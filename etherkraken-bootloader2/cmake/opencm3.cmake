@@ -17,6 +17,13 @@ add_custom_target(libopencm3_genlink
         COMMAND bash ./genlink.sh ${libopencm3_SOURCE_DIR} ${MCU_TYPE}
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+execute_process(COMMAND bash ./gendefs.sh ${libopencm3_SOURCE_DIR} ${MCU_TYPE}
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE HARDWARE_DEFS_STRING)
+separate_arguments(HARDWARE_DEFS NATIVE_COMMAND "${HARDWARE_DEFS_STRING}")
+message(STATUS "Using hardware definitions: ${HARDWARE_DEFS}")
+add_compile_definitions(${HARDWARE_DEFS})
+
 set(OPENCM3_LIBS "${libopencm3_SOURCE_DIR}/lib/libopencm3_stm32${MCU_FAMILY}.a")
 set(OPENCM3_INCLUDES "${libopencm3_SOURCE_DIR}/include")
 set(OPENCM3_LD_DIR "${libopencm3_SOURCE_DIR}/lib")
