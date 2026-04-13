@@ -1,0 +1,39 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "bootloader2-debug",
+      "displayName": "BL2 Debug",
+      "description": "Cross-compilation for EtherKraken co-processor bootloader2",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/debug",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/embedded-toolchain.cmake",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "bootloader2-release",
+      "displayName": "BL2 Release",
+      "description": "Cross-compilation for EtherKraken co-processor bootloader2",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/release",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/embedded-toolchain.cmake",
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "bootloader2-debug",
+      "displayName": "BL2 Debug",
+      "configurePreset": "bootloader2-debug"
+    },
+    {
+      "name": "bootloader2-release",
+      "displayName": "BL2 Release",
+      "configurePreset": "bootloader2-release"
+    }
+  ]
+}

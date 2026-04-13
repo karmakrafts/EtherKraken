@@ -1,0 +1,18 @@
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_PROCESSOR arm)
+set(CMAKE_CROSSCOMPILING TRUE)
+
+set(CMAKE_ASM_COMPILER clang-20)
+set(CMAKE_C_COMPILER clang-20)
+set(CMAKE_CXX_COMPILER clang++-20)
+set(CMAKE_OBJCOPY llvm-objcopy-20)
+set(CMAKE_SIZE llvm-size-20)
+
+set(CMAKE_C_FLAGS "-march=armv6-m -mcpu=cortex-m0 -mthumb")
+set(CMAKE_CXX_FLAGS "-march=armv6-m -mcpu=cortex-m0 -mthumb")
+set(CMAKE_C_COMPILER_TARGET "arm-none-eabi")
+set(CMAKE_CXX_COMPILER_TARGET "arm-none-eabi")
+set(CMAKE_EXE_LINKER_FLAGS "-fuse-ld=lld-20 --target=arm-none-eabi -nostdlib")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
+set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
