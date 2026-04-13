@@ -21,12 +21,13 @@ target_link_options(bootloader2 PRIVATE
         -Wl,--gc-sections
         -Wl,-T${CMAKE_SOURCE_DIR}/linker.ld)
 target_link_libraries(bootloader2 PRIVATE opencm3)
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
     target_compile_options(bootloader2 PRIVATE -g -O0)
-else()
+else ()
     target_compile_options(bootloader2 PRIVATE -O3)
-endif()
+endif ()
 
 add_custom_command(TARGET bootloader2 POST_BUILD
-    COMMAND ${CMAKE_OBJCOPY} -O binary bootloader2 bootloader2.bin
-    COMMAND ${CMAKE_OBJCOPY} -O ihex bootloader2 bootloader2.hex)
+        COMMAND ${CMAKE_OBJCOPY} -O binary bootloader2 bootloader2.bin
+        COMMAND ${CMAKE_OBJCOPY} -O ihex bootloader2 bootloader2.hex)

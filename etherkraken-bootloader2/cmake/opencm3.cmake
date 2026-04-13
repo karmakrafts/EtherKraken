@@ -10,7 +10,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(libopencm3)
 
 add_custom_target(libopencm3_build
-        COMMAND make TARGETS=stm32/${MCU_FAMILY} -j ${NUM_THREADS}
+        COMMAND ${CMAKE_MAKE_PROGRAM} TARGETS=stm32/${MCU_FAMILY} -j ${NUM_THREADS}
         WORKING_DIRECTORY ${libopencm3_SOURCE_DIR})
 
 add_custom_target(libopencm3_genlink
