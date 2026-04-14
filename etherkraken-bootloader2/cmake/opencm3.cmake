@@ -4,9 +4,14 @@ include(ProcessorCount)
 ProcessorCount(NUM_THREADS)
 message("Using ${NUM_THREADS} threads for building")
 
+find_program(ARM_GCC_EXECUTABLE arm-none-eabi-gcc)
+if ("${ARM_GCC_EXECUTABLE}" STREQUAL "ARM_GCC_EXECUTABLE-NOTFOUND")
+    message(FATAL_ERROR "libopencm3 CMake support requires arm-none-eabi-gcc!")
+endif ()
+
 find_program(PYTHON_EXECUTABLE /usr/bin/python3 /usr/bin/python python3 python)
 if ("${PYTHON_EXE}" STREQUAL "PYTHON_EXECUTABLE-NOTFOUND")
-    message(FATAL_ERROR "Libopencm3 CMake support requires Python!")
+    message(FATAL_ERROR "libopencm3 CMake support requires Python!")
 endif ()
 
 include(FetchContent)
@@ -41,7 +46,7 @@ add_custom_target(libopencm3_build
 
 set(_LINKER_SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/linker.ld")
 string(REPLACE " " ";" _PREPRO_MCU_DEFS ${_MCU_DEFS})
-add_custom_target(libopencm3_genlink COMMAND arm-none-eabi-gcc
+add_custom_target(libopencm3_genlink COMMAND ${ARM_GCC_EXECUTABLE}
         ${_PREPRO_MCU_DEFS}
         -P -E ${libopencm3_SOURCE_DIR}/ld/linker.ld.S
         -o ${_LINKER_SCRIPT})
@@ -61,14 +66,14 @@ set(OPENCM3_INCLUDES "${libopencm3_SOURCE_DIR}/include")
 set(OPENCM3_LD_DIR "${libopencm3_SOURCE_DIR}/lib")
 
 # Find location of libgcc.a for builtin intrinsics
-execute_process(COMMAND arm-none-eabi-gcc -print-libgcc-file-name
+execute_process(COMMAND ${ARM_GCC_EXECUTABLE} -print-libgcc-file-name
         OUTPUT_VARIABLE _LIBGCC_FILE)
 string(STRIP "${_LIBGCC_FILE}" _LIBGCC_FILE)
 get_filename_component(_LIBGCC_DIR "${_LIBGCC_FILE}" DIRECTORY)
 message(STATUS "Linking against libgcc from ${_LIBGCC_FILE}")
 
 # Find location of libc_nano.a for MORE builtin intrinsics
-execute_process(COMMAND arm-none-eabi-gcc -print-file-name=libc_nano.a
+execute_process(COMMAND ${ARM_GCC_EXECUTABLE} -print-file-name=libc_nano.a
         OUTPUT_VARIABLE _LIBC_FILE)
 string(STRIP "${_LIBC_FILE}" _LIBC_FILE)
 cmake_path(NORMAL_PATH _LIBC_FILE
