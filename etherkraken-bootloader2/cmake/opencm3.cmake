@@ -10,6 +10,7 @@ if ("${PYTHON_EXE}" STREQUAL "PYTHON_EXECUTABLE-NOTFOUND")
 endif ()
 
 include(FetchContent)
+
 FetchContent_Declare(
         libopencm3
         GIT_REPOSITORY https://github.com/libopencm3/libopencm3.git
@@ -58,6 +59,23 @@ string(REPLACE "/" "" clean_mcu_family "${MCU_FAMILY}")
 set(OPENCM3_LIBS "${libopencm3_SOURCE_DIR}/lib/libopencm3_${clean_mcu_family}.a")
 set(OPENCM3_INCLUDES "${libopencm3_SOURCE_DIR}/include")
 set(OPENCM3_LD_DIR "${libopencm3_SOURCE_DIR}/lib")
+
+# Find location of libgcc.a for builtin intrinsics
+execute_process(COMMAND arm-none-eabi-gcc -print-libgcc-file-name
+        OUTPUT_VARIABLE _LIBGCC_FILE)
+string(STRIP "${_LIBGCC_FILE}" _LIBGCC_FILE)
+get_filename_component(_LIBGCC_DIR "${_LIBGCC_FILE}" DIRECTORY)
+message(STATUS "Linking against libgcc from ${_LIBGCC_FILE}")
+
+# Find location of libc_nano.a for MORE builtin intrinsics
+execute_process(COMMAND arm-none-eabi-gcc -print-file-name=libc_nano.a
+        OUTPUT_VARIABLE _LIBC_FILE)
+string(STRIP "${_LIBC_FILE}" _LIBC_FILE)
+cmake_path(NORMAL_PATH _LIBC_FILE
+        OUTPUT_VARIABLE _LIBC_FILE)
+get_filename_component(_LIBC_DIR "${_LIBC_FILE}" DIRECTORY)
+message(STATUS "Linking against libc from ${_LIBC_FILE}")
+
 add_library(opencm3 STATIC IMPORTED)
 target_compile_definitions(opencm3 INTERFACE ${HARDWARE_DEFS})
 set_target_properties(opencm3 PROPERTIES
@@ -65,8 +83,15 @@ set_target_properties(opencm3 PROPERTIES
         INTERFACE_INCLUDE_DIRECTORIES "${OPENCM3_INCLUDES}")
 set_property(TARGET opencm3
         PROPERTY INTERFACE_LINK_OPTIONS
-        -Wl,-T${_LINKER_SCRIPT} -Wl,--gc-sections -nostdlib)
+        -L${_LIBGCC_DIR}
+        -L${_LIBC_DIR}
+        -l:libgcc.a
+        -l:libc_nano.a
+        -Wl,-T${_LINKER_SCRIPT}
+        -nostdlib
+        -Wl,--gc-sections)
 set_property(TARGET opencm3
         PROPERTY INTERFACE_COMPILE_OPTIONS
-        -ffunction-sections -fdata-sections)
+        -ffunction-sections
+        -fdata-sections)
 add_dependencies(opencm3 libopencm3_build libopencm3_genlink)
