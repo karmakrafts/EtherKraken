@@ -28,8 +28,7 @@ function(_genlink DEVICE PROPERTY OUTPUT)
             ${libopencm3_SOURCE_DIR}/ld/devices.data
             ${DEVICE} ${PROPERTY}
             OUTPUT_VARIABLE OUT_DATA
-            RESULT_VARIABLE SUCCESS
-    )
+            RESULT_VARIABLE SUCCESS)
     if ("${SUCCESS}" EQUAL "0")
         message(DEBUG ">> ${OUT_DATA}")
         set("${OUTPUT}" "${OUT_DATA}" PARENT_SCOPE)

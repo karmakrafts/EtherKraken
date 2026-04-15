@@ -30,19 +30,13 @@
  *      copy the received binary blob to the internal flash
  */
 
-#include "bl2_protocol.h"
-#include "uart.h"
-
-static void send_ack() {
-    const bl2_c2m_command_packet_t packet = {// clang-format off
-        .type = BL2_C2M_PACKET_TYPE_COMMAND,
-        .command = BL2_C2M_COMMAND_ACK
-    };// clang-format on
-    uart_write(&packet, sizeof(packet));
-}
+#include "bl2_cpu.h"
+#include "bl2_uart.h"
 
 int main() {
-    uart_init();// We take over the UART from the ROM bootloader
-    send_ack(); // Let main processor know we started up
-    return 0;
+    bl2_uart_init();// We take over the UART from the ROM bootloader
+    while(true) {
+        // TODO: handle UART commands from main processor
+        bl2_wfi();// Wait for next interrupt
+    }
 }

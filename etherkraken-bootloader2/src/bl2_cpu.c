@@ -12,13 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef BOOTLOADER2_UART_H
-#define BOOTLOADER2_UART_H
+#include "bl2_cpu.h"
 
-#include <stdint.h>
-
-void uart_init();
-bool uart_try_write(const void* data, uint32_t size);
-void uart_write(const void* data, uint32_t size);
-
-#endif//BOOTLOADER2_UART_H
+BL2_NOOPT void bl2_wfi() {
+    asm volatile("wfi");
+}
