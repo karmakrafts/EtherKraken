@@ -37,6 +37,7 @@ typedef struct bl2_m2c_boot_packet {
 
 typedef struct bl2_m2c_flash_packet {
     bl2_m2c_packet_type_t type;
+    uint8_t data[BL2_CHUNK_SIZE];
 } bl2_m2c_flash_packet_t;
 
 typedef struct bl2_m2c_packet {
@@ -63,6 +64,7 @@ typedef struct bl2_c2m_ack_packet {
 
 typedef struct bl2_c2m_crash_packet {
     bl2_c2m_packet_type_t type;
+    // TODO: fill in crash information
 } bl2_c2m_crash_packet_t;
 
 typedef struct bl2_c2m_packet {
