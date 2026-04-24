@@ -4144,9 +4144,9 @@
 		)
 		(uuid "4f035e40-ec03-4ba6-bceb-f312fd486870")
 	)
-	(text "Clean earth should be connected to the \nchassis through a 1nF/Y2 capacitor to \ncreate a clean star grounding path for EMI"
+	(text "Clean earth should be connected to the \ndigital ground (GND) through a 1nF/Y2 capacitor to \ncreate a clean star grounding path for EMI"
 		(exclude_from_sim no)
-		(at 191.77 66.802 0)
+		(at 176.784 66.548 0)
 		(effects
 			(font
 				(size 1.27 1.27)
