@@ -1992,24 +1992,6 @@
 		(at 106.68 88.9)
 		(uuid "2817be28-bf90-4653-889e-d83ae4c7b789")
 	)
-	(bus_entry
-		(at 62.23 78.74)
-		(size 2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "33775c6f-7635-4ae9-83fc-7cb8c9ece0ed")
-	)
-	(bus_entry
-		(at 62.23 81.28)
-		(size 2.54 2.54)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fc251209-9cee-4888-a354-4b6026322caf")
-	)
 	(wire
 		(pts
 			(xy 196.85 87.63) (xy 199.39 87.63)
@@ -2049,6 +2031,16 @@
 			(type default)
 		)
 		(uuid "037fc969-fa3d-4e28-8979-b52efe052190")
+	)
+	(wire
+		(pts
+			(xy 57.15 83.82) (xy 106.68 83.82)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "07178a0d-1bc1-443d-9f10-5e543b236a14")
 	)
 	(wire
 		(pts
@@ -2202,16 +2194,6 @@
 	)
 	(wire
 		(pts
-			(xy 64.77 81.28) (xy 106.68 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3317c3e7-640c-446e-806b-23e4c286ea26")
-	)
-	(wire
-		(pts
 			(xy 199.39 90.17) (xy 199.39 87.63)
 		)
 		(stroke
@@ -2300,15 +2282,15 @@
 		)
 		(uuid "57be1271-fd28-4da1-a7c6-d48ec0e14ad2")
 	)
-	(bus
+	(wire
 		(pts
-			(xy 55.88 76.2) (xy 62.23 76.2)
+			(xy 57.15 81.28) (xy 106.68 81.28)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "5add9cdf-292a-4ac9-8ab8-5a52d2a7a578")
+		(uuid "5e8366ba-472f-4714-b8ca-5a0eb93fa614")
 	)
 	(wire
 		(pts
@@ -2409,16 +2391,6 @@
 			(type default)
 		)
 		(uuid "7dc5b961-8a67-46a2-89ea-97328b809897")
-	)
-	(bus
-		(pts
-			(xy 62.23 76.2) (xy 62.23 81.28)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "811cd6f8-4296-402d-99a9-3b0c485822d4")
 	)
 	(wire
 		(pts
@@ -2592,16 +2564,6 @@
 	)
 	(wire
 		(pts
-			(xy 64.77 83.82) (xy 106.68 83.82)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c1354414-eafb-4e9d-a0db-5a81d303a2fb")
-	)
-	(wire
-		(pts
 			(xy 158.75 113.03) (xy 158.75 115.57)
 		)
 		(stroke
@@ -2710,16 +2672,16 @@
 		)
 		(uuid "878f9a9e-6808-42dc-a264-c389c9fa8ca5")
 	)
-	(hierarchical_label "MP"
-		(shape bidirectional)
-		(at 55.88 76.2 180)
+	(hierarchical_label "SCL"
+		(shape input)
+		(at 57.15 83.82 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
-		(uuid "44ef8192-2c98-4a5c-9fa6-8e32c66f54b0")
+		(uuid "765b099e-d588-4be6-a2ca-3bf044da1ce4")
 	)
 	(hierarchical_label "VCC5"
 		(shape input)
@@ -2742,6 +2704,17 @@
 			(justify right)
 		)
 		(uuid "aca5d884-92fc-4438-9c2f-61edefc36c3d")
+	)
+	(hierarchical_label "SDA"
+		(shape bidirectional)
+		(at 57.15 81.28 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "c477735a-b697-43ad-a77b-ef6ff6f9e5be")
 	)
 	(symbol
 		(lib_id "Transistor_BJT:MMBT2222A")
